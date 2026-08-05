@@ -22,7 +22,7 @@ This stage reviews **only the current changes** for a unit after Code Generation
 
 ## Step 1: Log Stage Start
 
-- [ ] Log start of Code Reviewer in `aidlc-docs/audit.md` with ISO 8601 timestamp
+- [ ] Log start of Code Reviewer in `aidlc-docs/audit.md` with ISO 8601 IST timestamp
 - [ ] Record unit name and that the review base is `origin/main`
 
 
@@ -186,7 +186,7 @@ Other (if selected):
   - **Fix the review comments** → continuation outcome `Fix the review comments` (Code Generation returns to Step 11, then re-runs Code Reviewer)
   - **Continue without fixing** → continuation outcome `Continue without fixing` (log residual-risk acceptance in `aidlc-docs/audit.md`)
   - **Other** → continuation outcome `Other` (follow the user's description; clarify in `code-review.md` if ambiguous)
-- [ ] Log the user's selected option (complete raw checkbox state) with ISO 8601 timestamp in `aidlc-docs/audit.md`
+- [ ] Log the user's selected option (complete raw checkbox state) with ISO 8601 IST timestamp in `aidlc-docs/audit.md`
 
 
 

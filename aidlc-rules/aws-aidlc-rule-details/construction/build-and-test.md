@@ -429,13 +429,14 @@ Present completion message in this structure:
 
 1. Use a single markdown table for all stage entries (do not append free-form blocks).
 2. Append one row per Build and Test execution.
-3. Use ISO 8601 UTC timestamp.
-4. Keep status values normalized: `Success|Failed` and `Pass|Fail|N/A`.
-5. Include coverage and Gherkin verification outcomes in dedicated columns.
+3. Use ISO 8601 IST timestamp (`YYYY-MM-DDTHH:mm:ss+05:30`).
+4. Include **User** (actor) as the user name only — never include email.
+5. Keep status values normalized: `Success|Failed` and `Pass|Fail|N/A`.
+6. Include coverage and Gherkin verification outcomes in dedicated columns.
 
-| Timestamp (UTC) | Stage | Build Status | Test Status | Coverage Gates | Gherkin Verification | Summary Report | Files Generated |
-|-----------------|-------|--------------|-------------|----------------|----------------------|----------------|-----------------|
-| [2026-08-04T12:34:56Z] | Build and Test | [Success/Failed] | [Pass/Fail] | [Pass/Fail] | [Pass/Fail] | [aidlc-docs/construction/build-and-test/build-and-test-summary.md] | [build-instructions.md; unit-test-instructions.md; integration-test-instructions.md; performance-test-instructions.md; build-and-test-summary.md] |
+| Timestamp (IST) | User | Stage | Build Status | Test Status | Coverage Gates | Gherkin Verification | Summary Report | Files Generated |
+|-----------------|------|-------|--------------|-------------|----------------|----------------------|----------------|-----------------|
+| [2026-08-04T18:04:56+05:30] | [User name only] | Build and Test | [Success/Failed] | [Pass/Fail] | [Pass/Fail] | [Pass/Fail] | [aidlc-docs/construction/build-and-test/build-and-test-summary.md] | [build-instructions.md; unit-test-instructions.md; integration-test-instructions.md; performance-test-instructions.md; build-and-test-summary.md] |
 
 ---
 ```

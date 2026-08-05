@@ -102,7 +102,7 @@ This stage generates code for each unit of work using **Test-Driven Development 
 ## Step 6: Log Approval Prompt
 - [ ] Before asking for approval, log the prompt with timestamp in `aidlc-docs/audit.md`
 - [ ] Include reference to the complete unit TDD code generation plan
-- [ ] Use ISO 8601 timestamp format
+- [ ] Use ISO 8601 IST timestamp format (`YYYY-MM-DDTHH:mm:ss+05:30`)
 
 ## Step 7: Wait for Explicit Approval
 - [ ] Do not proceed until the user explicitly approves the unit TDD code generation plan
@@ -197,7 +197,7 @@ This stage generates code for each unit of work using **Test-Driven Development 
   - **Fix the review comments** → proceed to Step 11 (via Step 10 as needed) using TDD (prefer Red that captures the finding), then re-run Steps 15–16 as needed
   - **Continue without fixing** or **Approve (no findings)** → proceed to Step 17
   - **Other** → follow the outcome described by the reviewer
-- [ ] Log that Code Reviewer was invoked and the continuation outcome in `aidlc-docs/audit.md` with ISO 8601 timestamp
+- [ ] Log that Code Reviewer was invoked and the continuation outcome in `aidlc-docs/audit.md` with ISO 8601 IST timestamp
 
 ## Step 17: Present Completion Message
 - Present completion message in this structure:

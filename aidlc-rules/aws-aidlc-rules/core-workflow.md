@@ -488,7 +488,7 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
 - **User request (raw, if any)**: "[complete raw user text or N/A]"
 ```
 
-   - **MANDATORY — Log generation method** in `aidlc-docs/audit.md` with ISO 8601 timestamp, method, rule file, and whether it was default or explicit user request (include complete raw user input when they requested Standard)
+   - **MANDATORY — Log generation method** in `aidlc-docs/audit.md` with ISO 8601 IST timestamp, method, rule file, and whether it was default or explicit user request (include complete raw user input when they requested Standard)
 3. Load all steps from the selected rule file:
    - **TDD (default)**: `construction/tdd-code-generation.md`
    - **Standard (opt-in)**: `construction/code-generation.md`
@@ -574,13 +574,15 @@ The Operations stage will eventually include:
 - **MANDATORY**: Record every user response with timestamp after receiving it
 - **CRITICAL**: ALWAYS append changes to EDIT audit.md file, NEVER use tools and commands that completely overwrite its contents
 - **CRITICAL**: NEVER use file writing tools and commands that overwrite the entire contents of audit.md, as this causes duplication
-- Use ISO 8601 format for timestamps (YYYY-MM-DDTHH:MM:SSZ)
+- Use ISO 8601 format for timestamps in **IST** (`YYYY-MM-DDTHH:mm:ss+05:30`)
+- Include **User** (actor) as the user name only — never include email (resolve from `git config user.name` or OS username)
 - Include stage context for each entry
 
 ### Audit Log Format:
 ```markdown
 ## [Stage Name or Interaction Type]
-**Timestamp**: [ISO timestamp]
+**Timestamp**: [ISO 8601 IST, e.g. 2026-08-05T16:32:00+05:30]
+**User**: [User name only — do not include email]
 **User Input**: "[Complete raw user input - never summarized]"
 **AI Response**: "[AI's response or action taken]"
 **Context**: [Stage, action, or decision made]

@@ -211,7 +211,7 @@ If the analysis in step 9 reveals ANY ambiguous answers, you MUST:
 ## Step 12: Log Approval Prompt
 - Before asking for approval, log the prompt with timestamp in `aidlc-docs/audit.md`
 - Include the complete approval prompt text
-- Use ISO 8601 timestamp format
+- Use ISO 8601 IST timestamp format (`YYYY-MM-DDTHH:mm:ss+05:30`)
 
 ## Step 13: Wait for Explicit Approval of Plan
 - Do not proceed until the user explicitly approves the story approach
@@ -251,7 +251,7 @@ If the analysis in step 9 reveals ANY ambiguous answers, you MUST:
 ## Step 19: Log Approval Prompt
 - Before asking for approval, log the prompt with timestamp in `aidlc-docs/audit.md`
 - Include the complete approval prompt text
-- Use ISO 8601 timestamp format
+- Use ISO 8601 IST timestamp format (`YYYY-MM-DDTHH:mm:ss+05:30`)
 
 ## Step 20: Present Completion Message
 - Present completion message in this structure:

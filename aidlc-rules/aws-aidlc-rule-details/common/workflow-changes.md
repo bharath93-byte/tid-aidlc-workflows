@@ -260,7 +260,8 @@ User requests change
 
 ```markdown
 ## Change Request - [Stage Name]
-**Timestamp**: [ISO timestamp]
+**Timestamp**: [ISO 8601 IST, e.g. 2026-08-05T16:32:00+05:30]
+**User**: [User name only — do not include email]
 **Request**: [What user wants to change]
 **Current State**: [Where we are in workflow]
 **Impact Assessment**: [What will be affected]

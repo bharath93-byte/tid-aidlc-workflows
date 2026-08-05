@@ -486,7 +486,8 @@ Log in `aidlc-docs/audit.md`:
 
 ```markdown
 ## Workflow Planning - Approval
-**Timestamp**: [ISO timestamp]
+**Timestamp**: [ISO 8601 IST, e.g. 2026-08-05T16:32:00+05:30]
+**User**: [User name only — do not include email]
 **AI Prompt**: "Ready to proceed with this plan?"
 **User Response**: "[User's COMPLETE RAW response]"
 **Code Generation Method**: "[TDD | Standard] — rule file: [path] — selected by: [default | explicit user request]"

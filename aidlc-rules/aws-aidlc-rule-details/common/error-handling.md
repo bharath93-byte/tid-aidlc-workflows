@@ -341,7 +341,8 @@
 
 ```markdown
 ## Error - [Stage Name]
-**Timestamp**: [ISO timestamp]
+**Timestamp**: [ISO 8601 IST, e.g. 2026-08-05T16:32:00+05:30]
+**User**: [User name only — do not include email]
 **Error Type**: [Critical/High/Medium/Low]
 **Description**: [What went wrong]
 **Cause**: [Why it happened]
@@ -355,7 +356,8 @@
 
 ```markdown
 ## Recovery - [Stage Name]
-**Timestamp**: [ISO timestamp]
+**Timestamp**: [ISO 8601 IST, e.g. 2026-08-05T16:32:00+05:30]
+**User**: [User name only — do not include email]
 **Issue**: [What needed recovery]
 **Recovery Steps**: [What was done]
 **Outcome**: [Result of recovery]

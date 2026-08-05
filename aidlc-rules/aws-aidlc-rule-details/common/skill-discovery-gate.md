@@ -33,7 +33,8 @@
 
 ```markdown
 ## [Stage Name] — Skill Selection
-**Timestamp**: [ISO timestamp]
+**Timestamp**: [ISO 8601 IST, e.g. 2026-08-05T16:32:00+05:30]
+**User**: [User name only — do not include email]
 **User Input**: "[Complete raw answer from skill-selection file]"
 **AI Response**: "[Resolved: standard rules | <skill-name> | <skill-path>]"
 **Context**: Skill gate for [phase]/[stage-name]

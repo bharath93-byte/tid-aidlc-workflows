@@ -98,5 +98,5 @@ aidlc-docs/
 - The `build-and-test/` directory always includes `build-and-test-summary.md`. The individual instruction files (`build-instructions.md`, `unit-test-instructions.md`, `integration-test-instructions.md`, etc.) are generated based on project complexity and testing needs.
 - Plans in `inception/plans/` and `construction/plans/` contain `[Answer]:` tags where users provide input, and `[ ]`/`[x]` checkboxes that track execution progress.
 - Application code is never placed inside `aidlc-docs/` — it goes to the workspace root. Only markdown documentation lives here.
-- The `audit.md` file is append-only and captures every interaction with ISO 8601 timestamps.
+- The `audit.md` file is append-only and captures every interaction with ISO 8601 IST timestamps (`+05:30`) and a **User** (actor) field using the user name only (no email).
 - The `aidlc-state.md` file tracks which stages have been completed, skipped, or are in progress, along with extension configuration.

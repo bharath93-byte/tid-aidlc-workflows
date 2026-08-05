@@ -109,7 +109,7 @@ If the analysis in step 8 reveals ANY ambiguous answers, you MUST:
 ### 11. Log Approval
 - Log approval prompt with timestamp in `aidlc-docs/audit.md`
 - Include complete approval prompt text
-- Use ISO 8601 timestamp format
+- Use ISO 8601 IST timestamp format (`YYYY-MM-DDTHH:mm:ss+05:30`)
 
 ### 12. Present Completion Message
 

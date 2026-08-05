@@ -107,7 +107,7 @@ If the analysis in step 7 reveals ANY ambiguous answers, you MUST:
 
 ## Step 10: Log Approval
 - Log prompt and response in audit.md with timestamp
-- Use ISO 8601 timestamp format
+- Use ISO 8601 IST timestamp format (`YYYY-MM-DDTHH:mm:ss+05:30`)
 - Include complete approval prompt text
 
 ## Step 11: Update Progress

@@ -82,7 +82,7 @@ This stage generates code for each unit of work through two integrated parts:
 ## Step 6: Log Approval Prompt
 - [ ] Before asking for approval, log the prompt with timestamp in `aidlc-docs/audit.md`
 - [ ] Include reference to the complete unit code generation plan
-- [ ] Use ISO 8601 timestamp format
+- [ ] Use ISO 8601 IST timestamp format (`YYYY-MM-DDTHH:mm:ss+05:30`)
 
 ## Step 7: Wait for Explicit Approval
 - [ ] Do not proceed until the user explicitly approves the unit code generation plan
@@ -142,7 +142,7 @@ This stage generates code for each unit of work through two integrated parts:
     - **Fix the review comments** → proceed to Step 11 (via Step 10 as needed), then re-run Step 13
     - **Continue without fixing** or **Approve (no findings)** → proceed to Step 14
     - **Other** → follow the outcome described by the reviewer
-- [ ] Log that Code Reviewer was invoked and the continuation outcome in `aidlc-docs/audit.md` with ISO 8601 timestamp
+- [ ] Log that Code Reviewer was invoked and the continuation outcome in `aidlc-docs/audit.md` with ISO 8601 IST timestamp
 
 ## Step 14: Continue or Complete Generation
 - [ ] If more generation plan steps remain, return to Step 10
