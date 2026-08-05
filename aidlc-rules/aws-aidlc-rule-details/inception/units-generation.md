@@ -5,7 +5,7 @@ This stage decomposes the system into manageable units of work through two integ
 - **Part 1 - Planning**: Create decomposition plan with questions, collect answers, analyze for ambiguities, get approval
 - **Part 2 - Generation**: Execute approved plan to generate unit artifacts
 
-**DEFINITION**: A unit of work is a logical grouping of stories for development purposes. For microservices, each unit becomes an independently deployable service. For monoliths, the single unit represents the entire application with logical modules.
+**DEFINITION**: A unit of work is a functionally split, agile delivery slice that is independently deployable and independently testable. Default behavior is to create multiple units aligned to business capabilities; do not collapse the full system into one catch-all unit unless the user explicitly approves an exception.
 
 **Terminology**: Use "Service" for independently deployable components, "Module" for logical groupings within a service, "Unit of Work" for planning context.
 
@@ -28,9 +28,17 @@ This stage decomposes the system into manageable units of work through two integ
 ## Step 2: Include Mandatory Unit Artifacts in Plan
 **ALWAYS** include these mandatory artifacts in the unit plan:
 - [ ] Generate `aidlc-docs/inception/application-design/unit-of-work.md` with unit definitions and responsibilities
+- [ ] **Single-file rule**: Create `unit-of-work.md` once, then update the same file in place (do not create duplicates or alternate versions)
+- [ ] Structure `unit-of-work.md` to include Gherkin scenarios per unit and explicit acceptance criteria
 - [ ] Generate `aidlc-docs/inception/application-design/unit-of-work-dependency.md` with dependency matrix
 - [ ] Generate `aidlc-docs/inception/application-design/unit-of-work-story-map.md` mapping stories to units
 - [ ] **Greenfield only**: Document code organization strategy in `unit-of-work.md` (see code-generation.md for structure patterns)
+- [ ] Ensure every unit has at least one `Feature` and one `Scenario` in Gherkin format
+- [ ] Ensure every Gherkin scenario includes mapped acceptance criteria (AC IDs and measurable outcomes)
+- [ ] Ensure each unit has a clear functional boundary (business capability based, not technical-layer based)
+- [ ] Ensure each unit defines independent deployability details (artifact, deploy target, release boundary)
+- [ ] Ensure each unit defines independent testability details (unit/integration/e2e entry points)
+- [ ] Write unit and story descriptions in plain language understandable by product stakeholders and end users
 - [ ] Validate unit boundaries and dependencies
 - [ ] Ensure all stories are assigned to units
 
@@ -52,7 +60,13 @@ This stage decomposes the system into manageable units of work through two integ
 - **Team Alignment** - Ask about team structure, ownership boundaries, and collaboration models
 - **Technical Considerations** - Ask about scalability/deployment requirements that may differ across units
 - **Business Domain** - Ask about domain boundaries, bounded contexts, and business capability alignment
+- **Functional Split Strategy** - Ask how to split units by business capability for agile delivery increments
+- **Deployability Constraints** - Ask what makes each unit independently deployable (pipeline, artifact, environment)
+- **Testability Strategy** - Ask how each unit is independently testable (test scope, fixtures, isolation)
 - **Code Organization (Greenfield multi-unit only)** - Ask about deployment model and directory structure preferences
+- **Behavior Specification** - Ask how each unit should be represented as Gherkin `Feature`/`Scenario` statements
+- **Acceptance Criteria** - Ask for scenario-level acceptance criteria format (AC IDs, pass conditions, non-functional constraints)
+- **Audience Readability** - Ask for preferred terminology and reading level for product and end-user friendly descriptions
 
 ## Step 4: Store UOW Plan
 - Save as `aidlc-docs/inception/plans/unit-of-work-plan.md`
@@ -115,6 +129,31 @@ If the analysis in step 7 reveals ANY ambiguous answers, you MUST:
 - [ ] Generate unit artifacts as specified in the plan
 - [ ] Follow the approved decomposition approach from Planning
 - [ ] Use the criteria and boundaries specified in the plan
+- [ ] Ensure each generated unit is a separate deployable and testable functional slice
+- [ ] For each unit, generate Gherkin with this minimum structure:
+
+```gherkin
+Feature: [Unit of Work Name]
+  As a [role]
+  I want [capability]
+  So that [business outcome]
+
+  Scenario: [Primary behavior]
+    Given [initial state]
+    When [action]
+    Then [observable outcome]
+```
+
+- [ ] Use layman-friendly wording in `Feature` and `Scenario` names; avoid internal jargon where plain words are possible
+- [ ] If technical terms are unavoidable, add a short plain-language explanation directly below the scenario
+
+- [ ] For each scenario, add acceptance criteria using this table format in `unit-of-work.md`:
+
+```markdown
+| AC ID | Unit | Scenario | Acceptance Criteria | Verification Method | Priority |
+|------|------|----------|---------------------|---------------------|----------|
+| AC-001 | [Unit Name] | [Scenario Name] | [Measurable expected behavior] | [Test/Review/Automation] | [Must/Should/Could] |
+```
 
 ## Step 14: Update Progress
 - [ ] Mark the completed step as [x] in the unit of work plan
@@ -169,6 +208,8 @@ If the analysis in step 7 reveals ANY ambiguous answers, you MUST:
 - Analyze all answers for ambiguities before proceeding
 - Resolve ALL ambiguities with follow-up questions
 - Get explicit user approval before generation
+- Plan units by functional business capabilities to support agile incremental delivery
+- Keep story language understandable for product stakeholders and end users
 
 ### Generation Phase Rules
 - **NO HARDCODED LOGIC**: Only execute what's written in the unit of work plan
@@ -176,13 +217,18 @@ If the analysis in step 7 reveals ANY ambiguous answers, you MUST:
 - **UPDATE CHECKBOXES**: Mark [x] immediately after completing each step
 - **USE APPROVED APPROACH**: Follow the decomposition methodology from Planning
 - **VERIFY COMPLETION**: Ensure all unit artifacts are complete before proceeding
+- **SINGLE ARTIFACT ENFORCEMENT**: Maintain exactly one `unit-of-work.md`; append/edit sections in place rather than creating additional unit-of-work files
+- **SEPARATE DEPLOYABLE + TESTABLE UNITS**: Every unit must be independently deployable and independently testable with explicit evidence in `unit-of-work.md`
+- **PLAIN LANGUAGE FIRST**: Story descriptions, feature names, and scenario titles must be understandable by non-technical readers
 
 ## Completion Criteria
 - All planning questions answered and ambiguities resolved
 - User approval obtained for the plan
 - All steps in unit of work plan marked [x]
 - All unit artifacts generated according to plan:
-  - `unit-of-work.md` with unit definitions
+  - `unit-of-work.md` with unit definitions, per-unit Gherkin scenarios, and acceptance criteria table
   - `unit-of-work-dependency.md` with dependency matrix
   - `unit-of-work-story-map.md` with story mappings
+- Every unit is functionally split and documented as independently deployable and independently testable
+- Unit story descriptions and Gherkin labels are written in layman-friendly language suitable for product and end-user review
 - Units verified and ready for per-unit design stages

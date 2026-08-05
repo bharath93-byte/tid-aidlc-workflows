@@ -8,7 +8,6 @@
 - Project is ready for build and testing
 
 ---
-
 ## Step 0: Skill Discovery & Selection (MANDATORY — do not skip on resume)
 - Execute `common/skill-discovery-gate.md` **before any other step in this stage**
 - Create `aidlc-docs/build-and-test-skill-selection.md`; wait for user to fill `[Answer]:` and confirm
@@ -19,11 +18,14 @@
 
 Analyze the project to determine appropriate testing strategy:
 - **Unit tests**: Already generated per unit during code generation
+- **TDD workflow**: Confirm red-green-refactor loop and failing-test-first workflow for any new fixes or enhancements
 - **Integration tests**: Test interactions between units/services
+- **Gherkin scenarios**: Validate business behavior with Given/When/Then scenarios and scenario-to-test traceability
 - **Performance tests**: Load, stress, and scalability testing
 - **End-to-end tests**: Complete user workflows
 - **Contract tests**: API contract validation between services
 - **Security tests**: Vulnerability scanning, penetration testing
+- **Coverage gates**: Define line/branch/function thresholds and enforcement commands for CI and local runs
 
 ---
 
@@ -78,12 +80,27 @@ Create `aidlc-docs/construction/build-and-test/build-instructions.md`:
 
 ---
 
-## Step 3: Generate Unit Test Execution Instructions
+## Step 3: Generate Unit Test and TDD Execution Instructions
 
 Create `aidlc-docs/construction/build-and-test/unit-test-instructions.md`:
 
 ```markdown
 # Unit Test Execution
+
+## TDD Workflow (Mandatory for New Changes)
+
+For each defect fix or enhancement:
+1. **Red**: Write or update a failing test first
+2. **Green**: Implement the smallest code change to pass
+3. **Refactor**: Improve code while keeping tests green
+4. **Re-run**: Execute full unit test suite and confirm no regressions
+
+Record each cycle in a short table:
+- Test name
+- Initial failure reason
+- Fix summary
+- Refactor summary
+- Final status
 
 ## Run Unit Tests
 
@@ -97,6 +114,20 @@ Create `aidlc-docs/construction/build-and-test/unit-test-instructions.md`:
 - **Expected**: [X] tests pass, 0 failures
 - **Test Coverage**: [Expected coverage percentage]
 - **Test Report Location**: [Path to test reports]
+
+### 2.1 Coverage Gate Verification (Mandatory)
+- **Line Coverage Target**: >= [X]%
+- **Branch Coverage Target**: >= [X]%
+- **Function Coverage Target**: >= [X]%
+- **Coverage Command**:
+
+\`\`\`bash
+[Command to produce coverage report and enforce thresholds]
+# Example: npm test -- --coverage, pytest --cov --cov-fail-under=85, mvn test jacoco:report
+\`\`\`
+
+- **Coverage Artifact(s)**: [coverage.xml/html path, lcov path, jacoco path]
+- **Gate Result**: [Pass/Fail]
 
 ### 3. Fix Failing Tests
 If tests fail:
@@ -119,6 +150,25 @@ Create `aidlc-docs/construction/build-and-test/integration-test-instructions.md`
 Test interactions between units/services to ensure they work together correctly.
 
 ## Test Scenarios
+
+Each integration scenario must include one or more Gherkin scenarios and a verification checklist.
+
+### Gherkin Scenario Template
+\`\`\`gherkin
+Feature: [Business capability]
+
+     Scenario: [Scenario title]
+          Given [initial context]
+          When [action/event]
+          Then [expected outcome]
+\`\`\`
+
+### Gherkin Verification Checklist (Mandatory)
+- Scenario title maps to an executable test name
+- Given preconditions are implemented in setup steps or fixtures
+- When action is represented by a concrete API/UI/service interaction
+- Then assertions validate observable outcomes (status, payload, state, side effects)
+- Pass/fail status is captured in summary report
 
 ### Scenario 1: [Unit A] → [Unit B] Integration
 - **Description**: [What is being tested]
@@ -156,6 +206,7 @@ Test interactions between units/services to ensure they work together correctly.
 - **Test Scenarios**: [List key integration test scenarios]
 - **Expected Results**: [Describe expected outcomes]
 - **Logs Location**: [Where to check logs]
+- **Gherkin Verification Result**: [Pass/Fail with scenario count]
 
 ### 3. Cleanup
 \`\`\`bash
@@ -248,10 +299,12 @@ Create `aidlc-docs/construction/build-and-test/e2e-test-instructions.md`:
 - Complete user workflow testing
 - Cross-service scenarios
 - UI testing (if applicable)
+- Gherkin scenarios for each critical user journey
+- Scenario traceability between product requirement, test case, and execution result
 
 ---
 
-## Step 7: Generate Test Summary
+## Step 7: Generate Test Summary Report
 
 Create `aidlc-docs/construction/build-and-test/build-and-test-summary.md`:
 
@@ -273,11 +326,29 @@ Create `aidlc-docs/construction/build-and-test/build-and-test-summary.md`:
 - **Coverage**: [X]%
 - **Status**: [Pass/Fail]
 
+### Coverage Gate Summary (Mandatory)
+| Metric | Actual | Target | Status |
+|--------|--------|--------|--------|
+| Line Coverage | [X]% | [X]% | [Pass/Fail] |
+| Branch Coverage | [X]% | [X]% | [Pass/Fail] |
+| Function Coverage | [X]% | [X]% | [Pass/Fail] |
+
 ### Integration Tests
 - **Test Scenarios**: [X]
 - **Passed**: [X]
 - **Failed**: [X]
 - **Status**: [Pass/Fail]
+
+### Gherkin Scenario Verification (Mandatory)
+| Feature | Scenario | Linked Test | Result |
+|---------|----------|-------------|--------|
+| [Feature name] | [Scenario name] | [Test ID/Name] | [Pass/Fail] |
+
+### Failed Scenario Analysis (If Any)
+- **Scenario**: [Name]
+- **Failure Type**: [Assertion/Error/Timeout/Environment]
+- **Root Cause**: [Summary]
+- **Remediation**: [Action taken or planned]
 
 ### Performance Tests
 - **Response Time**: [Actual] (Target: [Expected])
@@ -293,6 +364,8 @@ Create `aidlc-docs/construction/build-and-test/build-and-test-summary.md`:
 ## Overall Status
 - **Build**: [Success/Failed]
 - **All Tests**: [Pass/Fail]
+- **Coverage Gates**: [Pass/Fail]
+- **Gherkin Verification**: [Pass/Fail]
 - **Ready for Operations**: [Yes/No]
 
 ## Next Steps
@@ -323,6 +396,7 @@ Present completion message in this structure:
         - Format: "Build and test has completed with the following results:"
         - List build status and artifacts
         - List test results by category (unit, integration, performance, etc.)
+            - Include coverage gate outcome and Gherkin verification outcome
         - List generated instruction files
         - DO NOT include workflow instructions ("please review", "let me know", "proceed to next phase", "before we proceed")
         - Keep factual and content-focused
@@ -351,16 +425,54 @@ Present completion message in this structure:
 **MANDATORY**: Log the stage completion in `aidlc-docs/audit.md`:
 
 ```markdown
-## Build and Test Stage
-**Timestamp**: [ISO timestamp]
-**Build Status**: [Success/Failed]
-**Test Status**: [Pass/Fail]
-**Files Generated**:
-- build-instructions.md
-- unit-test-instructions.md
-- integration-test-instructions.md
-- performance-test-instructions.md
-- build-and-test-summary.md
+## Audit Log Rules (Tabular Format - Mandatory)
+
+1. Use a single markdown table for all stage entries (do not append free-form blocks).
+2. Append one row per Build and Test execution.
+3. Use ISO 8601 UTC timestamp.
+4. Keep status values normalized: `Success|Failed` and `Pass|Fail|N/A`.
+5. Include coverage and Gherkin verification outcomes in dedicated columns.
+
+| Timestamp (UTC) | Stage | Build Status | Test Status | Coverage Gates | Gherkin Verification | Summary Report | Files Generated |
+|-----------------|-------|--------------|-------------|----------------|----------------------|----------------|-----------------|
+| [2026-08-04T12:34:56Z] | Build and Test | [Success/Failed] | [Pass/Fail] | [Pass/Fail] | [Pass/Fail] | [aidlc-docs/construction/build-and-test/build-and-test-summary.md] | [build-instructions.md; unit-test-instructions.md; integration-test-instructions.md; performance-test-instructions.md; build-and-test-summary.md] |
 
 ---
+```
+
+---
+
+## Step 11: Generate Regression Test Cases (Final Step)
+
+Create `aidlc-docs/construction/build-and-test/regression-test-cases.md`:
+
+```markdown
+# Regression Test Cases
+
+## Purpose
+Define a stable regression suite to validate previously working behavior after fixes, refactors, dependency updates, and release changes.
+
+## Regression Case Rules
+1. Include coverage across unit, integration, and end-to-end critical paths.
+2. Include all previously failed scenarios that were remediated.
+3. Include high-risk business workflows and boundary conditions.
+4. Every case must include traceability to requirement/feature or defect ID.
+5. Every case must have an explicit expected result and execution priority.
+
+## Regression Test Case Table (Mandatory)
+
+| Test Case ID | Category | Feature/Requirement | Scenario Title | Preconditions | Test Steps | Test Data | Expected Result | Priority | Automation | Owner | Status |
+|--------------|----------|---------------------|----------------|---------------|------------|-----------|-----------------|----------|------------|-------|--------|
+| REG-001 | Unit | [REQ-001 / Defect-123] | [Validation rule persists after refactor] | [State/setup] | [1..N concise steps] | [Input values] | [Deterministic output/assertion] | [High/Medium/Low] | [Yes/No/Planned] | [Team/Person] | [Not Run/Pass/Fail/Blocked] |
+| REG-002 | Integration | [REQ-00X] | [Service interaction remains compatible] | [Services running] | [1..N concise steps] | [Payload/fixtures] | [Status + side effects] | [High/Medium/Low] | [Yes/No/Planned] | [Team/Person] | [Not Run/Pass/Fail/Blocked] |
+| REG-003 | E2E | [REQ-00Y] | [Critical user journey remains functional] | [Environment ready] | [1..N concise steps] | [User/session data] | [Workflow completes successfully] | [High/Medium/Low] | [Yes/No/Planned] | [Team/Person] | [Not Run/Pass/Fail/Blocked] |
+
+## Regression Execution Summary
+- **Total Cases**: [X]
+- **Executed**: [X]
+- **Passed**: [X]
+- **Failed**: [X]
+- **Blocked**: [X]
+- **Pass Rate**: [X]%
+- **Release Readiness**: [Ready/Not Ready]
 ```
