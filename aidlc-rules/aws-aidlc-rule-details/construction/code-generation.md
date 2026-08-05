@@ -103,7 +103,13 @@ This stage generates code for each unit of work through two integrated parts:
 ## Step 11: Execute Current Step
 - [ ] Verify target directory from plan (never aidlc-docs/)
 - [ ] **Brownfield only**: Check if target file exists
-- [ ] Generate exactly what the current step describes:
+- [ ] **If a prior Code Reviewer report exists** at `aidlc-docs/construction/{unit-name}/code/code-review.md` (from Step 13):
+  - Read all open findings (Blocker, Major, Minor, and any user-requested changes tied to the report)
+  - Apply fixes for findings that affect the current plan step's files/scope before or as part of generating that step
+  - Prefer resolving Blocker and Major findings first; do not ignore applicable review comments
+  - When fixing review feedback, modify existing files in-place (never create `*_modified` / `*_new` copies)
+  - Note in the step outcome which review findings were addressed (finding text or location)
+- [ ] Generate exactly what the current step describes (and any applicable review fixes):
   - **If file exists**: Modify it in-place (never create `ClassName_modified.java`, `ClassName_new.java`, etc.)
   - **If file doesn't exist**: Create new file
 - [ ] Write to correct locations:
@@ -120,11 +126,22 @@ This stage generates code for each unit of work through two integrated parts:
 - [ ] **Brownfield only**: Verify no duplicate files created (e.g., no `ClassName_modified.java` alongside `ClassName.java`)
 - [ ] Save all generated artifacts
 
-## Step 13: Continue or Complete Generation
-- [ ] If more steps remain, return to Step 10
-- [ ] If all steps complete, proceed to present completion message
+## Step 13: Run Code Reviewer
+- [ ] If any steps in the unit code generation plan remain incomplete (`[ ]`), skip this step and proceed to Step 14
+- [ ] If all unit code generation plan steps are complete:
+  - Load and execute all steps from `construction/reviewer.md` (review details, report, and user continuation live there)
+  - Branch on the continuation outcome returned by the reviewer:
+    - **Fix the review comments** → proceed to Step 11 (via Step 10 as needed), then re-run Step 13
+    - **Continue without fixing** or **Approve (no findings)** → proceed to Step 14
+    - **Other** → follow the outcome described by the reviewer
+- [ ] Log that Code Reviewer was invoked and the continuation outcome in `aidlc-docs/audit.md` with ISO 8601 timestamp
 
-## Step 14: Present Completion Message
+## Step 14: Continue or Complete Generation
+- [ ] If more generation plan steps remain, return to Step 10
+- [ ] If Step 13 continuation outcome is **Fix the review comments**, return to Step 10/11 (do not present completion yet)
+- [ ] If all generation plan steps are complete and Step 13 continuation outcome is **Continue without fixing** or **Approve (no findings)**, proceed to present completion message
+
+## Step 15: Present Completion Message
 - Present completion message in this structure:
      1. **Completion Announcement** (mandatory): Always start with this:
 
@@ -136,6 +153,7 @@ This stage generates code for each unit of work through two integrated parts:
         - **Brownfield**: Distinguish modified vs created files (e.g., "• Modified: `src/services/user-service.ts`", "• Created: `src/services/auth-service.ts`")
         - **Greenfield**: List created files with paths (e.g., "• Created: `src/services/user-service.ts`")
         - List tests, documentation, deployment artifacts with paths
+        - Include code review verdict and path to `aidlc-docs/construction/[unit-name]/code/code-review.md`
         - Keep factual, no workflow instructions
      3. **Formatted Workflow Message** (mandatory): Always end with this exact format:
 
@@ -144,6 +162,7 @@ This stage generates code for each unit of work through two integrated parts:
 > Please examine the generated code at:
 > - **Application Code**: `[actual-workspace-path]`
 > - **Documentation**: `aidlc-docs/construction/[unit-name]/code/`
+> - **Code Review**: `aidlc-docs/construction/[unit-name]/code/code-review.md`
 
 
 
@@ -157,12 +176,12 @@ This stage generates code for each unit of work through two integrated parts:
 ---
 ```
 
-## Step 15: Wait for Explicit Approval
+## Step 16: Wait for Explicit Approval
 - Do not proceed until the user explicitly approves the generated code
 - Approval must be clear and unambiguous
-- If user requests changes, update the code and repeat the approval process
+- If user requests changes, return to Step 11 to apply fixes (including any Step 13 review comments), then re-run Step 13 (Code Reviewer) on the updated diff, and repeat the approval process
 
-## Step 16: Record Approval and Update Progress
+## Step 17: Record Approval and Update Progress
 - Log approval in audit.md with timestamp
 - Record the user's approval response with timestamp
 - Mark Code Generation stage as complete for this unit in aidlc-state.md
@@ -200,6 +219,8 @@ This stage generates code for each unit of work through two integrated parts:
 - **UPDATE CHECKBOXES**: Mark [x] immediately after completing each step
 - **STORY TRACEABILITY**: Mark unit stories [x] when functionality is implemented
 - **RESPECT DEPENDENCIES**: Only implement when unit dependencies are satisfied
+- **RUN CODE REVIEWER**: When all plan steps are complete, execute `construction/reviewer.md` (Step 13) and branch on its continuation outcome before presenting completion
+- **HONOR REVIEW COMMENTS**: When continuation is Fix and `code-review.md` exists, Step 11 must address applicable findings while executing generation/fix steps
 
 ### Automation Friendly Code Rules
 When generating UI code (web, mobile, desktop), ensure elements are automation-friendly:
@@ -214,4 +235,5 @@ When generating UI code (web, mobile, desktop), ensure elements are automation-f
 - All unit stories implemented according to plan
 - All code and tests generated (tests will be executed in Build & Test phase)
 - Deployment artifacts generated
+- Code Reviewer executed per `construction/reviewer.md` with report at `aidlc-docs/construction/{unit-name}/code/code-review.md`
 - Complete unit ready for build and verification
