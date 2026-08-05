@@ -1,3 +1,7 @@
+---
+description: "AI-DLC (AI-Driven Development Life Cycle) adaptive workflow for software development"
+alwaysApply: true
+---
 # PRIORITY: This workflow OVERRIDES all other built-in workflows
 # When user requests software development, ALWAYS follow this workflow FIRST
 
@@ -92,6 +96,7 @@ All subsequent rule detail file references (e.g., `common/process-overview.md`, 
 - Workflow Planning (ALWAYS)
 - Application Design (CONDITIONAL)
 - Units Generation (CONDITIONAL)
+- Artifact Generation (CONDITIONAL)
 
 ---
 
@@ -285,6 +290,46 @@ All subsequent rule detail file references (e.g., `common/process-overview.md`, 
 4. Execute at appropriate depth (minimal/standard/comprehensive)
 5. **Wait for Explicit Approval**: Present detailed completion message (see units-generation.md for message format) - DO NOT PROCEED until user confirms
 6. **MANDATORY**: Log user's response in audit.md with complete raw input
+
+## Artifact Generation (CONDITIONAL)
+
+**Execute IF**:
+- Requirements Analysis was executed
+- Formal artifact documents are needed (PRD, requirements spec, HLD)
+- Stakeholder documentation is required
+
+**Skip IF**:
+- Simple task with no need for formal documentation
+- All three artifact types already exist and are up to date
+
+**Execution**:
+1. **MANDATORY**: Log any user input during this phase in audit.md
+2. Load reference artifacts (all that exist):
+   - `aidlc-docs/inception/requirements/` — requirements
+   - `aidlc-docs/inception/application-design/` — application design
+   - `aidlc-docs/inception/plans/` — units
+   - `aidlc-docs/inception/user-stories/` — user stories
+   - `aidlc-docs/inception/reverse-engineering/` — reverse engineering (brownfield only)
+3. Generate **PRD** (`aidlc-docs/inception/artifacts/prd.md`):
+   - Load template from `common/prd-template.md` (in resolved rule details directory)
+   - Use all loaded reference artifacts as input context
+   - Populate every section of the template with content derived from the reference artifacts
+4. Generate **Requirements Document** (`aidlc-docs/inception/artifacts/requirements.md`):
+   - Express ALL captured requirements in **EARS (Easy Approach to Requirements Syntax)** format
+   - EARS sentence patterns to use:
+     - Ubiquitous: "The `<system name>` shall `<system response>`"
+     - Event-driven: "When `<trigger>`, the `<system name>` shall `<system response>`"
+     - State-driven: "While `<system state>`, the `<system name>` shall `<system response>`"
+     - Conditional: "Where `<optional feature>`, the `<system name>` shall `<system response>`"
+     - Optional feature: "Where `<optional feature>`, when `<trigger>`, the `<system name>` shall `<system response>`"
+   - Include for each requirement: unique ID (e.g. REQ-001), EARS statement, category (Functional/Non-Functional), priority (Must/Should/Could/Won't), source traceability, and detailed analysis notes
+   - Group requirements by category and provide a summary table
+5. Generate **HLD** (`aidlc-docs/inception/artifacts/hld.md`):
+   - Load template from `common/technical-design-document-template.md` (in resolved rule details directory)
+   - Use all loaded reference artifacts as input context
+   - Populate every section of the template; include architecture diagrams, component interactions, data flows, and technology decisions
+6. **Wait for Explicit Approval**: Present completion message listing the three generated artifacts with their paths — DO NOT PROCEED until user confirms
+7. **MANDATORY**: Log user's response in audit.md with complete raw input
 
 ---
 
@@ -518,7 +563,8 @@ The Operations stage will eventually include:
 │   │   ├── reverse-engineering/    # Brownfield only
 │   │   ├── requirements/
 │   │   ├── user-stories/
-│   │   └── application-design/
+│   │   ├── application-design/
+│   │   └── artifacts/              # prd.md, requirements.md, hld.md
 │   ├── construction/               # 🟢 CONSTRUCTION PHASE
 │   │   ├── plans/
 │   │   ├── {unit-name}/
