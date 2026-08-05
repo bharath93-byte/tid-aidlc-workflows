@@ -314,12 +314,19 @@ flowchart TD
   - **Rationale**: [Why executing or skipping]
 - [ ] Code Generation - EXECUTE (ALWAYS)
   - **Rationale**: Implementation planning and code generation needed
+  - **Generation Method**: TDD (default) | Standard (only if user explicitly requests)
+  - **Rule file**: `construction/tdd-code-generation.md` (default) | `construction/code-generation.md` (opt-in)
 - [ ] Build and Test - EXECUTE (ALWAYS)
   - **Rationale**: Build, test, and verification needed
 
 ### 🟡 OPERATIONS PHASE
 - [ ] Operations - PLACEHOLDER
   - **Rationale**: Future deployment and monitoring workflows
+
+## Code Generation Method
+- **Method**: TDD (default unless user explicitly requests Standard/normal code generation)
+- **Rule file**: construction/tdd-code-generation.md | construction/code-generation.md
+- **Notes**: Standard Code Generation requires explicit user request when approving this plan / proceeding to Construction
 
 ## Package Change Sequence (Brownfield Only)
 [If applicable, list package update sequence with dependencies]
@@ -355,6 +362,13 @@ Update `aidlc-docs/aidlc-state.md`:
 - **Stages to Execute**: [List]
 - **Stages to Skip**: [List with reasons]
 
+## Code Generation Method
+- **Method**: TDD
+- **Rule file**: construction/tdd-code-generation.md
+- **Selected at**: [ISO timestamp]
+- **Selected by**: default
+- **User request (raw, if any)**: "N/A"
+
 ## Stage Progress
 
 ### 🔵 INCEPTION PHASE
@@ -371,7 +385,7 @@ Update `aidlc-docs/aidlc-state.md`:
 - [ ] NFR Requirements - [EXECUTE/SKIP]
 - [ ] NFR Design - [EXECUTE/SKIP]
 - [ ] Infrastructure Design - [EXECUTE/SKIP]
-- [ ] Code Generation - EXECUTE
+- [ ] Code Generation - EXECUTE (method: TDD | Standard)
 - [ ] Build and Test - EXECUTE
 
 ### 🟡 OPERATIONS PHASE
@@ -414,6 +428,9 @@ I recommend executing [X] stages:
 4. [Stage name] - *Rationale:* [Why executing]
 ...
 
+**Code Generation Method**: **TDD** (default — `construction/tdd-code-generation.md`).  
+To use standard/normal Code Generation instead, explicitly request it when approving this plan (opt-in: `construction/code-generation.md`).
+
 I recommend skipping [Y] stages:
 
 🔵 **INCEPTION PHASE:**
@@ -452,6 +469,10 @@ I recommend skipping [Y] stages:
 - **If approved**: Proceed to next stage in execution plan
 - **If changes requested**: Update execution plan and re-confirm
 - **If user wants to force include/exclude stages**: Update plan accordingly
+- **Code Generation Method**:
+  - Default to **TDD** unless the user explicitly requests standard/normal Code Generation
+  - If the user explicitly requests Standard: set Method to Standard and rule file to `construction/code-generation.md` in both `execution-plan.md` and `aidlc-docs/aidlc-state.md`
+  - **MANDATORY**: Log the generation method (TDD or Standard), rule file, selected-by (default vs explicit user request), and complete raw user input in `aidlc-docs/audit.md`
 
 ## Step 11: Log Interaction
 
@@ -462,6 +483,7 @@ Log in `aidlc-docs/audit.md`:
 **Timestamp**: [ISO timestamp]
 **AI Prompt**: "Ready to proceed with this plan?"
 **User Response**: "[User's COMPLETE RAW response]"
+**Code Generation Method**: "[TDD | Standard] — rule file: [path] — selected by: [default | explicit user request]"
 **Status**: [Approved/Changes Requested]
 **Context**: Workflow plan created with [X] stages to execute
 
