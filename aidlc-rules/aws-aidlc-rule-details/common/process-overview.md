@@ -16,6 +16,7 @@
 • **Workspace Detection** (always) → **Reverse Engineering** (brownfield only) → **Requirements Analysis** (always, adaptive depth) → **Conditional Phases** (as needed) → **Workflow Planning** (always) → **Code Generation** (always, per-unit) → **Build and Test** (always)
 
 ## How It Works:
+• **Skill gate before every stage**: Skill Discovery & Selection (`common/skill-discovery-gate.md`) runs as **Step 0** before any stage executes — including on resume or "start unit again"
 • **AI analyzes** your request, workspace, and complexity to determine which stages are needed
 • **These stages always execute**: Workspace Detection, Requirements Analysis (adaptive depth), Workflow Planning, Code Generation (per-unit), Build and Test
 • **All other stages are conditional**: Reverse Engineering, User Stories, Application Design, Units Generation, per-unit design stages (Functional Design, NFR Requirements, NFR Design, Infrastructure Design)
@@ -33,6 +34,7 @@
 ```mermaid
 flowchart TD
     Start(["User Request"])
+    SG["🛠️ Skill Discovery & Selection<br/><b>STEP 0 — before EVERY stage</b>"]
     
     subgraph INCEPTION["🔵 INCEPTION PHASE"]
         WD["Workspace Detection<br/><b>ALWAYS</b>"]
@@ -132,6 +134,7 @@ flowchart TD
 - Operations: Placeholder for future deployment and monitoring workflows (PLACEHOLDER)
 
 **Key Principles:**
+- **Skill gate**: Step 0 of every stage — discover and select a skill (or standard rules) before stage work; tracked in `aidlc-state.md` (`## Current Stage Skill`) and `audit.md`
 - Phases execute only when they add value
 - Each phase independently evaluated
 - INCEPTION focuses on "what" and "why"

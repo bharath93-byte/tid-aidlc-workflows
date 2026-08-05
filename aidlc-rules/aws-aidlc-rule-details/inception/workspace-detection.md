@@ -2,6 +2,13 @@
 
 **Purpose**: Determine workspace state and check for existing AI-DLC projects
 
+## Step 0: Skill Discovery & Selection (MANDATORY — do not skip on resume)
+- Execute `common/skill-discovery-gate.md` **before any other step in this stage**
+- Create `aidlc-docs/workspace-detection-skill-selection.md`; wait for user to fill `[Answer]:` and confirm
+- If `aidlc-docs/aidlc-state.md` does not exist yet, create a minimal file with `## Current Stage Skill` before logging the skill resolution; the full template is completed in Step 4
+- Update `## Current Stage Skill` in `aidlc-docs/aidlc-state.md`; log resolved choice in `audit.md`
+- **Do not** proceed to Step 1 until Step 0 is complete
+
 ## Step 1: Check for Existing AI-DLC Project
 
 Check if `aidlc-docs/aidlc-state.md` exists:
