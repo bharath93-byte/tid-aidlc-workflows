@@ -4,6 +4,12 @@
 
 **Always Execute**: This phase always runs after understanding requirements and scope
 
+## Step 0: Skill Discovery & Selection (MANDATORY — do not skip on resume)
+- Execute `common/skill-discovery-gate.md` **before any other step in this stage**
+- Create `aidlc-docs/workflow-planning-skill-selection.md`; wait for user to fill `[Answer]:` and confirm
+- Update `## Current Stage Skill` in `aidlc-docs/aidlc-state.md`; log resolved choice in `audit.md`
+- **Do not** proceed to Step 1 until Step 0 is complete
+
 ## Step 1: Load All Prior Context
 
 ### 1.1 Load Reverse Engineering Artifacts (if brownfield)

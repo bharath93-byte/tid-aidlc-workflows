@@ -28,7 +28,31 @@ All subsequent rule detail file references (e.g., `common/process-overview.md`, 
 - Load `common/session-continuity.md` for session resumption guidance
 - Load `common/content-validation.md` for content validation requirements
 - Load `common/question-format-guide.md` for question formatting rules
+- Load `common/skill-discovery-gate.md` for per-stage skill selection (Step 0 of every stage)
+- Load `common/skill-artifact-adapter.md` when a skill is selected — maps skill output to stage contract artifacts
 - Reference these throughout the workflow execution
+- Note: a `skills/` directory may also exist alongside `common/`, `inception/`, `construction/`, `operations/` in the resolved rule details directory — see "MANDATORY: Skill Discovery & Selection Gate" below for how it is used
+
+## MANDATORY: Skill Discovery & Selection Gate (Plug-and-Play Skills)
+**CRITICAL**: This gate makes the workflow extensible by third parties without editing this file. It applies to EVERY stage in Inception, Construction, and Operations, immediately before that stage's "Load all steps from `<phase>/<stage-file>.md`" instruction is executed — including when resuming mid-workflow or advancing via an approval gate (e.g. "Continue to Next Stage") into a new stage.
+
+**Skill convention**: Framework skills live at `skills/<phase>/<skill-name>/` in the resolved rule details directory (e.g. `skills/inception/domain-modeling/`, `skills/construction/api-standards-review/`), where `<phase>` is `inception`, `construction`, or `operations`. Project skills may also live at `.cursor/skills/<skill-name>/` in the workspace root (flat layout). Each skill folder contains a `SKILL.md` (required) and optionally a `SKILL_CARD.md` (short summary). Anyone can drop a new skill folder in without touching this workflow.
+
+**Execution (per stage, before loading its rule file)**:
+1. **Discover skills** — scan both locations and merge results (dedupe by folder path):
+   - `skills/<phase>/` under the resolved rule details directory (subfolders containing `SKILL.md`)
+   - `.cursor/skills/` under the workspace root (subfolders containing `SKILL.md`; include all — user selects relevance)
+2. **Always ask** — create `aidlc-docs/{stage-name}-skill-selection.md` using the format in `common/question-format-guide.md`, scoped to the current phase and current stage by name, in one of two shapes:
+   - **If one or more skills found**: one option per discovered skill (name + one-line description from `SKILL_CARD.md`, or the first description line of `SKILL.md`, + its folder path), plus a "Use standard AI-DLC rules only (no skill)" option, plus the MANDATORY "Other" option — reused to let the user type a path to their own external skill (e.g. `.cursor/skills/my-skill/SKILL.md`) instead of one from the list.
+   - **If none found for this phase/stage**: still ask, don't assume — options are "No skill available for this — proceed with standard AI-DLC rules" plus the MANDATORY "Other" option, reused to let the user point to a skill of their own (anywhere on disk, or an internal skill the discovery scan couldn't see) for this specific phase and stage.
+3. Inform the user the question file is ready; **wait** for them to fill `[Answer]:` tags and confirm — do NOT load the stage rule file or generate stage artifacts until the answer is received.
+4. Resolve the answer:
+   - Standard rules selected → proceed exactly as this workflow already specifies for the stage
+   - A listed skill, or a valid "Other" path, selected → execute `SKILL.md` for methodology (HOW), then **mandatory** `common/skill-artifact-adapter.md` to produce the **same** contract artifacts the stage rule defines (WHAT). Do **not** add skill/adapter logic to stage rule files
+   - Invalid "Other" path → report the problem and re-ask; do not guess
+5. **MANDATORY**: Log the resolved choice (skill name/path, or "standard rules") for this stage in audit.md.
+
+This gate does not replace or skip the stage's existing approval gates (e.g. "Request Changes"/"Continue to Next Stage") — those still run after the skill (or the rules) produce their output.
 
 ## MANDATORY: Extensions Loading (Context-Optimized)
 **CRITICAL**: At workflow start, scan the `extensions/` directory recursively but load ONLY lightweight opt-in files — NOT full rule files. Full rule files are loaded on-demand after the user opts in.
