@@ -29,6 +29,7 @@ This stage generates code for each unit of work through two integrated parts:
 - [ ] Read unit design artifacts from Unit Design Generation
 - [ ] Read unit story map to understand assigned stories
 - [ ] Identify unit dependencies and interfaces
+- [ ] Read the unit's EARS Coverage (from `unit-of-work.md`) to know which EARS IDs this unit must satisfy
 - [ ] Validate unit is ready for code generation
 
 ## Step 2: Create Detailed Unit Code Generation Plan
@@ -126,10 +127,12 @@ This stage generates code for each unit of work through two integrated parts:
   - **Build/Config Files**: Workspace root
 - [ ] Follow unit story requirements
 - [ ] Respect dependencies and interfaces
+- [ ] **Annotate generated code and tests with `@spec` comments** citing the EARS ID(s) each piece of logic/test satisfies (see `common/ears-syntax.md` "Code Annotations") — every EARS ID in this unit's coverage must appear in at least one `@spec` annotation by the time the unit is complete
 
 ## Step 12: Update Progress
 - [ ] Mark the completed step as [x] in the unit code generation plan
 - [ ] Mark associated unit stories as [x] when their generation is finished
+- [ ] For any EARS ID whose `@spec`-annotated code/tests are complete and passing, flip its status marker from `[ ]` to `[x]` in the source file under `aidlc-docs/inception/requirements/ears/` (edit in place — do not flip IDs whose tests don't exist or aren't green yet)
 - [ ] Update `aidlc-docs/aidlc-state.md` current status
 - [ ] **Brownfield only**: Verify no duplicate files created (e.g., no `ClassName_modified.java` alongside `ClassName.java`)
 - [ ] Save all generated artifacts
@@ -269,4 +272,5 @@ When generating UI code (web, mobile, desktop), ensure elements are automation-f
 - Deployment artifacts generated
 - PR size budget verified (counted files ≤ 10 and counted lines ≤ 300, or approved exception documented)
 - Code Reviewer executed per `construction/reviewer.md` with report at `aidlc-docs/construction/{unit-name}/code/code-review.md`
+- Every EARS ID in this unit's coverage is `@spec`-annotated in code/tests, and its status marker in `aidlc-docs/inception/requirements/ears/` reflects actual pass/fail state
 - Complete unit ready for build and verification

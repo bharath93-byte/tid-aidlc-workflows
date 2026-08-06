@@ -123,17 +123,14 @@ After receiving answers:
 DO NOT proceed to Step 7 until all questions in requirement-verification-questions.md are answered and validated.
 Present the question file to the user and STOP.
 
-### Step 7: Generate Requirements Document
-   - **PREREQUISITE**: Step 6 gate must be passed — all answers received and analyzed
-   - Create `aidlc-docs/inception/requirements/requirements.md`
-   - Include intent analysis summary at the top:
-     - User request
-     - Request type
-     - Scope estimate
-     - Complexity estimate
-   - Include both functional and non-functional requirements
-   - Incorporate user's answers to clarifying questions
-   - Provide brief summary of key requirements
+### Step 7: Document Requirements
+   - Create `aidlc-docs/inception/requirements/requirements.md` with:
+     - Intent analysis summary
+     - Functional requirements (clearly documented)
+     - Non-functional requirements (clearly documented)
+     - Assumptions and constraints
+     - Success criteria
+   - **Note**: This prose document is the input context for EARS generation later at Application Design (Step 10.2, after HLD and LLDs exist — see [design-driven-dev-guide.md](../common/design-driven-dev-guide.md)). Do not generate EARS statements here; write clear, complete prose so the later EARS derivation has nothing missing to guess at.
 
 ### Step 8: Update State Tracking
 
@@ -176,14 +173,12 @@ Update `aidlc-docs/aidlc-state.md`:
 > **You may:**
 >
 > 🔧 **Request Changes** -  Ask for modifications to the requirements if required based on your review 
-> [IF User Stories will be skipped, add this option:]
-> 📝 **Add User Stories** - Choose to Include **User Stories** stage (currently skipped based on project simplicity)  
-> ✅ **Approve & Continue** - Approve requirements and proceed to **[User Stories/Workflow Planning]**
+> ✅ **Approve & Continue** - Approve requirements and proceed to **Workflow Planning**
 
 ---
 ```
 
-**Note**: Include the "Add User Stories" option only when User Stories stage will be skipped. Replace [User Stories/Workflow Planning] with the actual next stage name.
+**Note**: There is no separate "User Stories" stage to offer here — personas and user-story framing, when warranted, are produced later in Units Generation (Story Breakdown), after EARS exists (see [design-driven-dev-guide.md](../common/design-driven-dev-guide.md)).
 
    - Wait for explicit user approval before proceeding
    - Record approval response with timestamp

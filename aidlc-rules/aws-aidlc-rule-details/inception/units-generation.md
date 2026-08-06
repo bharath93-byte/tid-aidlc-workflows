@@ -9,6 +9,8 @@ This stage decomposes the system into manageable units of work through two integ
 
 **Terminology**: Use "Service" for independently deployable components, "Module" for logical groupings within a service, "Unit of Work" for planning context.
 
+**This stage is the "Story Breakdown" step of the Global Spec-First flow** (`HLD → LLD → EARS → Story Breakdown → Tests → Code` — see [design-driven-dev-guide.md](../common/design-driven-dev-guide.md)). Requirements now exist as EARS statements from `inception/application-design.md` Step 10.2 (see [ears-syntax.md](../common/ears-syntax.md)), each with a semantic ID (`{FEATURE}-{SUBFEATURE}-{NNN}`). Every unit's acceptance criteria (`AC-###`) must cite the EARS ID(s) it verifies — see [story-breakdown-template.md](../common/story-breakdown-template.md). A unit is not "ready for design stages" (Step 15) until every `[ ]`/`[D]`-eligible EARS requirement in its scope is assigned to exactly one unit.
+
 ## PR Size Guardrails (Mandatory)
 
 Every unit MUST be sized so a reviewer can finish review in **under 15 minutes**. Apply these limits when proposing and validating unit boundaries:
@@ -35,9 +37,10 @@ Every unit MUST be sized so a reviewer can finish review in **under 15 minutes**
 ## Prerequisites
 - Workspace Detection must be complete
 - Requirements Analysis recommended (provides functional scope)
-- User Stories recommended (stories map to units)
-- Application Design stage REQUIRED (determines components, methods, and services)
+- Application Design stage REQUIRED (produces HLD, LLDs, and EARS — determines components, methods, services, and testable requirements)
 - Execution plan must indicate Design stage should execute
+
+**Note**: There is no separate "User Stories" stage. Personas and user-story framing (INVEST-style) are produced **here**, per unit, once EARS exists — see Step 2.1 below — instead of as early, EARS-less prose. This keeps story slicing grounded in concrete, testable requirements rather than guesswork (see [design-driven-dev-guide.md](../common/design-driven-dev-guide.md), "Architectural Comparison").
 
 ---
 
@@ -52,12 +55,22 @@ Every unit MUST be sized so a reviewer can finish review in **under 15 minutes**
 **ALWAYS** include these mandatory artifacts in the unit plan:
 - [ ] Generate `aidlc-docs/inception/application-design/unit-of-work.md` with unit definitions and responsibilities
 - [ ] **Single-file rule**: Create `unit-of-work.md` once, then update the same file in place (do not create duplicates or alternate versions)
-- [ ] Structure `unit-of-work.md` to include Gherkin scenarios per unit and explicit acceptance criteria
+- [ ] Structure `unit-of-work.md` to include Gherkin scenarios (framed per Step 2.1) per unit and explicit acceptance criteria
 - [ ] Generate `aidlc-docs/inception/application-design/unit-of-work-dependency.md` with dependency matrix
-- [ ] Generate `aidlc-docs/inception/application-design/unit-of-work-story-map.md` mapping stories to units
+- [ ] Generate `aidlc-docs/inception/application-design/unit-of-work-story-map.md` mapping stories (and personas, if generated) to units
+
+## Step 2.1: Personas & User-Story Framing (Condition-Gated)
+Each unit's `Feature`/`Scenario` (Step 2) already **is** its user story once EARS Coverage grounds it — do not author separate prose stories. Formal `personas.md` is optional overhead; generate it only when it adds real value:
+
+**Generate personas.md IF ANY apply**: multiple distinct user types with different goals/permissions; customer-facing feature; cross-team/stakeholder alignment needed. **Skip IF**: internal refactor, single-persona system already documented, infrastructure-only change, bug fix.
+
+- [ ] If warranted: generate `aidlc-docs/inception/application-design/personas.md` (archetype, goals, pain points per persona) — derive personas from `requirements.md` and the EARS actors already implied by `IF/WHEN/WHILE` clauses, don't invent new ones
+- [ ] Frame each unit's Gherkin `Feature` title as a user-story-style statement ("As a [persona], I want [capability], so that [outcome]") when personas exist; otherwise a plain capability statement is sufficient
+- [ ] Apply INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable) as a quality check on each unit's story framing, not as a separate deliverable
 - [ ] **Greenfield only**: Document code organization strategy in `unit-of-work.md` (see code-generation.md for structure patterns)
 - [ ] Ensure every unit has at least one `Feature` and one `Scenario` in Gherkin format
 - [ ] Ensure every Gherkin scenario includes mapped acceptance criteria (AC IDs and measurable outcomes)
+- [ ] Ensure every unit lists its **EARS Coverage** (semantic EARS IDs/files this unit implements — see [story-breakdown-template.md](../common/story-breakdown-template.md)) and every acceptance criterion cites the EARS ID(s) it verifies
 - [ ] Ensure each unit has a clear functional boundary (business capability based, not technical-layer based)
 - [ ] Ensure each unit defines independent deployability details (artifact, deploy target, release boundary)
 - [ ] Ensure each unit defines independent testability details (unit/integration/e2e entry points)
@@ -174,12 +187,17 @@ Feature: [Unit of Work Name]
 - [ ] Use layman-friendly wording in `Feature` and `Scenario` names; avoid internal jargon where plain words are possible
 - [ ] If technical terms are unavoidable, add a short plain-language explanation directly below the scenario
 
-- [ ] For each scenario, add acceptance criteria using this table format in `unit-of-work.md`:
+- [ ] For each unit, add an **EARS Coverage** block and acceptance criteria table per [story-breakdown-template.md](../common/story-breakdown-template.md):
 
 ```markdown
-| AC ID | Unit | Scenario | Acceptance Criteria | Verification Method | Priority |
-|------|------|----------|---------------------|---------------------|----------|
-| AC-001 | [Unit Name] | [Scenario Name] | [Measurable expected behavior] | [Test/Review/Automation] | [Must/Should/Could] |
+### EARS Coverage — [Unit Name]
+- aidlc-docs/inception/requirements/ears/auth-login-ears.md (AUTH-LOGIN-001 to AUTH-LOGIN-030)
+```
+
+```markdown
+| AC ID | Unit | Scenario | Acceptance Criteria | EARS ID(s) | Verification Method | Priority |
+|------|------|----------|---------------------|------------|---------------------|----------|
+| AC-001 | [Unit Name] | [Scenario Name] | [Measurable expected behavior] | [AUTH-LOGIN-001] | [Test/Review/Automation] | [Must/Should/Could] |
 ```
 
 - [ ] For each unit, include PR size fields in `unit-of-work.md`:
@@ -207,6 +225,7 @@ Feature: [Unit of Work Name]
 - [ ] If more steps remain, return to Step 12
 - [ ] If all steps complete, verify units are ready for design stages
 - [ ] Verify every unit passes PR Size Guardrails (or has an approved exception with rationale)
+- [ ] Verify every `[ ]`/`[D]`-eligible EARS requirement in scope is assigned to exactly one unit's EARS Coverage (or explicitly justified as shared/cross-cutting)
 - [ ] Mark Units Generation stage as complete
 
 ## Step 16: Present Completion Message
@@ -272,7 +291,7 @@ Feature: [Unit of Work Name]
 - User approval obtained for the plan
 - All steps in unit of work plan marked [x]
 - All unit artifacts generated according to plan:
-  - `unit-of-work.md` with unit definitions, per-unit Gherkin scenarios, acceptance criteria table, and PR size budget table
+  - `unit-of-work.md` with unit definitions, EARS Coverage per unit, per-unit Gherkin scenarios, acceptance criteria table (with EARS ID column), and PR size budget table
   - `unit-of-work-dependency.md` with dependency matrix
   - `unit-of-work-story-map.md` with story mappings
 - Every unit is functionally split and documented as independently deployable and independently testable

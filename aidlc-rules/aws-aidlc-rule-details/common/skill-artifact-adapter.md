@@ -112,16 +112,15 @@ Illustrative only — discover the live contract from the stage rule file.
 | Workspace Detection | `inception/workspace-detection.md` | `aidlc-docs/aidlc-state.md` |
 | Reverse Engineering | `inception/reverse-engineering.md` | `aidlc-docs/inception/reverse-engineering/*.md` (8 artifacts) |
 | Requirements Analysis | `inception/requirements-analysis.md` | `requirement-verification-questions.md`, `requirements.md` |
-| User Stories | `inception/user-stories.md` | `stories.md`, `personas.md` |
 | Workflow Planning | `inception/workflow-planning.md` | `execution-plan.md` |
-| Application Design | `inception/application-design.md` | `components.md`, `component-methods.md`, `services.md`, etc. |
-| Units Generation | `inception/units-generation.md` | `unit-of-work.md`, `unit-of-work-dependency.md`, `unit-of-work-story-map.md` |
-| Functional Design | `construction/functional-design.md` | `business-logic-model.md`, `business-rules.md`, `domain-entities.md` |
-| NFR Requirements | `construction/nfr-requirements.md` | `nfr-requirements.md`, `tech-stack-decisions.md` |
-| NFR Design | `construction/nfr-design.md` | `nfr-design-patterns.md`, `logical-components.md` |
-| Infrastructure Design | `construction/infrastructure-design.md` | `infrastructure-design.md`, `deployment-architecture.md` |
-| Code Generation | `construction/code-generation.md` | plan + workspace code + `aidlc-docs/construction/{unit}/code/` |
-| Build and Test | `construction/build-and-test.md` | `build-and-test/*.md` instruction set |
+| Application Design | `inception/application-design.md` | `components.md`, `services.md`, etc., `hld.md` (mandatory), `lld/{component}.md` (mandatory, one per component), `requirements/ears/*.md` (mandatory, derived from LLD) |
+| Units Generation | `inception/units-generation.md` | `unit-of-work.md` (incl. EARS Coverage + user-story framing per unit — see `common/story-breakdown-template.md`), `unit-of-work-dependency.md`, `unit-of-work-story-map.md`, `personas.md` (conditional) |
+| Functional Design | `construction/functional-design.md` | `business-logic-model.md`, `business-rules.md`, `domain-entities.md`; refines owning component's `lld.md` |
+| NFR Requirements | `construction/nfr-requirements.md` | `nfr-requirements.md`, `tech-stack-decisions.md`; refines owning component's `lld.md` |
+| NFR Design | `construction/nfr-design.md` | `nfr-design-patterns.md`, `logical-components.md`; refines owning component's `lld.md` |
+| Infrastructure Design | `construction/infrastructure-design.md` | `infrastructure-design.md`, `deployment-architecture.md`; refines owning component's `lld.md` Infrastructure Mapping |
+| Code Generation | `construction/code-generation.md` | plan + workspace code (with `@spec` EARS annotations) + `aidlc-docs/construction/{unit}/code/` + EARS status marker updates |
+| Build and Test | `construction/build-and-test.md` | `build-and-test/*.md` instruction set (incl. EARS traceability rollup) |
 
 ---
 

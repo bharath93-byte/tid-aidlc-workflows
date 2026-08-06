@@ -21,6 +21,7 @@ Analyze the project to determine appropriate testing strategy:
 - **TDD workflow**: Confirm red-green-refactor loop and failing-test-first workflow for any new fixes or enhancements
 - **Integration tests**: Test interactions between units/services
 - **Gherkin scenarios**: Validate business behavior with Given/When/Then scenarios and scenario-to-test traceability
+- **EARS traceability**: Roll up EARS status markers (`[x]`/`[ ]`/`[D]`) across all files under `aidlc-docs/inception/requirements/ears/` to confirm actual implementation state matches what Code Generation reported
 - **Performance tests**: Load, stress, and scalability testing
 - **End-to-end tests**: Complete user workflows
 - **Contract tests**: API contract validation between services
@@ -344,6 +345,16 @@ Create `aidlc-docs/construction/build-and-test/build-and-test-summary.md`:
 |---------|----------|-------------|--------|
 | [Feature name] | [Scenario name] | [Test ID/Name] | [Pass/Fail] |
 
+### EARS Requirements Traceability (Mandatory)
+
+Roll up status markers from every file under `aidlc-docs/inception/requirements/ears/`. If any test that a status marker relies on is failing, the marker must be `[ ]`, not `[x]` — reconcile discrepancies here rather than trusting Code Generation's self-report blindly.
+
+| EARS File | Total | `[x]` Implemented | `[ ]` Gap | `[D]` Deferred | Discrepancies Found |
+|-----------|-------|--------------------|-----------|-----------------|----------------------|
+| [feature-subfeature-ears.md] | [X] | [X] | [X] | [X] | [None / list IDs corrected] |
+
+**Overall EARS Coverage**: [X]% implemented ([X] of [X] non-deferred requirements)
+
 ### Failed Scenario Analysis (If Any)
 - **Scenario**: [Name]
 - **Failure Type**: [Assertion/Error/Timeout/Environment]
@@ -366,6 +377,7 @@ Create `aidlc-docs/construction/build-and-test/build-and-test-summary.md`:
 - **All Tests**: [Pass/Fail]
 - **Coverage Gates**: [Pass/Fail]
 - **Gherkin Verification**: [Pass/Fail]
+- **EARS Coverage**: [X]% implemented
 - **Ready for Operations**: [Yes/No]
 
 ## Next Steps
@@ -457,16 +469,16 @@ Define a stable regression suite to validate previously working behavior after f
 1. Include coverage across unit, integration, and end-to-end critical paths.
 2. Include all previously failed scenarios that were remediated.
 3. Include high-risk business workflows and boundary conditions.
-4. Every case must include traceability to requirement/feature or defect ID.
+4. Every case must include traceability to an **EARS ID** (from `aidlc-docs/inception/requirements/ears/`) or defect ID — do not invent a separate `REQ-XXX` scheme; EARS IDs are the canonical requirement identifier.
 5. Every case must have an explicit expected result and execution priority.
 
 ## Regression Test Case Table (Mandatory)
 
-| Test Case ID | Category | Feature/Requirement | Scenario Title | Preconditions | Test Steps | Test Data | Expected Result | Priority | Automation | Owner | Status |
+| Test Case ID | Category | EARS ID / Defect | Scenario Title | Preconditions | Test Steps | Test Data | Expected Result | Priority | Automation | Owner | Status |
 |--------------|----------|---------------------|----------------|---------------|------------|-----------|-----------------|----------|------------|-------|--------|
-| REG-001 | Unit | [REQ-001 / Defect-123] | [Validation rule persists after refactor] | [State/setup] | [1..N concise steps] | [Input values] | [Deterministic output/assertion] | [High/Medium/Low] | [Yes/No/Planned] | [Team/Person] | [Not Run/Pass/Fail/Blocked] |
-| REG-002 | Integration | [REQ-00X] | [Service interaction remains compatible] | [Services running] | [1..N concise steps] | [Payload/fixtures] | [Status + side effects] | [High/Medium/Low] | [Yes/No/Planned] | [Team/Person] | [Not Run/Pass/Fail/Blocked] |
-| REG-003 | E2E | [REQ-00Y] | [Critical user journey remains functional] | [Environment ready] | [1..N concise steps] | [User/session data] | [Workflow completes successfully] | [High/Medium/Low] | [Yes/No/Planned] | [Team/Person] | [Not Run/Pass/Fail/Blocked] |
+| REG-001 | Unit | [AUTH-LOGIN-001 / Defect-123] | [Validation rule persists after refactor] | [State/setup] | [1..N concise steps] | [Input values] | [Deterministic output/assertion] | [High/Medium/Low] | [Yes/No/Planned] | [Team/Person] | [Not Run/Pass/Fail/Blocked] |
+| REG-002 | Integration | [PAY-CHECKOUT-010] | [Service interaction remains compatible] | [Services running] | [1..N concise steps] | [Payload/fixtures] | [Status + side effects] | [High/Medium/Low] | [Yes/No/Planned] | [Team/Person] | [Not Run/Pass/Fail/Blocked] |
+| REG-003 | E2E | [CART-EDIT-005] | [Critical user journey remains functional] | [Environment ready] | [1..N concise steps] | [User/session data] | [Workflow completes successfully] | [High/Medium/Low] | [Yes/No/Planned] | [Team/Person] | [Not Run/Pass/Fail/Blocked] |
 
 ## Regression Execution Summary
 - **Total Cases**: [X]

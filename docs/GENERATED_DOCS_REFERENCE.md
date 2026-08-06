@@ -12,10 +12,8 @@ aidlc-docs/
 ├── inception/                                              # 🔵 INCEPTION PHASE — determines WHAT to build and WHY
 │   ├── plans/
 │   │   ├── execution-plan.md                               # Workflow visualization and phase execution decisions (always created)
-│   │   ├── story-generation-plan.md                        # Story development methodology and questions (if User Stories executes)
-│   │   ├── user-stories-assessment.md                      # Assessment of whether user stories add value (if User Stories executes)
-│   │   ├── application-design-plan.md                      # Component and service design plan with questions (if Application Design executes)
-│   │   └── unit-of-work-plan.md                            # System decomposition plan with questions (if Units Generation executes)
+│   │   ├── application-design-plan.md                      # Component/service/HLD/LLD/EARS design plan with questions (if Application Design executes)
+│   │   └── unit-of-work-plan.md                            # System decomposition (Story Breakdown) plan with questions (if Units Generation executes)
 │   │
 │   ├── reverse-engineering/                                # Created only for brownfield projects (existing codebase detected)
 │   │   ├── business-overview.md                            # Business context, transactions, and dictionary
@@ -30,11 +28,9 @@ aidlc-docs/
 │   │
 │   ├── requirements/
 │   │   ├── requirements.md                                 # Functional and non-functional requirements with intent analysis (always created)
-│   │   └── requirement-verification-questions.md           # Clarifying questions with [Answer]: tags for user input (always created)
-│   │
-│   ├── user-stories/                                       # Created only if User Stories stage executes
-│   │   ├── stories.md                                      # User stories following INVEST criteria with acceptance criteria
-│   │   └── personas.md                                     # User archetypes, characteristics, and persona-to-story mappings
+│   │   ├── requirement-verification-questions.md           # Clarifying questions with [Answer]: tags for user input (always created)
+│   │   └── ears/                                           # Created only if Application Design executes (Step 10.2, derived from each LLD)
+│   │       └── {feature}-{subfeature}-ears.md              # Canonical, testable EARS requirements with semantic IDs and status markers
 │   │
 │   └── application-design/                                 # Created only if Application Design and/or Units Generation execute
 │       ├── application-design.md                           # Consolidated design document (if Application Design executes)
@@ -42,9 +38,13 @@ aidlc-docs/
 │       ├── component-methods.md                            # Method signatures, purposes, and input/output types
 │       ├── services.md                                     # Service definitions, responsibilities, and orchestration patterns
 │       ├── component-dependency.md                         # Dependency matrix and communication patterns between components
-│       ├── unit-of-work.md                                 # Unit definitions and responsibilities (if Units Generation executes)
+│       ├── hld.md                                          # Canonical, project-level High-Level Design (if Application Design executes)
+│       ├── lld/                                            # One Low-Level Design per major component (if Application Design executes)
+│       │   └── {component}.md                              # Refined in place by Construction-phase stages as unit-level detail emerges
+│       ├── personas.md                                     # User archetypes (only if Units Generation determines personas add value)
+│       ├── unit-of-work.md                                 # Unit definitions, EARS Coverage, and user-story framing (if Units Generation executes)
 │       ├── unit-of-work-dependency.md                      # Dependency matrix between units (if Units Generation executes)
-│       └── unit-of-work-story-map.md                       # Mapping of user stories to units (if Units Generation executes)
+│       └── unit-of-work-story-map.md                       # Mapping of stories/personas to units (if Units Generation executes)
 │
 ├── construction/                                           # 🟢 CONSTRUCTION PHASE — determines HOW to build it
 │   ├── plans/

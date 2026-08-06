@@ -32,12 +32,11 @@
 - Workspace Detection (ALWAYS)
 - Reverse Engineering (CONDITIONAL - Brownfield only)
 - Requirements Analysis (ALWAYS - Adaptive depth)
-- User Stories (CONDITIONAL)
 - Workflow Planning (ALWAYS)
-- Application Design (CONDITIONAL)
-- Units Generation (CONDITIONAL)
+- Application Design (CONDITIONAL) — produces HLD → LLD(s) → EARS
+- Units Generation (CONDITIONAL) — Story Breakdown, incl. personas/user-story framing
 
-**Outputs**: Requirements, user stories, architectural decisions, unit definitions
+**Outputs**: Requirements, EARS, HLD/LLDs, personas (if warranted), unit definitions
 
 ### CONSTRUCTION PHASE
 **Purpose**: Detailed design and implementation  
@@ -77,9 +76,8 @@
 
 ### Conditional Stages
 - **Reverse Engineering**: Analyzing existing codebase (brownfield projects only)
-- **User Stories**: Creating user stories and personas (includes Story Planning and Story Generation)
-- **Application Design**: Designing application components, methods, business rules, and services
-- **Units Generation**: Decomposing the system into units of work (includes internal planning and generation sub-steps, plus per-unit design)
+- **Application Design**: Designing application components, methods, business rules, and services; produces HLD → LLD(s) → EARS
+- **Units Generation**: Story Breakdown — decomposing EARS into units of work, with personas/user-story framing when warranted (includes internal planning and generation sub-steps, plus per-unit design)
 - **Functional Design**: Technology-agnostic business logic design (per-unit)
 - **NFR Requirements**: Determining NFRs and selecting tech stack (per-unit)
 - **NFR Design**: Incorporating NFR patterns and logical components (per-unit)
@@ -150,8 +148,7 @@ A reusable building block within a service or module. Components are classes, fu
 - **Generation**: Executing the plan to create artifacts
 
 Examples (these are internal sub-steps within a single stage, not separate stages):
-- Story Planning → Story Generation (within User Stories stage)
-- Units Planning → Units Generation (within Units Generation stage)
+- Units Planning → Units Generation (within Units Generation stage — includes persona/user-story framing)
 - Unit Design Planning → Unit Design Generation (within per-unit design)
 - NFR Planning → NFR Generation (within NFR Requirements stage)
 - Code Generation Part 1 (Planning) → Code Generation Part 2 (Generation)
@@ -166,17 +163,41 @@ Examples (these are internal sub-steps within a single stage, not separate stage
 ### Plans
 Documents with checkboxes and questions that guide execution.
 - Located in `aidlc-docs/plans/`
-- Examples: `story-generation-plan.md`, `unit-of-work-plan.md`
+- Examples: `application-design-plan.md`, `unit-of-work-plan.md`
 
 ### Artifacts
 Generated outputs from executing plans.
 - Located in various `aidlc-docs/` subdirectories
-- Examples: `requirements.md`, `stories.md`, `design.md`
+- Examples: `requirements.md`, `hld.md`, `lld/{component}.md`, `unit-of-work.md`
 
 ### State Files
 Files tracking workflow progress and status.
 - `aidlc-state.md`: Overall workflow state
 - `audit.md`: Complete audit trail of all interactions
+
+## Design-Driven Development Terms (EARS / HLD / LLD)
+
+**See `common/design-driven-dev-guide.md` for the full flow and `common/hld-template.md`, `common/lld-template.md`, `common/ears-syntax.md`, `common/story-breakdown-template.md` for structure.**
+
+**Flow**: `HLD → LLD(s) → EARS → Story Breakdown → Tests (TDD) → Code`
+
+### HLD (High-Level Design)
+Canonical, one-per-project output of Application Design (`aidlc-docs/inception/application-design/hld.md`). What and why: problem, goals, architecture, key decisions, and a Related Designs table linking every component's LLD.
+
+### LLD (Low-Level Design)
+One per major component/feature, drafted immediately after the HLD in Application Design (`aidlc-docs/inception/application-design/lld/{component}.md`), then **refined in place** by the per-unit Construction stages (Functional Design, NFR Requirements, NFR Design, Infrastructure Design) as unit-level detail becomes known.
+
+### EARS (Easy Approach to Requirements Syntax)
+Testable requirement statements derived from a component's LLD, generated at Application Design right after that LLD. Each has a semantic ID (`{FEATURE}-{SUBFEATURE}-{NNN}`) and a status marker (`[x]`/`[ ]`/`[D]`) that only flips to `[x]` once a `@spec`-annotated test is green.
+
+### Story Breakdown
+Units Generation, reframed: it assigns every non-deferred EARS ID to exactly one PR-sized unit before Construction begins.
+
+### Arrow of Intent
+The traceability chain `HLD → LLD → EARS → Story Breakdown → Tests → Code`. When any level changes, downstream levels must be reviewed and updated — mutation in place, not accumulation.
+
+### @spec Annotation
+A code/test comment (`// @spec {EARS-ID}, {EARS-ID}`) linking implementation and tests back to the EARS requirement(s) they satisfy. Mandatory in `construction/code-generation.md` and `construction/tdd-code-generation.md`.
 
 ## Common Abbreviations
 
@@ -185,3 +206,6 @@ Files tracking workflow progress and status.
 - **UOW**: Unit of Work
 - **API**: Application Programming Interface
 - **CDK**: Cloud Development Kit (AWS)
+- **EARS**: Easy Approach to Requirements Syntax
+- **HLD**: High-Level Design
+- **LLD**: Low-Level Design

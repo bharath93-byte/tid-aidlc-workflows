@@ -30,6 +30,7 @@ All subsequent rule detail file references (e.g., `common/process-overview.md`, 
 - Load `common/question-format-guide.md` for question formatting rules
 - Load `common/skill-discovery-gate.md` for per-stage skill selection (Step 0 of every stage)
 - Load `common/skill-artifact-adapter.md` when a skill is selected — maps skill output to stage contract artifacts
+- Load `common/design-driven-dev-guide.md`, `common/hld-template.md`, `common/lld-template.md`, `common/ears-syntax.md`, `common/story-breakdown-template.md` before Application Design — these define the mandatory Global Spec-First flow (`HLD → LLD(s) → EARS → Story Breakdown → Tests → Code`) that Application Design onward must follow
 - Reference these throughout the workflow execution
 - Note: a `skills/` directory may also exist alongside `common/`, `inception/`, `construction/`, `operations/` in the resolved rule details directory — see "MANDATORY: Skill Discovery & Selection Gate" below for how it is used
 
@@ -116,7 +117,6 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
 - Workspace Detection (ALWAYS)
 - Reverse Engineering (CONDITIONAL - Brownfield only)
 - Requirements Analysis (ALWAYS - Adaptive depth)
-- User Stories (CONDITIONAL)
 - Workflow Planning (ALWAYS)
 - Application Design (CONDITIONAL)
 - Units Generation (CONDITIONAL)
@@ -181,79 +181,10 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
    - Determine requirements depth needed
    - Assess current requirements
    - Ask clarifying questions (if needed)
-   - Generate requirements document
+   - Document requirements comprehensively
 4. Execute at appropriate depth (minimal/standard/comprehensive)
 5. **Wait for Explicit Approval**: Follow approval format from requirements-analysis.md detailed steps - DO NOT PROCEED until user confirms
 6. **MANDATORY**: Log user's response in audit.md with complete raw input
-
-## User Stories (CONDITIONAL)
-
-**INTELLIGENT ASSESSMENT**: Use multi-factor analysis to determine if user stories add value:
-
-**ALWAYS Execute IF** (High Priority Indicators):
-- New user-facing features or functionality
-- Changes affecting user workflows or interactions
-- Multiple user types or personas involved
-- Complex business requirements with acceptance criteria needs
-- Cross-functional team collaboration required
-- Customer-facing API or service changes
-- New product capabilities or enhancements
-
-**LIKELY Execute IF** (Medium Priority - Assess Complexity):
-- Modifications to existing user-facing features
-- Backend changes that indirectly affect user experience
-- Integration work that impacts user workflows
-- Performance improvements with user-visible benefits
-- Security enhancements affecting user interactions
-- Data model changes affecting user data or reports
-
-**COMPLEXITY-BASED ASSESSMENT**: For medium priority cases, execute user stories if:
-- Request involves multiple components or services
-- Changes span multiple user touchpoints
-- Business logic is complex or has multiple scenarios
-- Requirements have ambiguity that stories could clarify
-- Implementation affects multiple user journeys
-- Change has significant business impact or risk
-
-**SKIP ONLY IF** (Low Priority - Simple Cases):
-- Pure internal refactoring with zero user impact
-- Simple bug fixes with clear, isolated scope
-- Infrastructure changes with no user-facing effects
-- Technical debt cleanup with no functional changes
-- Developer tooling or build process improvements
-- Documentation-only updates
-
-**ASSESSMENT CRITERIA**: When in doubt, favor inclusion of user stories for:
-- Requests with business stakeholder involvement
-- Changes requiring user acceptance testing
-- Features with multiple implementation approaches
-- Work that benefits from shared team understanding
-- Projects where requirements clarity is valuable
-
-**ASSESSMENT PROCESS**: 
-1. Analyze request complexity and scope
-2. Identify user impact (direct or indirect)
-3. Evaluate business context and stakeholder needs
-4. Consider team collaboration benefits
-5. Default to inclusion for borderline cases
-
-**Note**: If Requirements Analysis executed, Stories can reference and build upon those requirements.
-
-**User Stories has two parts within one stage**:
-1. **Part 1 - Planning**: Create story plan with questions, collect answers, analyze for ambiguities, get approval
-2. **Part 2 - Generation**: Execute approved plan to generate stories and personas
-
-**Execution**:
-1. **MANDATORY**: Log any user input during this phase in audit.md
-2. Load all steps from `inception/user-stories.md`
-3. **MANDATORY**: Perform intelligent assessment (Step 1 in user-stories.md) to validate user stories are needed
-4. Load reverse engineering artifacts (if brownfield)
-5. If Requirements exist, reference them when creating stories
-6. Execute at appropriate depth (minimal/standard/comprehensive)
-7. **PART 1 - Planning**: Create story plan with questions, wait for user answers, analyze for ambiguities, get approval
-8. **PART 2 - Generation**: Execute approved plan to generate stories and personas
-9. **Wait for Explicit Approval**: Follow approval format from user-stories.md detailed steps - DO NOT PROCEED until user confirms
-10. **MANDATORY**: Log user's response in audit.md with complete raw input
 
 ## Workflow Planning (ALWAYS EXECUTE)
 
@@ -289,11 +220,12 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
 
 **Execution**:
 1. **MANDATORY**: Log any user input during this phase in audit.md
-2. Load all steps from `inception/application-design.md`
+2. Load all steps from `inception/application-design.md`, `common/hld-template.md`, `common/lld-template.md`, and `common/ears-syntax.md`
 3. Load reverse engineering artifacts (if brownfield)
-4. Execute at appropriate depth (minimal/standard/comprehensive)
-5. **Wait for Explicit Approval**: Present detailed completion message (see application-design.md for message format) - DO NOT PROCEED until user confirms
-6. **MANDATORY**: Log user's response in audit.md with complete raw input
+4. Execute at appropriate depth (minimal/standard/comprehensive) — depth affects how many components get their own LLD file and how many EARS statements are generated, not whether HLD/LLD/EARS are produced (mandatory at every depth level)
+5. **MANDATORY — Global Spec-First order**: within this stage, produce artifacts strictly in this order: (a) `hld.md`, (b) one `lld.md` per major component (Step 10.1), (c) EARS requirements derived from each `lld.md` (Step 10.2). Do not generate EARS before the LLD it's derived from exists.
+6. **Wait for Explicit Approval**: Present detailed completion message (see application-design.md for message format) - DO NOT PROCEED until user confirms
+7. **MANDATORY**: Log user's response in audit.md with complete raw input
 
 ## Units Generation (CONDITIONAL)
 
@@ -307,53 +239,45 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
 - No decomposition needed
 - Straightforward single-component implementation
 
+**This stage is the "Story Breakdown" step of the Global Spec-First flow** (`HLD → LLD → EARS → Story Breakdown → Tests → Code`) — see `common/design-driven-dev-guide.md`.
+
 **Execution**:
 1. **MANDATORY**: Log any user input during this phase in audit.md
-2. Load all steps from `inception/units-generation.md`
+2. Load all steps from `inception/units-generation.md` and `common/story-breakdown-template.md`
 3. Load reverse engineering artifacts (if brownfield)
 4. Execute at appropriate depth (minimal/standard/comprehensive)
 5. **MANDATORY**: Enforce PR size guardrails from `units-generation.md` when splitting units (each unit sized for easy PR review)
-6. **Wait for Explicit Approval**: Present detailed completion message (see units-generation.md for message format) - DO NOT PROCEED until user confirms
-7. **MANDATORY**: Log user's response in audit.md with complete raw input
+6. **MANDATORY**: Assign every in-scope EARS requirement (from `aidlc-docs/inception/requirements/ears/`) to exactly one unit's EARS Coverage
+7. **Wait for Explicit Approval**: Present detailed completion message (see units-generation.md for message format) - DO NOT PROCEED until user confirms
+8. **MANDATORY**: Log user's response in audit.md with complete raw input
 
 ## Artifact Generation (CONDITIONAL)
 
 **Execute IF**:
 - Requirements Analysis was executed
-- Formal artifact documents are needed (PRD, requirements spec, HLD)
+- Formal stakeholder-facing artifacts are needed (PRD, consolidated requirements traceability report)
 - Stakeholder documentation is required
 
 **Skip IF**:
 - Simple task with no need for formal documentation
-- All three artifact types already exist and are up to date
+- Artifact types already exist and are up to date
+
+**Note on scope**: HLD, LLDs, and EARS already exist as of Application Design — they are the single source of truth and are **not regenerated here**. This stage produces the stakeholder-facing PRD and a traceability rollup only.
 
 **Execution**:
 1. **MANDATORY**: Log any user input during this phase in audit.md
 2. Load reference artifacts (all that exist):
-   - `aidlc-docs/inception/requirements/` — requirements
-   - `aidlc-docs/inception/application-design/` — application design
+   - `aidlc-docs/inception/requirements/` — requirements (EARS files + index)
+   - `aidlc-docs/inception/application-design/` — application design, `hld.md`, `lld/`, `unit-of-work.md` (personas + story breakdown, if generated)
    - `aidlc-docs/inception/plans/` — units
-   - `aidlc-docs/inception/user-stories/` — user stories
    - `aidlc-docs/inception/reverse-engineering/` — reverse engineering (brownfield only)
 3. Generate **PRD** (`aidlc-docs/inception/artifacts/prd.md`):
    - Load template from `common/prd-template.md` (in resolved rule details directory)
-   - Use all loaded reference artifacts as input context
+   - Use all loaded reference artifacts as input context; cite EARS IDs (not free-text restatements) in the User Stories / Acceptance Criteria / NFR sections
    - Populate every section of the template with content derived from the reference artifacts
-4. Generate **Requirements Document** (`aidlc-docs/inception/artifacts/requirements.md`):
-   - Express ALL captured requirements in **EARS (Easy Approach to Requirements Syntax)** format
-   - EARS sentence patterns to use:
-     - Ubiquitous: "The `<system name>` shall `<system response>`"
-     - Event-driven: "When `<trigger>`, the `<system name>` shall `<system response>`"
-     - State-driven: "While `<system state>`, the `<system name>` shall `<system response>`"
-     - Conditional: "Where `<optional feature>`, the `<system name>` shall `<system response>`"
-     - Optional feature: "Where `<optional feature>`, when `<trigger>`, the `<system name>` shall `<system response>`"
-   - Include for each requirement: unique ID (e.g. REQ-001), EARS statement, category (Functional/Non-Functional), priority (Must/Should/Could/Won't), source traceability, and detailed analysis notes
-   - Group requirements by category and provide a summary table
-5. Generate **HLD** (`aidlc-docs/inception/artifacts/hld.md`):
-   - Load template from `common/technical-design-document-template.md` (in resolved rule details directory)
-   - Use all loaded reference artifacts as input context
-   - Populate every section of the template; include architecture diagrams, component interactions, data flows, and technology decisions
-6. **Wait for Explicit Approval**: Present completion message listing the three generated artifacts with their paths — DO NOT PROCEED until user confirms
+4. Generate **Requirements Traceability Report** (`aidlc-docs/inception/artifacts/requirements-traceability.md`): compile a rollup table (EARS file | ID range | Category | Priority | Status counts | Assigned Unit(s)) — link to EARS files rather than duplicating them
+5. Reference the existing **HLD/LLDs** (`aidlc-docs/inception/application-design/hld.md`, `lld/`) — do not regenerate with `technical-design-document-template.md`; if they don't exist (Application Design was skipped), note the gap rather than fabricating them
+6. **Wait for Explicit Approval**: Present completion message listing the generated artifacts and their paths - DO NOT PROCEED until user confirms
 7. **MANDATORY**: Log user's response in audit.md with complete raw input
 
 ---
@@ -458,9 +382,10 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
 1. **MANDATORY**: Log any user input during this stage in audit.md
 2. Load all steps from `construction/infrastructure-design.md`
 3. Execute infrastructure design for this unit
-4. **MANDATORY**: Present standardized 2-option completion message as defined in infrastructure-design.md - DO NOT use emergent behavior
-5. **Wait for Explicit Approval**: User must choose between "Request Changes" or "Continue to Next Stage" - DO NOT PROCEED until user confirms
-6. **MANDATORY**: Log user's response in audit.md with complete raw input
+4. **MANDATORY — LLD Refinement**: Update the owning component's `aidlc-docs/inception/application-design/lld/{component}.md` Infrastructure Mapping section (Step 6.1 of `infrastructure-design.md`) with this unit's choices — edit in place, do not create a second design document
+5. **MANDATORY**: Present standardized 2-option completion message as defined in infrastructure-design.md - DO NOT use emergent behavior
+6. **Wait for Explicit Approval**: User must choose between "Request Changes" or "Continue to Next Stage" - DO NOT PROCEED until user confirms
+7. **MANDATORY**: Log user's response in audit.md with complete raw input
 
 ### Code Generation (ALWAYS EXECUTE, per-unit)
 
@@ -493,8 +418,8 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
 3. Load all steps from the selected rule file:
    - **TDD (default)**: `construction/tdd-code-generation.md`
    - **Standard (opt-in)**: `construction/code-generation.md`
-4. **PART 1 - Planning**: Create code generation plan with checkboxes, get user approval
-5. **PART 2 - Generation**: Execute approved plan to generate code for this unit
+4. **PART 1 - Planning**: Create code generation plan with checkboxes, get user approval; read the unit's EARS Coverage from `unit-of-work.md`
+5. **PART 2 - Generation**: Execute approved plan to generate code for this unit; **MANDATORY**: annotate code and tests with `@spec {EARS-ID}` comments (see `common/ears-syntax.md`), and flip each EARS ID's status marker from `[ ]` to `[x]` in `aidlc-docs/inception/requirements/ears/` only once its `@spec`-annotated tests are green
 6. **MANDATORY**: Present standardized 2-option completion message as defined in the selected rule file - DO NOT use emergent behavior
 7. **Wait for Explicit Approval**: User must choose between "Request Changes" or "Continue to Next Stage" - DO NOT PROCEED until user confirms
 8. **MANDATORY**: Log user's response in audit.md with complete raw input
@@ -511,7 +436,8 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
    - Integration test instructions (test interactions between units)
    - Performance test instructions (if applicable)
    - Additional test instructions as needed (contract tests, security tests, e2e tests)
-4. Create instruction files in build-and-test/ subdirectory: build-instructions.md, unit-test-instructions.md, integration-test-instructions.md, performance-test-instructions.md, build-and-test-summary.md
+   - **EARS traceability rollup**: verify status markers across `aidlc-docs/inception/requirements/ears/` match actual test results; correct any marker Code Generation flipped incorrectly
+4. Create instruction files in build-and-test/ subdirectory: build-instructions.md, unit-test-instructions.md, integration-test-instructions.md, performance-test-instructions.md, build-and-test-summary.md (with EARS coverage rollup)
 5. **Wait for Explicit Approval**: Ask: "**Build and test instructions complete. Ready to proceed to Operations stage?**" - DO NOT PROCEED until user confirms
 6. **MANDATORY**: Log user's response in audit.md with complete raw input
 
@@ -614,18 +540,27 @@ The Operations stage will eventually include:
 │   │   ├── plans/
 │   │   ├── reverse-engineering/    # Brownfield only
 │   │   ├── requirements/
-│   │   ├── user-stories/
+│   │   │   ├── requirement-verification-questions.md
+│   │   │   ├── requirements.md     # Prose context + index into ears/
+│   │   │   └── ears/               # Canonical EARS requirements (derived from LLDs)
+│   │   │       └── {feature}-{subfeature}-ears.md
 │   │   ├── application-design/
-│   │   └── artifacts/              # prd.md, requirements.md, hld.md
+│   │   │   ├── components.md, component-methods.md, services.md, component-dependency.md
+│   │   │   ├── hld.md              # Canonical High-Level Design
+│   │   │   ├── lld/                # One Low-Level Design per component (refined by Construction)
+│   │   │   │   └── {component}.md
+│   │   │   ├── personas.md         # Optional — generated in Units Generation, not a separate stage
+│   │   │   └── unit-of-work.md, unit-of-work-dependency.md, unit-of-work-story-map.md  # Story Breakdown: EARS Coverage + Gherkin/user-story framing per unit
+│   │   └── artifacts/              # prd.md, requirements-traceability.md (rollup only)
 │   ├── construction/               # 🟢 CONSTRUCTION PHASE
 │   │   ├── plans/
 │   │   ├── {unit-name}/
-│   │   │   ├── functional-design/
-│   │   │   ├── nfr-requirements/
-│   │   │   ├── nfr-design/
-│   │   │   ├── infrastructure-design/
-│   │   │   └── code/               # Markdown summaries only
-│   │   └── build-and-test/
+│   │   │   ├── functional-design/  # Refines owning component's lld.md
+│   │   │   ├── nfr-requirements/   # Refines owning component's lld.md
+│   │   │   ├── nfr-design/         # Refines owning component's lld.md
+│   │   │   ├── infrastructure-design/  # Refines owning component's lld.md
+│   │   │   └── code/               # Markdown summaries only; code is @spec-annotated to EARS IDs
+│   │   └── build-and-test/         # includes EARS coverage rollup in build-and-test-summary.md
 │   ├── operations/                 # 🟡 OPERATIONS PHASE (placeholder)
 │   ├── aidlc-state.md
 │   └── audit.md

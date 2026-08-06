@@ -1,5 +1,7 @@
 # Technical Design Document (TDD)
 
+> **Relationship to HLD/LLD (read first)**: Application Design now produces the canonical **HLD** (`aidlc-docs/inception/application-design/hld.md`) and per-component **LLD**s (`aidlc-docs/inception/application-design/lld/{component}.md`) — see `common/hld-template.md` / `common/lld-template.md`. Those are mandatory and lighter-weight by design. Use **this** heavier template only when stakeholders explicitly need enterprise sections beyond what `lld.md` covers (full cost estimation, migration/rollout plans, SLA commitments) — reference it optionally from a component's `lld.md`, don't replace it.
+
 > **Instructions**: This template is for both frontend and backend technical designs. Remove this instruction block and any sections not applicable to your design. Replace all `[PLACEHOLDER]` text with actual content.
 
 > **IMPORTANT - Documentation Strategy**:

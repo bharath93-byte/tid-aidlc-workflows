@@ -9,18 +9,21 @@ Application Design focuses on:
 - Designing service layer for orchestration
 - Establishing component dependencies and communication patterns
 
-**Note**: Detailed business logic design happens later in Functional Design (per-unit, CONSTRUCTION phase)
+**Note**: Detailed business logic design happens later in Functional Design (per-unit, CONSTRUCTION phase), which **refines** (not replaces) this stage's LLD — see below.
+
+**This stage produces, in order: HLD → LLD(s) → EARS** (the mandatory Global Spec-First flow — see [design-driven-dev-guide.md](../common/design-driven-dev-guide.md)). See [hld-template.md](../common/hld-template.md), [lld-template.md](../common/lld-template.md), and [ears-syntax.md](../common/ears-syntax.md) for structure. `components.md`/`component-methods.md`/`services.md`/`component-dependency.md` remain the detailed reference layer that `hld.md` and each `lld.md` summarize and link to.
 
 ## Prerequisites
 - Workspace Detection must be complete
 - Requirements Analysis recommended (provides functional context)
-- User Stories recommended (user stories guide design decisions)
 - Execution plan must indicate Application Design stage should execute
+
+**Note**: There is no separate "User Stories" stage — personas and user-story framing are generated later, in Units Generation (Story Breakdown), after EARS exists, so they're grounded in concrete requirements instead of early prose (see [design-driven-dev-guide.md](../common/design-driven-dev-guide.md)).
 
 ## Step-by-Step Execution
 
 ### 1. Analyze Context
-- Read `aidlc-docs/inception/requirements/requirements.md` and `aidlc-docs/inception/user-stories/stories.md`
+- Read `aidlc-docs/inception/requirements/requirements.md`
 - Identify key business capabilities and functional areas
 - Determine design scope and complexity
 
@@ -35,6 +38,9 @@ Application Design focuses on:
   - [ ] Generate component-methods.md with method signatures (business rules detailed later in Functional Design)
   - [ ] Generate services.md with service definitions and orchestration patterns
   - [ ] Generate component-dependency.md with dependency relationships and communication patterns
+  - [ ] Generate hld.md (project-level, see [hld-template.md](../common/hld-template.md))
+  - [ ] Generate one lld.md per major component/feature (see [lld-template.md](../common/lld-template.md)), linked from hld.md
+  - [ ] Generate EARS requirements derived from each component's lld.md (see [ears-syntax.md](../common/ears-syntax.md))
   - [ ] Validate design completeness and consistency
 
 ### 4. Generate Context-Appropriate Questions
@@ -106,6 +112,18 @@ If the analysis in step 8 reveals ANY ambiguous answers, you MUST:
   - Data flow diagrams
 - Create `aidlc-docs/inception/application-design/application-design.md` that consolidates the multiple design docs created above in a single doc.
 
+### 10.1 Generate HLD and per-component LLDs (MANDATORY)
+- Create `aidlc-docs/inception/application-design/hld.md` per [hld-template.md](../common/hld-template.md): Problem Statement/Goals/Non-Goals/Target Users derived from `requirements.md` and `user-stories/personas.md` (if run); Architecture Overview summarizing `components.md`/`services.md`; Key Design Decisions with alternatives considered
+- For each major component/feature identified in Step 1-9 above, create `aidlc-docs/inception/application-design/lld/{component-name}.md` per [lld-template.md](../common/lld-template.md) — capture what's known now (business logic sketch, API contracts, NFR targets, infra intent); mark sections not yet decidable as `TBD — refined at {stage}` rather than fabricating
+- Populate `hld.md`'s **Related Designs** table with every component's `lld.md` path (no `pending` placeholders — LLDs exist by the end of this step)
+
+### 10.2 Generate EARS Requirements (MANDATORY)
+- For each component's `lld.md`, derive testable requirements per [ears-syntax.md](../common/ears-syntax.md): one file per sub-feature at `aidlc-docs/inception/requirements/ears/{feature}-{subfeature}-ears.md`, semantic IDs, status `[ ]` for all (nothing implemented yet), Category/Priority annotated
+- Choose the most specific EARS pattern per statement — do not default to Ubiquitous when a more specific pattern applies
+- Link each EARS file back to its parent `lld.md`; update that `lld.md`'s **Requirements** section with links to all its EARS files
+- Update `aidlc-docs/inception/requirements/requirements.md` to add an index table (EARS file | component | requirement count) — the original prose from Requirements Analysis stays as context; EARS is the testable source of truth going forward
+- When in doubt about EARS pattern choice or requirement atomicity, ask a follow-up question rather than guessing
+
 ### 11. Log Approval
 - Log approval prompt with timestamp in `aidlc-docs/audit.md`
 - Include complete approval prompt text
@@ -119,7 +137,7 @@ If the analysis in step 8 reveals ANY ambiguous answers, you MUST:
 [AI-generated summary of application design artifacts created in bullet points]
 
 > **📋 <u>**REVIEW REQUIRED:**</u>**  
-> Please examine the application design artifacts at: `aidlc-docs/inception/application-design/`
+> Please examine the application design artifacts at: `aidlc-docs/inception/application-design/` (HLD: `hld.md`, LLDs: `lld/`, EARS requirements: `../requirements/ears/`)
 
 > **🚀 <u>**WHAT'S NEXT?**</u>**
 >

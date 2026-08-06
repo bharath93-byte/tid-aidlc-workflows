@@ -29,7 +29,8 @@ This stage generates code for each unit of work using **Test-Driven Development 
 - [ ] Read unit design artifacts from Unit Design Generation
 - [ ] Read unit story map to understand assigned stories
 - [ ] Identify unit dependencies and interfaces
-- [ ] Derive **testable behaviors** from stories, acceptance criteria, business rules, and API/contracts
+- [ ] Read the unit's EARS Coverage (from `unit-of-work.md`) — each EARS ID is a candidate testable behavior
+- [ ] Derive **testable behaviors** from stories, acceptance criteria, business rules, API/contracts, and EARS requirements
 - [ ] List edge cases, error paths, and invariants that must be covered by tests
 - [ ] Validate unit is ready for TDD code generation
 
@@ -51,7 +52,7 @@ This stage generates code for each unit of work using **Test-Driven Development 
   - Documentation Generation (API docs, README updates)
   - Deployment Artifacts Generation
 - [ ] For each TDD cycle in the plan, document:
-  - Behavior / story ID
+  - Behavior / story ID **and EARS ID(s)** this cycle satisfies
   - Intended failing test name(s) and file path
   - Production file(s) expected to change in Green
   - Refactor goals (if known) — e.g., extract collaborator, remove duplication
@@ -152,6 +153,8 @@ This stage generates code for each unit of work using **Test-Driven Development 
 - [ ] Avoid speculative features, extra abstractions, or unrelated cleanups in Green
 - [ ] **If file exists**: Modify it in-place (never create `ClassName_modified.java`, `ClassName_new.java`, etc.)
 - [ ] **If file doesn't exist**: Create new file
+- [ ] **Annotate the new test and production code with `@spec` comments** citing the EARS ID(s) this cycle satisfies (see `common/ears-syntax.md`)
+- [ ] Once this test is green, flip that EARS ID's status marker from `[ ]` to `[x]` in the source file under `aidlc-docs/inception/requirements/ears/` (edit in place; only flip IDs actually covered by this passing, annotated test)
 - [ ] Write to correct locations:
   - **Application Code / Tests**: Workspace root per project structure
   - **Documentation**: `aidlc-docs/construction/{unit-name}/code/` (markdown only)
@@ -333,4 +336,5 @@ When generating UI code (web, mobile, desktop), ensure elements are automation-f
 - Deployment artifacts generated (as planned)
 - PR size budget verified (counted files ≤ 10 and counted lines ≤ 300, or approved exception documented)
 - Code Reviewer executed per `construction/reviewer.md` with report at `aidlc-docs/construction/{unit-name}/code/code-review.md`
+- Every EARS ID in this unit's coverage is `@spec`-annotated in code/tests, and its status marker in `aidlc-docs/inception/requirements/ears/` reflects actual pass/fail state
 - Complete unit ready for Build & Test (broader verification) and next stages

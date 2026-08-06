@@ -22,13 +22,9 @@
 - requirements.md (includes intent analysis)
 - requirement-verification-questions.md (with answers)
 
-### 1.3 Load User Stories (if executed)
-- stories.md
-- personas.md
-
 ## Step 2: Detailed Scope and Impact Analysis
 
-**Now that we have complete context (requirements + stories), perform detailed analysis:**
+**Now that we have complete requirements context, perform detailed analysis:**
 
 ### 2.1 Transformation Scope Detection (Brownfield Only)
 
@@ -109,21 +105,7 @@ Evaluate risk level:
 
 ## Step 3: Phase Determination
 
-### 3.1 User Stories - Already Executed or Skip?
-**Already executed**: Move to next determination
-**Not executed - Execute IF**:
-- Multiple user personas
-- User experience impact
-- Acceptance criteria needed
-- Team collaboration required
-
-**Skip IF**:
-- Internal refactoring
-- Bug fix with clear reproduction
-- Technical debt reduction
-- Infrastructure changes
-
-### 3.2 Application Design - Execute IF:
+### 3.1 Application Design - Execute IF:
 - New components or services needed
 - Component methods and business rules need definition
 - Service layer design required
@@ -134,7 +116,7 @@ Evaluate risk level:
 - No new components or methods
 - Pure implementation changes
 
-### 3.3 Units Generation - Execute IF:
+### 3.2 Units Generation (Story Breakdown) - Execute IF:
 - New data models or schemas
 - API changes or new endpoints
 - Complex algorithms or business logic
@@ -148,7 +130,7 @@ Evaluate risk level:
 - Configuration updates
 - Straightforward implementations
 
-### 3.4 NFR Implementation - Execute IF:
+### 3.3 NFR Implementation - Execute IF:
 - Performance requirements
 - Security considerations
 - Scalability concerns
@@ -211,7 +193,6 @@ Create Mermaid flowchart showing:
 style WD fill:#4CAF50,stroke:#1B5E20,stroke-width:3px,color:#fff
 style CG fill:#4CAF50,stroke:#1B5E20,stroke-width:3px,color:#fff
 style BT fill:#4CAF50,stroke:#1B5E20,stroke-width:3px,color:#fff
-style US fill:#BDBDBD,stroke:#424242,stroke-width:2px,stroke-dasharray: 5 5,color:#000
 style Start fill:#CE93D8,stroke:#6A1B9A,stroke-width:3px,color:#000
 style End fill:#CE93D8,stroke:#6A1B9A,stroke-width:3px,color:#000
 
@@ -264,7 +245,6 @@ flowchart TD
         WD["Workspace Detection<br/><b>STATUS</b>"]
         RE["Reverse Engineering<br/><b>STATUS</b>"]
         RA["Requirements Analysis<br/><b>STATUS</b>"]
-        US["User Stories<br/><b>STATUS</b>"]
         WP["Workflow Planning<br/><b>STATUS</b>"]
         AD["Application Design<br/><b>STATUS</b>"]
         UG["Units Generation<br/>(Planning + Generation)<br/><b>STATUS</b>"]
@@ -302,7 +282,6 @@ flowchart TD
 - [x] Workspace Detection (COMPLETED)
 - [x] Reverse Engineering (COMPLETED/SKIPPED)
 - [x] Requirements Analysis (COMPLETED)
-- [x] User Stories (COMPLETED/SKIPPED)
 - [x] Execution Plan (IN PROGRESS)
 - [ ] Application Design - [EXECUTE/SKIP]
   - **Rationale**: [Why executing or skipping]
@@ -381,7 +360,6 @@ Update `aidlc-docs/aidlc-state.md`:
 - [x] Workspace Detection
 - [x] Reverse Engineering (if applicable)
 - [x] Requirements Analysis
-- [x] User Stories (if applicable)
 - [x] Workflow Planning
 - [ ] Application Design - [EXECUTE/SKIP]
 - [ ] Units Generation - [EXECUTE/SKIP]
@@ -413,7 +391,6 @@ I've created a comprehensive execution plan based on:
 - Your request: [Summary]
 - Existing system: [Summary if brownfield]
 - Requirements: [Summary if executed]
-- User stories: [Summary if executed]
 
 **Detailed Analysis**:
 - Risk level: [Level]

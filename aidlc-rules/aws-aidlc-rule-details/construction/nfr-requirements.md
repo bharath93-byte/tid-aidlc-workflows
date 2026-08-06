@@ -54,6 +54,7 @@ Determine non-functional requirements for the unit and make tech stack choices.
 ### Step 6: Generate NFR Requirements Artifacts
 - Create `aidlc-docs/construction/{unit-name}/nfr-requirements/nfr-requirements.md`
 - Create `aidlc-docs/construction/{unit-name}/nfr-requirements/tech-stack-decisions.md`
+- Update the **Non-Functional Requirements** table in the owning component's `aidlc-docs/inception/application-design/lld/{component}.md` (replacing `TBD`) with a summary linking to the two files above
 
 ### Step 7: Present Completion Message
 - Present completion message in this structure:

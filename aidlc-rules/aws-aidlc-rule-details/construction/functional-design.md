@@ -25,6 +25,7 @@ Design detailed business logic for the unit, technology-agnostic and focused pur
 ### Step 1: Analyze Unit Context
 - Read unit definition from `aidlc-docs/inception/application-design/unit-of-work.md`
 - Read assigned stories from `aidlc-docs/inception/application-design/unit-of-work-story-map.md`
+- Read this unit's **EARS Coverage** from `unit-of-work.md` and the owning component's `aidlc-docs/inception/application-design/lld/{component}.md` (ground business logic/rules/entities in these, not just story prose)
 - Understand unit responsibilities and boundaries
 
 ### Step 2: Create Functional Design Plan
@@ -74,6 +75,10 @@ Design detailed business logic for the unit, technology-agnostic and focused pur
   - User interaction flows
   - Form validation rules
   - API integration points (which backend endpoints each component uses)
+
+### Step 6.1: Refine Component LLD (MANDATORY)
+- Update the **Business Logic & Domain Model** section of the owning component's `aidlc-docs/inception/application-design/lld/{component}.md` (replacing any `TBD` placeholder) with a concise summary linking to the detailed artifacts created in Step 6 — do not duplicate their full content, link to them
+- Do not remove or contradict decisions already recorded in the LLD from Application Design; if this unit's design requires changing one, flag it and cascade per [design-driven-dev-guide.md](../common/design-driven-dev-guide.md) "Cascading Changes" (may require reviewing that component's EARS)
 
 ### Step 7: Present Completion Message
 - Present completion message in this structure:

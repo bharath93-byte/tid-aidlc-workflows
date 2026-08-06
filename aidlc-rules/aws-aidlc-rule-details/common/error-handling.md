@@ -67,19 +67,19 @@
 - **Solution**: Highlight unanswered questions, provide examples
 - **Do Not Proceed**: Until all required questions are answered
 
-### User Stories Errors
+### Story Breakdown Errors (Units Generation)
 
-**Error**: Cannot map requirements to stories
-- **Cause**: Requirements too vague, missing functional details
-- **Solution**: Return to Requirements Analysis for clarification
-- **Workaround**: Create stories based on available information, mark as incomplete
+**Error**: Cannot map EARS requirements to units
+- **Cause**: EARS too vague, missing testable detail, or LLD decision it depends on is missing
+- **Solution**: Return to Application Design to refine the LLD/EARS statement, then re-attempt Story Breakdown
+- **Workaround**: Create the unit based on available information, mark EARS Coverage as incomplete
 
-**Error**: User provides ambiguous story planning answers
+**Error**: User provides ambiguous unit-decomposition answers
 - **Cause**: Unclear options, complex decision
 - **Solution**: Add follow-up questions with specific examples
 - **Do Not Proceed**: Until ambiguities are resolved
 
-**Error**: Story generation plan has uncompleted steps
+**Error**: Unit generation plan has uncompleted steps
 - **Cause**: Execution interrupted, steps skipped
 - **Solution**: Resume from first uncompleted step
 - **Recovery**: Review completed steps, continue from checkpoint

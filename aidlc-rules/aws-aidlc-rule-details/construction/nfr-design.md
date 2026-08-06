@@ -50,6 +50,7 @@ Incorporate NFR requirements into unit design using patterns and logical compone
 ### Step 6: Generate NFR Design Artifacts
 - Create `aidlc-docs/construction/{unit-name}/nfr-design/nfr-design-patterns.md`
 - Create `aidlc-docs/construction/{unit-name}/nfr-design/logical-components.md`
+- Update the **Design Patterns & Logical Components** section in the owning component's `aidlc-docs/inception/application-design/lld/{component}.md` (replacing `TBD`) with a summary linking to the two files above
 
 ### Step 7: Present Completion Message
 - Present completion message in this structure:

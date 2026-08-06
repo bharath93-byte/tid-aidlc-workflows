@@ -12,10 +12,10 @@ Users may request changes to the execution plan or stage execution during the wo
 
 **Scenario**: User wants to add a stage that was originally skipped
 
-**Example**: "Actually, I want to add user stories even though we skipped that stage"
+**Example**: "Actually, I want Application Design after all, even though we skipped that stage"
 
 **Handling**:
-1. **Confirm Request**: "You want to add User Stories stage. This will create user stories and personas. Confirm?"
+1. **Confirm Request**: "You want to add the [Stage Name] stage. This will create [artifacts]. Confirm?"
 2. **Check Dependencies**: Verify all prerequisite stages are complete
 3. **Update Execution Plan**: Add stage to `execution-plan.md` with rationale
 4. **Update State**: Mark stage as "PENDING" in `aidlc-state.md`
@@ -55,10 +55,10 @@ Users may request changes to the execution plan or stage execution during the wo
 
 **Scenario**: User is unhappy with current stage results and wants to redo it
 
-**Example**: "I don't like these user stories. Can we start over?"
+**Example**: "I don't like this unit breakdown. Can we start over?"
 
 **Handling**:
-1. **Understand Concern**: "What specifically would you like to change about the stories?"
+1. **Understand Concern**: "What specifically would you like to change about the units/stories?"
 2. **Offer Options**:
    - **Option A**: Modify existing artifacts (faster, preserves some work)
    - **Option B**: Complete restart (clean slate, more time)

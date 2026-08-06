@@ -19,7 +19,7 @@
 • **Skill gate before every stage**: Skill Discovery & Selection (`common/skill-discovery-gate.md`) runs as **Step 0** before any stage executes — including on resume or "start unit again"
 • **AI analyzes** your request, workspace, and complexity to determine which stages are needed
 • **These stages always execute**: Workspace Detection, Requirements Analysis (adaptive depth), Workflow Planning, Code Generation (per-unit), Build and Test
-• **All other stages are conditional**: Reverse Engineering, User Stories, Application Design, Units Generation, per-unit design stages (Functional Design, NFR Requirements, NFR Design, Infrastructure Design)
+• **All other stages are conditional**: Reverse Engineering, Application Design (produces HLD → LLD → EARS), Units Generation (Story Breakdown — personas/user-story framing happens here), per-unit design stages (Functional Design, NFR Requirements, NFR Design, Infrastructure Design)
 • **No fixed sequences**: Stages execute in the order that makes sense for your specific task
 
 ## Your Team's Role:
@@ -40,7 +40,6 @@ flowchart TD
         WD["Workspace Detection<br/><b>ALWAYS</b>"]
         RE["Reverse Engineering<br/><b>CONDITIONAL</b>"]
         RA["Requirements Analysis<br/><b>ALWAYS</b>"]
-        Stories["User Stories<br/><b>CONDITIONAL</b>"]
         WP["Workflow Planning<br/><b>ALWAYS</b>"]
         AppDesign["Application Design<br/><b>CONDITIONAL</b>"]
         UnitsG["Units Generation<br/><b>CONDITIONAL</b>"]
@@ -64,9 +63,7 @@ flowchart TD
     WD --> RA
     RE --> RA
     
-    RA -.-> Stories
     RA --> WP
-    Stories --> WP
     
     WP -.-> AppDesign
     WP -.-> UnitsG
@@ -94,7 +91,6 @@ flowchart TD
     style BT fill:#4CAF50,stroke:#1B5E20,stroke-width:3px,color:#fff
     style OPS fill:#BDBDBD,stroke:#424242,stroke-width:2px,stroke-dasharray: 5 5,color:#000
     style RE fill:#FFA726,stroke:#E65100,stroke-width:3px,stroke-dasharray: 5 5,color:#000
-    style Stories fill:#FFA726,stroke:#E65100,stroke-width:3px,stroke-dasharray: 5 5,color:#000
     style AppDesign fill:#FFA726,stroke:#E65100,stroke-width:3px,stroke-dasharray: 5 5,color:#000
 
     style UnitsG fill:#FFA726,stroke:#E65100,stroke-width:3px,stroke-dasharray: 5 5,color:#000
@@ -117,10 +113,9 @@ flowchart TD
 - Workspace Detection: Analyze workspace state and project type (ALWAYS)
 - Reverse Engineering: Analyze existing codebase (CONDITIONAL - Brownfield only)
 - Requirements Analysis: Gather and validate requirements (ALWAYS - Adaptive depth)
-- User Stories: Create user stories and personas (CONDITIONAL)
 - Workflow Planning: Create execution plan (ALWAYS)
-- Application Design: High-level component identification and service layer design (CONDITIONAL)
-- Units Generation: Decompose into units of work (CONDITIONAL)
+- Application Design: High-level component identification, HLD → LLD → EARS (CONDITIONAL)
+- Units Generation: Story Breakdown — decompose EARS into units of work, with personas/user-story framing (CONDITIONAL)
 
 **🟢 CONSTRUCTION PHASE** - Design, Implementation, Build and Test
 - Functional Design: Detailed business logic design per unit (CONDITIONAL, per-unit)

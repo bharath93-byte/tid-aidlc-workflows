@@ -6,7 +6,7 @@
 - Execution plan must indicate Infrastructure Design stage should execute
 
 ## Overview
-Map logical software components to actual infrastructure choices for deployment environments.
+Map logical software components to actual infrastructure choices for deployment environments, then refine the unit's owning component LLD (drafted at Application Design) with those choices — see [design-driven-dev-guide.md](../common/design-driven-dev-guide.md).
 
 ## Steps to Execute
 
@@ -55,6 +55,12 @@ Map logical software components to actual infrastructure choices for deployment 
 - Create `aidlc-docs/construction/{unit-name}/infrastructure-design/deployment-architecture.md`
 - If shared infrastructure: Create `aidlc-docs/construction/shared-infrastructure.md`
 
+### Step 6.1: Refine Component LLD (MANDATORY)
+- Identify this unit's owning component `aidlc-docs/inception/application-design/lld/{component}.md` (from `unit-of-work.md`)
+- Update its **Infrastructure Mapping** table (replacing any `TBD`) with this unit's compute/storage/messaging/networking/monitoring choices, linking to `infrastructure-design.md` / `deployment-architecture.md` for full detail
+- Add a row for this unit to the LLD's **Contributing Units** table
+- **Do not** create a second design document — edit `lld.md` in place. If Infrastructure Design is *skipped* for a unit, this refinement is skipped too; the LLD's Infrastructure Mapping section simply stays `TBD` for that unit until a later stage fills it in
+
 ### Step 7: Present Completion Message
 - Present completion message in this structure:
      1. **Completion Announcement** (mandatory): Always start with this:
@@ -74,7 +80,7 @@ Map logical software components to actual infrastructure choices for deployment 
 
 ```markdown
 > **📋 <u>**REVIEW REQUIRED:**</u>**  
-> Please examine the infrastructure design at: `aidlc-docs/construction/[unit-name]/infrastructure-design/`
+> Please examine the infrastructure design at: `aidlc-docs/construction/[unit-name]/infrastructure-design/` (refined component LLD: `aidlc-docs/inception/application-design/lld/[component].md`)
 
 
 
