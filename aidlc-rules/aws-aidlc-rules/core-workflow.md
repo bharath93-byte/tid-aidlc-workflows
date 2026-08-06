@@ -312,8 +312,9 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
 2. Load all steps from `inception/units-generation.md`
 3. Load reverse engineering artifacts (if brownfield)
 4. Execute at appropriate depth (minimal/standard/comprehensive)
-5. **Wait for Explicit Approval**: Present detailed completion message (see units-generation.md for message format) - DO NOT PROCEED until user confirms
-6. **MANDATORY**: Log user's response in audit.md with complete raw input
+5. **MANDATORY**: Enforce PR size guardrails from `units-generation.md` when splitting units (each unit sized for easy PR review)
+6. **Wait for Explicit Approval**: Present detailed completion message (see units-generation.md for message format) - DO NOT PROCEED until user confirms
+7. **MANDATORY**: Log user's response in audit.md with complete raw input
 
 ## Artifact Generation (CONDITIONAL)
 

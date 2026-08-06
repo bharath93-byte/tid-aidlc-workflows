@@ -111,7 +111,7 @@ This stage generates code for each unit of work through two integrated parts:
 ## Step 11: Execute Current Step
 - [ ] Verify target directory from plan (never aidlc-docs/)
 - [ ] **Brownfield only**: Check if target file exists
-- [ ] **If a prior Code Reviewer report exists** at `aidlc-docs/construction/{unit-name}/code/code-review.md` (from Step 13):
+- [ ] **If a prior Code Reviewer report exists** at `aidlc-docs/construction/{unit-name}/code/code-review.md` (from Step 14):
   - Read all open findings (Blocker, Major, Minor, and any user-requested changes tied to the report)
   - Apply fixes for findings that affect the current plan step's files/scope before or as part of generating that step
   - Prefer resolving Blocker and Major findings first; do not ignore applicable review comments
@@ -134,22 +134,45 @@ This stage generates code for each unit of work through two integrated parts:
 - [ ] **Brownfield only**: Verify no duplicate files created (e.g., no `ClassName_modified.java` alongside `ClassName.java`)
 - [ ] Save all generated artifacts
 
-## Step 13: Run Code Reviewer
-- [ ] If any steps in the unit code generation plan remain incomplete (`[ ]`), skip this step and proceed to Step 14
-- [ ] If all unit code generation plan steps are complete:
+## Step 13: Verify PR Size Budget
+- [ ] If any steps in the unit code generation plan remain incomplete (`[ ]`), skip this step and proceed to Step 15
+- [ ] Read the unit's approved PR size budget from `aidlc-docs/inception/application-design/unit-of-work.md` (≤ 10 counted files; target ≤ 200 / hard max 300 counted lines; `< 15 minutes` review)
+- [ ] Measure actual scope vs merge-base with `origin/main` (plus uncommitted changes):
+
+```bash
+git fetch origin main
+BASE=$(git merge-base HEAD origin/main)
+git diff --stat "$BASE"...HEAD
+git status --short
+git diff --stat
+git diff --cached --stat
+```
+
+- [ ] Count **only production/application source** files and their additions+deletions toward the budget
+- [ ] **Exclude** from both file and line counts: unit tests, auto-generated lock files, migrations, and mocks
+- [ ] Record counted vs excluded totals in `aidlc-docs/construction/{unit-name}/code/` (or the unit code summary)
+- [ ] If counted files > 10 or counted lines > 300 and no approved exception exists in `unit-of-work.md`:
+  - Do **not** present completion as success
+  - Split remaining work into a follow-on unit/PR, or stop and ask the user for an explicit exception with rationale
+- [ ] If within limits (or exception approved), proceed to Step 14
+
+## Step 14: Run Code Reviewer
+- [ ] If any steps in the unit code generation plan remain incomplete (`[ ]`), skip this step and proceed to Step 15
+- [ ] If all unit code generation plan steps are complete and Step 13 PR size check passed (or exception approved):
   - Load and execute all steps from `construction/reviewer.md` (review details, report, and user continuation live there)
   - Branch on the continuation outcome returned by the reviewer:
-    - **Fix the review comments** → proceed to Step 11 (via Step 10 as needed), then re-run Step 13
-    - **Continue without fixing** or **Approve (no findings)** → proceed to Step 14
+    - **Fix the review comments** → proceed to Step 11 (via Step 10 as needed), then re-run Steps 13–14
+    - **Continue without fixing** or **Approve (no findings)** → proceed to Step 15
     - **Other** → follow the outcome described by the reviewer
 - [ ] Log that Code Reviewer was invoked and the continuation outcome in `aidlc-docs/audit.md` with ISO 8601 IST timestamp
 
-## Step 14: Continue or Complete Generation
+## Step 15: Continue or Complete Generation
 - [ ] If more generation plan steps remain, return to Step 10
-- [ ] If Step 13 continuation outcome is **Fix the review comments**, return to Step 10/11 (do not present completion yet)
-- [ ] If all generation plan steps are complete and Step 13 continuation outcome is **Continue without fixing** or **Approve (no findings)**, proceed to present completion message
+- [ ] If Step 13 failed PR size budget without exception, do not present completion — split work or obtain exception first
+- [ ] If Step 14 continuation outcome is **Fix the review comments**, return to Step 10/11 (do not present completion yet)
+- [ ] If all generation plan steps are complete, Step 13 passed, and Step 14 continuation outcome is **Continue without fixing** or **Approve (no findings)**, proceed to present completion message
 
-## Step 15: Present Completion Message
+## Step 16: Present Completion Message
 - Present completion message in this structure:
      1. **Completion Announcement** (mandatory): Always start with this:
 
@@ -184,12 +207,12 @@ This stage generates code for each unit of work through two integrated parts:
 ---
 ```
 
-## Step 16: Wait for Explicit Approval
+## Step 17: Wait for Explicit Approval
 - Do not proceed until the user explicitly approves the generated code
 - Approval must be clear and unambiguous
-- If user requests changes, return to Step 11 to apply fixes (including any Step 13 review comments), then re-run Step 13 (Code Reviewer) on the updated diff, and repeat the approval process
+- If user requests changes, return to Step 11 to apply fixes (including any Step 14 review comments), then re-run Steps 13–14 (PR size check + Code Reviewer) on the updated diff, and repeat the approval process
 
-## Step 17: Record Approval and Update Progress
+## Step 18: Record Approval and Update Progress
 - Log approval in audit.md with timestamp
 - Record the user's approval response with timestamp
 - Mark Code Generation stage as complete for this unit in aidlc-state.md
@@ -227,7 +250,8 @@ This stage generates code for each unit of work through two integrated parts:
 - **UPDATE CHECKBOXES**: Mark [x] immediately after completing each step
 - **STORY TRACEABILITY**: Mark unit stories [x] when functionality is implemented
 - **RESPECT DEPENDENCIES**: Only implement when unit dependencies are satisfied
-- **RUN CODE REVIEWER**: When all plan steps are complete, execute `construction/reviewer.md` (Step 13) and branch on its continuation outcome before presenting completion
+- **VERIFY PR SIZE BUDGET**: Before Code Reviewer / completion, re-check counted diff size against unit budget from `unit-of-work.md` (≤ 10 files; ≤ 200–300 lines; exclude unit tests, lock files, migrations, mocks)
+- **RUN CODE REVIEWER**: When all plan steps are complete and PR size check passed, execute `construction/reviewer.md` (Step 14) and branch on its continuation outcome before presenting completion
 - **HONOR REVIEW COMMENTS**: When continuation is Fix and `code-review.md` exists, Step 11 must address applicable findings while executing generation/fix steps
 
 ### Automation Friendly Code Rules
@@ -243,5 +267,6 @@ When generating UI code (web, mobile, desktop), ensure elements are automation-f
 - All unit stories implemented according to plan
 - All code and tests generated (tests will be executed in Build & Test phase)
 - Deployment artifacts generated
+- PR size budget verified (counted files ≤ 10 and counted lines ≤ 300, or approved exception documented)
 - Code Reviewer executed per `construction/reviewer.md` with report at `aidlc-docs/construction/{unit-name}/code/code-review.md`
 - Complete unit ready for build and verification

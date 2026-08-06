@@ -132,7 +132,7 @@ This stage generates code for each unit of work using **Test-Driven Development 
 ## Step 11: Execute Current Step (TDD)
 - [ ] Verify target directory from plan (never aidlc-docs/)
 - [ ] **Brownfield only**: Check if target production/test file exists
-- [ ] **If a prior Code Reviewer report exists** at `aidlc-docs/construction/{unit-name}/code/code-review.md` (from Step 16):
+- [ ] **If a prior Code Reviewer report exists** at `aidlc-docs/construction/{unit-name}/code/code-review.md` (from Step 17):
   - Read all open findings (Blocker, Major, Minor, and any user-requested changes tied to the report)
   - Prefer a TDD fix path: add/adjust a failing test that captures the defect (Red), then implement the fix (Green), then Refactor if needed
   - Prefer resolving Blocker and Major findings first; do not ignore applicable review comments
@@ -191,15 +191,36 @@ This stage generates code for each unit of work using **Test-Driven Development 
 - [ ] Record command(s) and result in `aidlc-docs/construction/{unit-name}/code/tdd-test-run.md` (or the unit code summary)
 - [ ] If failures exist: return to Step 10/11 and fix via TDD (Red for regression if missing, then Green/Refactor)
 
-## Step 16: Run Code Reviewer
-- [ ] Load and execute all steps from `construction/reviewer.md` (review details, report, and user continuation live there)
+## Step 16: Verify PR Size Budget
+- [ ] Read the unit's approved PR size budget from `aidlc-docs/inception/application-design/unit-of-work.md` (≤ 10 counted files; target ≤ 200 / hard max 300 counted lines; `< 15 minutes` review)
+- [ ] Measure actual scope vs merge-base with `origin/main` (plus uncommitted changes):
+
+```bash
+git fetch origin main
+BASE=$(git merge-base HEAD origin/main)
+git diff --stat "$BASE"...HEAD
+git status --short
+git diff --stat
+git diff --cached --stat
+```
+
+- [ ] Count **only production/application source** files and their additions+deletions toward the budget
+- [ ] **Exclude** from both file and line counts: unit tests, auto-generated lock files, migrations, and mocks
+- [ ] Record counted vs excluded totals in `aidlc-docs/construction/{unit-name}/code/` (or `tdd-test-run.md` / unit code summary)
+- [ ] If counted files > 10 or counted lines > 300 and no approved exception exists in `unit-of-work.md`:
+  - Do **not** present completion as success
+  - Split remaining work into a follow-on unit/PR, or stop and ask the user for an explicit exception with rationale
+- [ ] If within limits (or exception approved), proceed to Step 17
+
+## Step 17: Run Code Reviewer
+- [ ] Load and execute all steps from `construction/reviewer.md` only after Step 16 PR size check passed (or exception approved)
 - [ ] Branch on the continuation outcome returned by the reviewer:
-  - **Fix the review comments** → proceed to Step 11 (via Step 10 as needed) using TDD (prefer Red that captures the finding), then re-run Steps 15–16 as needed
-  - **Continue without fixing** or **Approve (no findings)** → proceed to Step 17
+  - **Fix the review comments** → proceed to Step 11 (via Step 10 as needed) using TDD (prefer Red that captures the finding), then re-run Steps 15–17 as needed
+  - **Continue without fixing** or **Approve (no findings)** → proceed to Step 18
   - **Other** → follow the outcome described by the reviewer
 - [ ] Log that Code Reviewer was invoked and the continuation outcome in `aidlc-docs/audit.md` with ISO 8601 IST timestamp
 
-## Step 17: Present Completion Message
+## Step 18: Present Completion Message
 - Present completion message in this structure:
      1. **Completion Announcement** (mandatory): Always start with this:
 
@@ -235,12 +256,12 @@ This stage generates code for each unit of work using **Test-Driven Development 
 ---
 ```
 
-## Step 18: Wait for Explicit Approval
+## Step 19: Wait for Explicit Approval
 - Do not proceed until the user explicitly approves the generated code
 - Approval must be clear and unambiguous
-- If user requests changes, return to Step 11 and apply fixes via TDD (including any Step 16 review comments), re-run Step 15 (full suite), then re-run Step 16 (Code Reviewer), and repeat the approval process
+- If user requests changes, return to Step 11 and apply fixes via TDD (including any Step 17 review comments), re-run Step 15 (full suite), then re-run Steps 16–17 (PR size check + Code Reviewer), and repeat the approval process
 
-## Step 19: Record Approval and Update Progress
+## Step 20: Record Approval and Update Progress
 - Log approval in audit.md with timestamp
 - Record the user's approval response with timestamp
 - Mark TDD Code Generation stage as complete for this unit in aidlc-state.md
@@ -292,7 +313,8 @@ This stage generates code for each unit of work using **Test-Driven Development 
 - **UPDATE CHECKBOXES**: Mark `[x]` immediately after completing each Red/Green/Refactor/step
 - **STORY TRACEABILITY**: Mark unit stories `[x]` when behaviors are implemented and green
 - **RESPECT DEPENDENCIES**: Only implement when unit dependencies are satisfied
-- **RUN CODE REVIEWER**: When all TDD plan steps are complete and the suite is green, execute `construction/reviewer.md` (Step 16) and branch on its continuation outcome
+- **VERIFY PR SIZE BUDGET**: Before Code Reviewer / completion, re-check counted diff size against unit budget from `unit-of-work.md` (≤ 10 files; ≤ 200–300 lines; exclude unit tests, lock files, migrations, mocks)
+- **RUN CODE REVIEWER**: When all TDD plan steps are complete, the suite is green, and PR size check passed, execute `construction/reviewer.md` (Step 17) and branch on its continuation outcome
 - **HONOR REVIEW COMMENTS**: When continuation is Fix and `code-review.md` exists, Step 11 must address applicable findings using TDD
 
 ### Automation Friendly Code Rules
@@ -309,5 +331,6 @@ When generating UI code (web, mobile, desktop), ensure elements are automation-f
 - Automated tests exist for the implemented behaviors and were executed during generation
 - Full applicable test suite green before Code Reviewer and before stage completion
 - Deployment artifacts generated (as planned)
+- PR size budget verified (counted files ≤ 10 and counted lines ≤ 300, or approved exception documented)
 - Code Reviewer executed per `construction/reviewer.md` with report at `aidlc-docs/construction/{unit-name}/code/code-review.md`
 - Complete unit ready for Build & Test (broader verification) and next stages

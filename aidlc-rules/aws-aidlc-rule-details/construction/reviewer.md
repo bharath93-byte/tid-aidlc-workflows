@@ -53,7 +53,21 @@ git diff --cached
 
 - [ ] Read the unit code generation plan: `aidlc-docs/construction/plans/{unit-name}-code-generation-plan.md` (if present)
 - [ ] Read unit stories / design artifacts needed to judge intent (only as needed for the diff)
+- [ ] Read PR size budget and any approved exception from `aidlc-docs/inception/application-design/unit-of-work.md` when present
 - [ ] **Brownfield only**: Use reverse-engineering artifacts for expected structure when assessing regressions in changed files
+
+
+
+## Step 3b: Check PR Size Budget
+
+- [ ] From the collected diff, count **production/application source** files and their additions+deletions
+- [ ] **Exclude** from both file and line counts: unit tests, auto-generated lock files, migrations, and mocks
+- [ ] Compare counted scope to unit budget: ≤ 10 files; target ≤ 200 / hard max 300 changed lines; review target `< 15 minutes`
+- [ ] If counted files > 10 or counted lines > 300 **and** no approved exception is documented in `unit-of-work.md`, add a finding:
+  - Severity: **Major** (treat as **Blocker** for merge recommendation if the overrun is severe or unexplained)
+  - Dimension: Maintainability
+  - Finding: `PR size over unit budget` — report counted files/lines vs limits and require split or documented exception
+- [ ] If an approved exception exists, note it under Residual Risks (do not fail solely on size)
 
 
 
@@ -213,7 +227,7 @@ Other (if selected):
 
 - [ ] Log continuation outcome with timestamp in `aidlc-docs/audit.md`
 - [ ] Record the user's complete raw checkbox selection (or that no prompt was needed)
-- [ ] Do not mark Code Generation complete here — Code Generation Step 13/14 owns flow branching
+- [ ] Do not mark Code Generation complete here — Code Generation owns PR size check and flow branching after this stage
 
 
 
@@ -250,9 +264,10 @@ Other (if selected):
 
 ### Dimension Rules
 
-- Always evaluate: Logic correctness, Security, Maintainability (incl. SOLID), Performance, Reliability
+- Always evaluate: Logic correctness, Security, Maintainability (incl. SOLID), Performance, Reliability, and PR size budget (Step 3b)
 - Omit a dimension from the findings table only when it has no issues (do not invent filler)
 - Severity must match impact; security exploitability in the changed path is **Blocker**
+- Over-budget counted PR size without documented exception is at least **Major**
 
 
 
@@ -269,6 +284,7 @@ Other (if selected):
 ## Completion Criteria
 
 - Diff vs `origin/main` collected (or empty-diff path handled)
+- PR size budget checked (counted files/lines vs unit limits; exception noted when present)
 - All review dimensions evaluated
 - Strict SOLID review completed for changed surface
 - `aidlc-docs/construction/{unit-name}/code/code-review.md` written

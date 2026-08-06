@@ -5,9 +5,32 @@ This stage decomposes the system into manageable units of work through two integ
 - **Part 1 - Planning**: Create decomposition plan with questions, collect answers, analyze for ambiguities, get approval
 - **Part 2 - Generation**: Execute approved plan to generate unit artifacts
 
-**DEFINITION**: A unit of work is a functionally split, agile delivery slice that is independently deployable and independently testable. Default behavior is to create multiple units aligned to business capabilities; do not collapse the full system into one catch-all unit unless the user explicitly approves an exception.
+**DEFINITION**: A unit of work is a functionally split, agile delivery slice that is independently deployable and independently testable. Default behavior is to create multiple units aligned to business capabilities; do not collapse the full system into one catch-all unit unless the user explicitly approves an exception. Each unit MUST also be sized for easy PR review per **PR Size Guardrails** below.
 
 **Terminology**: Use "Service" for independently deployable components, "Module" for logical groupings within a service, "Unit of Work" for planning context.
+
+## PR Size Guardrails (Mandatory)
+
+Every unit MUST be sized so a reviewer can finish review in **under 15 minutes**. Apply these limits when proposing and validating unit boundaries:
+
+| Guardrail | Limit | Notes |
+|-----------|-------|-------|
+| Maximum files touched | **≤ 10** | Counted production/application source files only |
+| Maximum lines changed | **≤ 200–300** | Additions + deletions on counted files; **target ≤ 200**, **hard ceiling 300** |
+| Review time target | **< 15 minutes** | Design each unit for this review window |
+
+**Excluded from both file and line counts** (list separately in artifacts; do not budget against limits):
+
+- Unit test files and unit test line changes
+- Auto-generated lock files
+- Migrations
+- Mocks
+
+**Enforcement**:
+
+- If a proposed unit exceeds limits → **further split** the unit, or document an **approved exception** with rationale in `unit-of-work.md`
+- Do **not** present Units Generation completion while any unit is `Over limit` without an approved exception
+- Code Generation re-checks actual diff size against these budgets (see `construction/code-generation.md` / `construction/tdd-code-generation.md`)
 
 ## Prerequisites
 - Workspace Detection must be complete
@@ -38,9 +61,12 @@ This stage decomposes the system into manageable units of work through two integ
 - [ ] Ensure each unit has a clear functional boundary (business capability based, not technical-layer based)
 - [ ] Ensure each unit defines independent deployability details (artifact, deploy target, release boundary)
 - [ ] Ensure each unit defines independent testability details (unit/integration/e2e entry points)
+- [ ] For each unit, document **PR size budget**: estimated counted files (≤ 10), estimated counted changed lines (target ≤ 200, max 300), review time target (`< 15 minutes`), and PR size status
+- [ ] For each unit, list estimated files to create/modify with **counted** vs **excluded** paths (unit tests, lock files, migrations, mocks listed under excluded)
 - [ ] Write unit and story descriptions in plain language understandable by product stakeholders and end users
-- [ ] Validate unit boundaries and dependencies
+- [ ] Validate unit boundaries, dependencies, and PR size guardrails
 - [ ] Ensure all stories are assigned to units
+- [ ] Split or exception any unit that exceeds PR size limits before generation completes
 
 ## Step 3: Generate Context-Appropriate Questions
 **DIRECTIVE**: Thoroughly analyze the requirements, stories, and application design to identify ALL areas where clarification would improve unit decomposition quality. Be proactive in asking questions to ensure comprehensive coverage of decomposition concerns.
@@ -67,6 +93,7 @@ This stage decomposes the system into manageable units of work through two integ
 - **Behavior Specification** - Ask how each unit should be represented as Gherkin `Feature`/`Scenario` statements
 - **Acceptance Criteria** - Ask for scenario-level acceptance criteria format (AC IDs, pass conditions, non-functional constraints)
 - **Audience Readability** - Ask for preferred terminology and reading level for product and end-user friendly descriptions
+- **PR Reviewability / Size Limits** - Confirm or override defaults (≤ 10 counted files; ≤ 200–300 counted lines; < 15 min review); ask when exceptions to PR size limits are allowed
 
 ## Step 4: Store UOW Plan
 - Save as `aidlc-docs/inception/plans/unit-of-work-plan.md`
@@ -155,6 +182,22 @@ Feature: [Unit of Work Name]
 | AC-001 | [Unit Name] | [Scenario Name] | [Measurable expected behavior] | [Test/Review/Automation] | [Must/Should/Could] |
 ```
 
+- [ ] For each unit, include PR size fields in `unit-of-work.md`:
+  - Estimated files to create/modify (counted production paths)
+  - Excluded paths listed separately (unit tests, lock files, migrations, mocks)
+  - Estimated changed lines on counted files only (target ≤ 200, max 300)
+  - Review time target: `< 15 minutes`
+  - PR size status: `Within limits` | `Over limit (exception approved)` | `Needs split`
+- [ ] Include a PR size summary table in `unit-of-work.md`:
+
+```markdown
+| Unit | Est. files (counted) | Est. changed lines (counted) | Limit (files / lines) | Review target | Status | Exception rationale |
+|------|----------------------|------------------------------|-----------------------|---------------|--------|---------------------|
+| U1   | 7                    | 180                          | 10 / 200–300          | < 15 min      | Within | N/A |
+```
+
+- [ ] If any unit status is `Needs split` or `Over limit` without approved exception, split further before Step 16
+
 ## Step 14: Update Progress
 - [ ] Mark the completed step as [x] in the unit of work plan
 - [ ] Update `aidlc-docs/aidlc-state.md` current status
@@ -163,6 +206,7 @@ Feature: [Unit of Work Name]
 ## Step 15: Continue or Complete
 - [ ] If more steps remain, return to Step 12
 - [ ] If all steps complete, verify units are ready for design stages
+- [ ] Verify every unit passes PR Size Guardrails (or has an approved exception with rationale)
 - [ ] Mark Units Generation stage as complete
 
 ## Step 16: Present Completion Message
@@ -210,6 +254,7 @@ Feature: [Unit of Work Name]
 - Get explicit user approval before generation
 - Plan units by functional business capabilities to support agile incremental delivery
 - Keep story language understandable for product stakeholders and end users
+- Plan units to satisfy **PR Size Guardrails** (≤ 10 counted files; ≤ 200–300 counted lines; < 15 min review)
 
 ### Generation Phase Rules
 - **NO HARDCODED LOGIC**: Only execute what's written in the unit of work plan
@@ -220,15 +265,17 @@ Feature: [Unit of Work Name]
 - **SINGLE ARTIFACT ENFORCEMENT**: Maintain exactly one `unit-of-work.md`; append/edit sections in place rather than creating additional unit-of-work files
 - **SEPARATE DEPLOYABLE + TESTABLE UNITS**: Every unit must be independently deployable and independently testable with explicit evidence in `unit-of-work.md`
 - **PLAIN LANGUAGE FIRST**: Story descriptions, feature names, and scenario titles must be understandable by non-technical readers
+- **PR SIZE ENFORCEMENT**: Every unit must be Within limits or Over limit with approved exception; never complete with Needs split unresolved
 
 ## Completion Criteria
 - All planning questions answered and ambiguities resolved
 - User approval obtained for the plan
 - All steps in unit of work plan marked [x]
 - All unit artifacts generated according to plan:
-  - `unit-of-work.md` with unit definitions, per-unit Gherkin scenarios, and acceptance criteria table
+  - `unit-of-work.md` with unit definitions, per-unit Gherkin scenarios, acceptance criteria table, and PR size budget table
   - `unit-of-work-dependency.md` with dependency matrix
   - `unit-of-work-story-map.md` with story mappings
 - Every unit is functionally split and documented as independently deployable and independently testable
+- Every unit satisfies PR Size Guardrails or has a documented approved exception
 - Unit story descriptions and Gherkin labels are written in layman-friendly language suitable for product and end-user review
 - Units verified and ready for per-unit design stages
