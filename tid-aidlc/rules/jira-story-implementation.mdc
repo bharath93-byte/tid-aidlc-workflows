@@ -1,0 +1,16 @@
+---
+alwaysApply: false
+---
+# Jira story implementation (devices)
+
+When the user wants to **implement device code** for a Jira story (e.g. "implement device story", "device developer workflow", or story ID with intent to implement):
+
+1. **Use the skill** at `.cursor/skills/iam-device-developer/SKILL.md` (or run the command `/iam-device-developer <STORY_ID>`).
+2. Follow its steps: fetch story, branch `dev/<STORY_KEY>`, plan (no code until approval), implement, review, run ruff, get approval, commit, push.
+
+When the user wants to **write device tests** for a Jira story (e.g. "device tester workflow", "write tests for device story"):
+
+1. **Use the skill** at `.cursor/skills/iam-device-tester/SKILL.md` (or run the command `/iam-device-tester <STORY_ID>`).
+2. Follow its steps: fetch story, branch `tests/<STORY_KEY>`, plan for tests, get approval, implement tests in **`tests/automation`** only (do not touch **`devices/`**), commit, push.
+
+Do not skip the approval gates (plan approval and, for developer workflow, post-review and commit approval).

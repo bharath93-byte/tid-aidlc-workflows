@@ -1,0 +1,179 @@
+{
+  "_meta": {
+    "description": "AI-DLC pipeline framework config. Defines all valid states, allowed transitions, and the skills relevant at each stage. Loaded by state-loader before any skill runs.",
+    "version": "1.3.0",
+    "entry_point": "aidlc-init is the orchestrator entry point. It bootstraps state.json (not-started) and chains aidlc-epic-scaffold (context) -> aidlc-vision-doc (vision) -> aidlc-adr (ADR) -> generate-system-prompts (adr_decisions.xml) -> aidlc-design-driven-dev (HLD -> LLD -> EARS). It is resumable via state-loader.",
+    "source_of_truth": "The epic's state.json is the single source of truth for its current status. Do not re-derive status by scanning disk artifacts; trust state.json.",
+    "state_writer": "state-loader is READ-ONLY. status is written by: (1) aidlc-init at bootstrap (not-started) and on the design-in-progress/design-completed hops; (2) aidlc-epic-scaffold on the context-ready hop; (3) aidlc-vision-doc on the inception-completed hop; (4) aidlc-adr (+ generate-system-prompts ADR mode) on the adr-completed hop. A status change is valid only when the transition trigger is met, and MUST be accompanied by a new row in the epic's audit.md."
+  },
+
+  "states": {
+    "not-started": {
+      "label": "Not Started",
+      "description": "Bootstrap state written by aidlc-init before inception runs: state.json exists with status not-started, but no system prompts or vision yet. state-loader also infers this state if the file is absent (an epic dir created by hand)."
+    },
+    "context-ready": {
+      "label": "Context Ready",
+      "description": "Context summary approved and system-prompts/context.xml written. Ready for vision document generation."
+    },
+    "inception-completed": {
+      "label": "Inception Completed",
+      "description": "system-prompts/context.xml and vision.md have been created and approved. Ready for ADR authoring."
+    },
+    "adr-completed": {
+      "label": "ADR Completed",
+      "description": "ADR Gate 2 passed; adr.md and system-prompts/adr_decisions.xml written. Ready to enter design phase."
+    },
+    "design-in-progress": {
+      "label": "Design In Progress",
+      "description": "HLD/LLD/EARS work has started but at least one design artifact is still pending approval."
+    },
+    "design-completed": {
+      "label": "Design Completed",
+      "description": "HLD, all LLDs, and all EARS files are approved and coherent. Ready for implementation."
+    },
+    "implementation-in-progress": {
+      "label": "Implementation In Progress",
+      "description": "One or more implementation stories are actively being developed."
+    },
+    "implementation-completed": {
+      "label": "Implementation Completed",
+      "description": "All planned stories are implemented. Ready for PR review."
+    },
+    "review-in-progress": {
+      "label": "Review In Progress",
+      "description": "Pull request(s) are open and under review."
+    },
+    "shipped": {
+      "label": "Shipped",
+      "description": "All PRs merged and the feature is live."
+    }
+  },
+
+  "transitions": {
+    "not-started": {
+      "next": ["context-ready"],
+      "trigger": "Context summary approved; context.xml written to system-prompts/"
+    },
+    "context-ready": {
+      "next": ["inception-completed"],
+      "trigger": "vision.md Gate 2 approved and written to EPIC_DIR"
+    },
+    "inception-completed": {
+      "next": ["adr-completed"],
+      "trigger": "ADR Gate 2 approved; adr.md written; adr_decisions.xml written"
+    },
+    "adr-completed": {
+      "next": ["design-in-progress"],
+      "trigger": "HLD draft created and presented for review"
+    },
+    "design-in-progress": {
+      "next": ["design-completed"],
+      "trigger": "HLD + all planned LLDs + all EARS files explicitly approved and audit.md updated.",
+      "rollback": ["adr-completed"]
+    },
+    "design-completed": {
+      "next": ["implementation-in-progress"],
+      "trigger": "First implementation story is started.",
+      "rollback": ["design-in-progress"]
+    },
+    "implementation-in-progress": {
+      "next": ["implementation-completed"],
+      "trigger": "All stories in the stories map reach status=done.",
+      "rollback": ["design-completed"]
+    },
+    "implementation-completed": {
+      "next": ["review-in-progress"],
+      "trigger": "PR opened."
+    },
+    "review-in-progress": {
+      "next": ["shipped"],
+      "trigger": "PR merged.",
+      "rollback": ["implementation-in-progress"]
+    },
+    "shipped": {
+      "next": [],
+      "trigger": "Terminal state."
+    }
+  },
+
+  "skills_by_state": {
+    "not-started": {
+      "primary": ["aidlc-init"],
+      "optional": ["aidlc-epic-scaffold", "generate-system-prompts"],
+      "note": "Prefer aidlc-init: it orchestrates inception + ADR + design end-to-end and is resumable. aidlc-epic-scaffold can be run directly for context gathering only."
+    },
+    "context-ready": {
+      "primary": ["aidlc-vision-doc"],
+      "optional": ["aidlc-vision", "aidlc-approve"],
+      "note": "Generate and approve vision.md before ADR authoring."
+    },
+    "inception-completed": {
+      "primary": ["aidlc-adr"],
+      "optional": ["aidlc-approve", "aidlc-vision-doc"],
+      "note": "ADR is required before design. Run aidlc-adr to lock architecture decisions, then refresh system-prompts with adr_decisions.xml."
+    },
+    "adr-completed": {
+      "primary": ["aidlc-design-driven-dev"],
+      "optional": ["aidlc-adr", "aidlc-approve", "generate-system-prompts"],
+      "note": "Start design phase. aidlc-design-driven-dev will guide HLD → LLD → EARS. aidlc-adr is available for ADR revisions only."
+    },
+    "design-in-progress": {
+      "primary": ["aidlc-design-driven-dev"],
+      "optional": ["aidlc-approve"],
+      "note": "Continue design phase. Do not write implementation code yet."
+    },
+    "design-completed": {
+      "primary": ["add-iam-api-endpoint"],
+      "optional": ["aidlc-design-driven-dev", "aidlc-adr"],
+      "note": "Design is locked. Use add-iam-api-endpoint to scaffold implementation. aidlc-design-driven-dev is available for design revisions only."
+    },
+    "implementation-in-progress": {
+      "primary": ["add-iam-api-endpoint"],
+      "optional": ["update-devices-docs", "iam-device-developer", "iam-device-tester"],
+      "note": "Actively building stories. Update state.json stories map as each story progresses."
+    },
+    "implementation-completed": {
+      "primary": [],
+      "optional": ["update-devices-docs"],
+      "note": "All code written. Open PR and move to review-in-progress."
+    },
+    "review-in-progress": {
+      "primary": [],
+      "optional": [],
+      "note": "Await review feedback. Address comments and push fixes."
+    },
+    "shipped": {
+      "primary": [],
+      "optional": [],
+      "note": "Epic is complete. No further skill execution needed."
+    }
+  },
+
+  "story_statuses": ["todo", "in-progress", "done", "blocked"],
+
+  "governance": {
+    "epic_dir_patterns": [
+      "aidlc-docs/<epic-name>",
+      "aidlc-docs/<epic-name>_<epic-id>"
+    ],
+    "epic_dir_note": "Both directory-naming forms are valid. Resolve by matching either form; if both exist, prefer the directory that actually contains a state.json.",
+    "state_file": "state.json",
+    "audit_file": "audit.md",
+    "rules": [
+      "state.json is the authoritative status; audit.md is the append-only human-readable ledger.",
+      "A status change is valid only if the target state appears in transitions[current].next (or transitions[current].rollback).",
+      "Whenever status changes, append one row to audit.md with the UTC timestamp, phase, skill, action, and approver.",
+      "state-loader never writes either file.",
+      "Migration: if status is inception-completed but adr.md or system-prompts/adr_decisions.xml is missing, route to aidlc-adr — do not start aidlc-design-driven-dev."
+    ]
+  },
+
+  "state_json_schema": {
+    "required": ["epic-id", "epic-name", "status", "stories"],
+    "epic-id": "string — short identifier or Jira key (e.g. IAM-123 or rate-limiting-user-userid)",
+    "epic-name": "string — human-readable hyphen-separated name",
+    "status": "string — must be one of the keys in states above",
+    "stories": "object — keyed by story-id; each value is { title: string, status: one of story_statuses, ears_ref: string, lld_ref: string }"
+  }
+}

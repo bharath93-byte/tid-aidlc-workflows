@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/aidlc-audit-stamp.sh",
+        "matcher": "aidlc-docs/.*/vision\\.md"
+      }
+    ]
+  }
+}
