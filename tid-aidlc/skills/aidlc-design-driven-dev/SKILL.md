@@ -1,6 +1,6 @@
 ---
 name: design-driven-dev
-description: Guide for design-driven development with prescribed folder structure. New features use full workflow (HLD → LLD → EARS). Bug fixes skip doc creation but verify intent coherence.
+description: Guide for design-driven development with prescribed folder structure. Large/new features use the full workflow (HLD → LLD → EARS); minor bugs or small stories use the Lightweight tier (skip HLD and LLD, EARS only); pure bug fixes skip doc creation but verify intent coherence.
 ---
 
 # Design-Driven Development
@@ -9,7 +9,7 @@ This skill guides a structured design-driven development workflow. The goal is t
 
 ## Step 0: Load pipeline state (state-loader)
 
-Before starting any design work, if it hasn't already run in this session, invoke the **state-loader** skill to load `pipeline-config.json` and the `state.json` **of the currently-resolved epic** — the file inside this epic's own context directory (`aidlc-docs/<epic-name>/` or `aidlc-docs/<epic-name>_<epic-id>/`), not just any epic's file. If the epic context directory cannot be resolved from context, **ask the user which epic** (folder name or Jira key) before proceeding. Use its resolved `EPIC_DIR` as your `DOCS_DIR` (this supersedes re-deriving the path in *DOCS_DIR Discovery* below). This guarantees you resume at the correct pipeline position when a user or another developer continues the work, and that `status`/`audit.md` stay in lockstep as phases are approved.
+Before starting any design work, if it hasn't already run in this session, invoke the **state-loader** skill to load `pipeline-config.json` and the `state.json` **of the currently-resolved epic** — the file inside this epic's own context directory (`aidlc-docs/<epic-name>_<epic-id>/`), not just any epic's file. If the epic context directory cannot be resolved from context, **ask the user which epic** (folder name or Jira key) before proceeding. Use its resolved `EPIC_DIR` as your `DOCS_DIR` (this supersedes re-deriving the path in *DOCS_DIR Discovery* below). This guarantees you resume at the correct pipeline position when a user or another developer continues the work, and that `status`/`audit.md` stay in lockstep as phases are approved.
 
 ## ADR Prerequisite Check
 
@@ -36,9 +36,9 @@ Every time the user explicitly approves a phase (HLD, LLD, or EARS), you MUST up
 Before starting any design work, you must determine the correct epic context to locate the documentation directory.
 
 1. **Identify the Epic:** If the user hasn't specified which epic they are working on, ask them (e.g., "Which epic are we designing for? Please provide the key like IAM-123 or the name").
-2. **Locate the Directory:** Search the `aidlc-docs/` directory for a folder matching the provided epic key or name. The standard format is `aidlc-docs/{epic-name}_{epic-id}/`.
+2. **Locate the Directory:** Search the `aidlc-docs/` directory for a folder matching the provided epic key or name. The canonical format is `aidlc-docs/<epic-name>_<epic-id>/`.
 3. **Read `state.json`:** Once the folder is found, read the `state.json` file inside it to strictly confirm the `"epic-id"` and `"epic-name"`. 
-4. **Set DOCS_DIR:** Set your working `DOCS_DIR` strictly to `aidlc-docs/{epic-name}_{epic-id}` based on the values in `state.json`. All generated docs (HLD, LLD, EARS, and updated `audit.md`) MUST be saved inside this specific directory.
+4. **Set DOCS_DIR:** Set your working `DOCS_DIR` strictly to `aidlc-docs/<epic-name>_<epic-id>` based on the values in `state.json`. All generated docs (HLD, LLD, EARS, and updated `audit.md`) MUST be saved inside this specific directory.
 5. **Ingest Vision Document:** You MUST read `DOCS_DIR/vision.md`. This establishes the business goals, architectural North Star, and scope. The technical designs you create MUST **perfectly** align with this document.
 6. **Ingest XML System Prompts:** You MUST read the structured XML files located in `DOCS_DIR/system-prompts/` — at minimum `context.xml` and `adr_decisions.xml`. These files contain critical data constraints, integration boundaries, hard user decisions, and locked architecture decisions from ADR. Treat these XML constraints as the absolute factual baseline for your entire DDD flow. **Cite ADR IDs** (e.g., ADR-001) in HLD/LLD/EARS where a design choice implements or depends on an ADR decision.
 
@@ -79,23 +79,26 @@ DOCS_DIR/
 
 See [hld-template.md](./references/hld-template.md) for HLD structure guidance.
 
-## When to Use This Workflow
+## Complexity Tiers: Which Phases to Run
 
-**Full workflow (create new docs) for:**
-- New features
-- Major refactors
-- Significant behavior changes
+Before Phase 1, assess the size of the change and pick a tier. State the chosen tier to the user in one line and let them override it. **When unsure, default to Full — over-designing is safer than under-designing.** Only the phases for the chosen tier run; every phase that runs still STOPS for explicit approval and is logged to `audit.md`.
 
-**Coherence check only (skip doc creation) for:**
-- Bug fixes
-- Quick changes (<30 minutes)
-- Debugging sessions
+**Full tier — run HLD → LLD(s) → EARS.** Use for:
+- New features, large epics, or multi-feature / multi-component work
+- Major refactors or significant behavior changes
 
-**If unsure, use the full workflow.** Over-designing is safer than under-designing.
+**Lightweight tier — skip HLD and LLD; run EARS only, then proceed.** Use for:
+- Minor bugs or small stories (e.g. a two-or-three-files change)
+- Localized changes that introduce no new architecture and touch a single existing component
+
+**Coherence check only (no new docs) for:**
+- Pure bug fixes, quick changes (<30 minutes), or debugging sessions where existing EARS already cover the behavior — verify intent coherence and update in place instead of creating new docs.
 
 ## Phase 1: High-Level Design
 
 **File:** `DOCS_DIR/high-level-design.md`
+
+> **Skip this phase for the Lightweight tier** (minor bug / small story). Go straight to Phase 3 (EARS).
 
 Check if an HLD exists first. For new projects or major features, create an HLD covering:
 - Problem statement and goals
@@ -119,6 +122,8 @@ See [hld-template.md](./references/hld-template.md) for full structure with exam
 ## Phase 2: Low-Level Design
 
 **File:** `DOCS_DIR/designs/<feature>/LLD.md`
+
+> **Skip this phase for the Lightweight tier** (minor bug / small story). Go straight to Phase 3 (EARS).
 
 Create one LLD per major feature. Each LLD should include:
 
@@ -152,7 +157,7 @@ See [lld-template.md](./references/lld-template.md) for structure guidance, incl
 
 Generate requirements using EARS (Easy Approach to Requirements Syntax). Create one EARS file per sub-feature.
 
-**Required: Link to parent LLD**
+**Required: Link to parent LLD** (Full tier). For the **Lightweight tier** (no HLD/LLD), link back to `vision.md` and cite the relevant ADR IDs from `adr_decisions.xml` instead.
 
 ```
 ## Related Documents

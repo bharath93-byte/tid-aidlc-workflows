@@ -29,7 +29,7 @@ If a context block from `aidlc-context-loader` or `aidlc-epic-scaffold` is prese
 
 If no context exists, ask the user to run `aidlc-epic-scaffold` or `aidlc-context-loader` first, or paste the requirements so context can be inferred.
 
-When not chained, fall back to `OUTPUT_PATH = aidlc-docs/<EPIC_KEY>/vision.md`.
+When not chained, fall back to `OUTPUT_PATH = aidlc-docs/<epic-name>_<epic-id>/vision.md`.
 
 ---
 

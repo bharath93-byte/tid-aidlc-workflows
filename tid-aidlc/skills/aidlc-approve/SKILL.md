@@ -1,6 +1,6 @@
 ---
 name: aidlc-approve
-description: AIDLC approval-gate skill. Provides the shared "approval gate" mechanic needed at every stage of the AIDLC pipeline (inception/vision, ADR, TDD, delivery planning, Jira breakdown, implementation sign-off). Recognizes the trigger phrases "approved", "looks good", "finalized" (case-insensitive), captures the approver's identity, and appends a structured row to aidlc-docs/<epic-key-or-context-name>/audit.md, creating the file with the canonical header if it does not exist. Modeled on aidlc-vision's Gate 1 / Gate 2 pattern. Use whenever a draft, scorecard, or decision needs sign-off before persisting, or when the user says "approve this", "log this approval", or "/aidlc-approve".
+description: AIDLC approval-gate skill. Provides the shared "approval gate" mechanic needed at every stage of the AIDLC pipeline (inception/vision, ADR, TDD, delivery planning, Jira breakdown, implementation sign-off). Recognizes the trigger phrases "approved", "looks good", "finalized" (case-insensitive), captures the approver's identity, and appends a structured row to aidlc-docs/<epic-name>_<epic-id>/audit.md, creating the file with the canonical header if it does not exist. Modeled on aidlc-vision's Gate 1 / Gate 2 pattern. Use whenever a draft, scorecard, or decision needs sign-off before persisting, or when the user says "approve this", "log this approval", or "/aidlc-approve".
 disable-model-invocation: true
 ---
 
@@ -25,21 +25,21 @@ persist-worthy artifact.
 ## Step 1: Resolve the audit directory
 
 Every approval is tagged to exactly one directory, identified by:
-- **Epic key** (e.g. `IAM-123`), when the work originated from Jira, or
-- **Context / story name** (e.g. `rate-limiting-user-userid`), for manual or direct work
+- **`EPIC_DIR`** already resolved by state-loader / `aidlc-init`, or
+- **Epic identity** (`epic-name` + `epic-id`, e.g. `rate-limiting` + `IAM-123`)
 
 Resolution order:
 
-1. Use the `EPIC_KEY` / `FEATURE_SLUG` already established earlier in the
-   conversation (set by `aidlc-vision`, `aidlc-context-loader`,
-   `aidlc-vision-doc`, `aidlc-adr`, or an equivalent upstream skill).
-2. Otherwise, look for an existing `aidlc-docs/<name>/` directory matching
-   the current work. If exactly one plausible match exists, confirm it. If
-   several, list them and ask which.
+1. Use the `EPIC_DIR` already established earlier in the conversation
+   (set by state-loader, `aidlc-init`, `aidlc-vision`, `aidlc-vision-doc`,
+   `aidlc-adr`, or an equivalent upstream skill).
+2. Otherwise, look for an existing `aidlc-docs/<epic-name>_<epic-id>/`
+   directory matching the current work. If exactly one plausible match
+   exists, confirm it. If several, list them and ask which.
 3. If none found or still ambiguous, ask:
-   > "What epic key or context/story name should this approval be tagged under? (this determines `aidlc-docs/<name>/audit.md`)"
+   > "What epic-name and epic-id should this approval be tagged under? (this determines `aidlc-docs/<epic-name>_<epic-id>/audit.md`)"
 
-Set `AUDIT_DIR = aidlc-docs/<name>/` and `AUDIT_PATH = aidlc-docs/<name>/audit.md`.
+Set `AUDIT_DIR = aidlc-docs/<epic-name>_<epic-id>/` and `AUDIT_PATH = aidlc-docs/<epic-name>_<epic-id>/audit.md`.
 
 ---
 
@@ -75,8 +75,10 @@ Derive three values from the calling context:
 
 - `PHASE`: the AIDLC phase this gate belongs to — `inception` (vision),
   `adr` (architecture decision records), `design` (TDD/HLD/LLD/EARS),
-  `planning` (delivery plan / Jira breakdown),
-  `implementation`, or another phase name the calling skill defines. Do not
+  `prioritization` (RPT story breakdown / `aidlc-jira-story-breakdown`),
+  `planning` (delivery plan),
+  `implementation`,
+  `review` (`aidlc-gacr` / PR gate), or another phase name the calling skill defines. Do not
   invent a phase; ask the calling workflow or the user if ambiguous.
 - `SKILL_OR_EVENT`: the skill or step generating this approval (e.g.
   `aidlc-vision / Gate 1`, `aidlc-adr / Gate 2`, `manual review`).
@@ -132,7 +134,7 @@ Return control to the calling workflow so it can proceed past its gate.
   `.cursor/hooks/aidlc-audit-stamp.sh`, which already writes rows in this
   exact shape for `vision.md`.
 - Works across every AIDLC phase, not only inception — the `PHASE` column
-  is what distinguishes inception/design/planning/implementation gates
+  is what distinguishes inception/design/prioritization/planning/implementation/review gates
   within the same audit trail, in the same directory.
 - One `audit.md` per epic/context directory. Do not create a second audit
-  file for the same `aidlc-docs/<name>/` directory under a different name.
+  file for the same `aidlc-docs/<epic-name>_<epic-id>/` directory under a different name.

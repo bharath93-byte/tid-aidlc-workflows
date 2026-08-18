@@ -20,7 +20,7 @@ aidlc-init
 
 ## What this produces
 
-By the end (`status = design-completed`): the XML system prompts (`context.xml` + `adr_decisions.xml`), `vision.md`, `adr.md`, `high-level-design.md`, every feature `LLD.md`, every `*-EARS.md`, and a complete `audit.md` trail — each artifact approved by you at its gate.
+By the end (`status = design-completed`): the XML system prompts (`context.xml` + `adr_decisions.xml`), `vision.md`, `adr.md`, `high-level-design.md` and every feature `LLD.md` (Full tier only — skipped for the Lightweight tier), every `*-EARS.md`, and a complete `audit.md` trail — each artifact approved by you at its gate.
 
 > **Approval gates are human.** This orchestrator *sequences* the skills and **pauses at every approval gate**. It never auto-approves. Nothing lands on disk without your explicit "approved". "Boom" means the whole sequence is driven for you — not that review is skipped.
 
@@ -41,13 +41,13 @@ Branch on what state-loader found:
 **B. Fresh start (no `state.json`)** → BOOTSTRAP:
 
 1. **Get identity (one question):** ask for the Jira epic key (e.g. `IAM-123`) or a short manual identifier (e.g. `rate-limiting-user-userid`).
-2. **Derive names:** `epic-name` = lowercase-hyphenated; `epic-id` = the Jira key, or the same as `epic-name` for the manual path. Set the **canonical** `EPIC_DIR = aidlc-docs/<epic-name>/`.
+2. **Derive names:** `epic-name` = lowercase-hyphenated; `epic-id` = the Jira key, or the same as `epic-name` for the manual path. Set the **canonical** `EPIC_DIR = aidlc-docs/<epic-name>_<epic-id>/` (e.g. `IAM-123: Rate Limiting` → `aidlc-docs/rate-limiting_IAM-123/`).
 3. **Create `EPIC_DIR/state.json`:**
 ```json
 { "epic-id": "<epic-id>", "epic-name": "<epic-name>", "status": "not-started", "stories": {} }
 ```
 4. **Create `EPIC_DIR/audit.md`** with the standard header and a bootstrap row — phase `init`, skill `aidlc-init`, action `Epic bootstrapped; state.json initialized at not-started.`, approver = current system username.
-5. **`EPIC_DIR` is canonical.** Every downstream skill MUST read/write here. Do not allow a chained skill to spawn a second directory (e.g. `<epic-name>_<epic-id>/`) for the same epic.
+5. **`EPIC_DIR` is canonical.** Every downstream skill MUST read/write here. Do not allow a chained skill to spawn a second directory (e.g. `aidlc-docs/<epic-name>/`) for the same epic.
 
 ---
 
@@ -63,7 +63,7 @@ Read the current `status` and route. Consult `transitions` in `pipeline-config.j
 | `adr-completed` | Skip Phases A, A½, and B. Run **Phase C** (design). |
 | `design-in-progress` | Resume **Phase C** where it left off. |
 | `design-completed` | Goal already reached — go to **Step 5** (report, stop). |
-| `implementation-*` / `review-*` / `shipped` | Beyond aidlc-init's scope. Report the current status and the relevant skills from `skills_by_state`, then stop. |
+| `prioritization-completed` / `implementation-*` / `review-*` / `shipped` | Beyond aidlc-init's scope. Report the current status and the relevant skills from `skills_by_state`, then stop. |
 
 ---
 
@@ -103,14 +103,14 @@ Run when `status` is `inception-completed`.
 Run when `status` is `adr-completed` or `design-in-progress`.
 
 1. If `status = adr-completed`, advance `status → design-in-progress` in `state.json` and append an audit row (phase `design`, skill `aidlc-init`, action `Entered design phase.`). This keeps resume accurate if the session ends mid-design.
-2. Invoke **aidlc-design-driven-dev**. It reads `vision.md`, `context.xml`, and `adr_decisions.xml`, then drives **HLD → LLD(s) → EARS**, STOPPING for your approval at each phase and logging every approval to `audit.md`.
-3. When the full HLD → all LLDs → all EARS chain is approved, advance `status → design-completed` and append an audit row (action `Design phase complete: HLD, LLDs, EARS approved.`).
+2. Invoke **aidlc-design-driven-dev**. It reads `vision.md`, `context.xml`, and `adr_decisions.xml`, then first assesses a **complexity tier**: large / multi-feature work runs the full **HLD → LLD(s) → EARS**; a minor bug or small story runs the **Lightweight tier** (skips HLD and LLD, produces **EARS only**). Each phase that runs STOPS for your approval and is logged to `audit.md`.
+3. When the design phases for the chosen tier are approved (full HLD → all LLDs → all EARS, or **EARS-only** for the Lightweight tier), advance `status → design-completed` and append an audit row (action `Design phase complete: <phases run> approved.`).
 
 ---
 
 ## Step 5 — Report & hand off
 
-Print the state-loader banner one final time (now at `design-completed`), summarize the artifacts created, and tell the user the design pipeline is complete. Point them to the next-phase skills listed under `skills_by_state["design-completed"]` in the config.
+Print the state-loader banner one final time (now at `design-completed`), summarize the artifacts created, and tell the user the design pipeline is complete. Point them to the next-phase skill listed under `skills_by_state["design-completed"]` in the config — **`aidlc-jira-story-breakdown`** (RPT prioritization: populate the `stories` map, then `aidlc-tdd`). Do not chain those skills from this orchestrator.
 
 ---
 

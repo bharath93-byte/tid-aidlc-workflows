@@ -33,12 +33,11 @@ Resolve the epic silently using this priority order. Only ask the user if every 
 
 > **Rule:** Never ask when the answer is already knowable from context. Ask only when the epic is genuinely ambiguous or unknown.
 
-**Resolve `EPIC_DIR`.** The directory may use either naming form (see `governance.epic_dir_patterns` in the config):
+**Resolve `EPIC_DIR`.** Canonical form (see `governance.epic_dir_patterns` in the config):
 
-- `aidlc-docs/<epic-name>/`
 - `aidlc-docs/<epic-name>_<epic-id>/`
 
-Use whichever exists. If both exist, prefer the one that contains a `state.json`. This is a single directory-existence check — do not read file contents while resolving.
+Match the folder named `<epic-name>_<epic-id>` (or whose name contains the known `epic-id` / `epic-name`). This is a single directory-existence check — do not read file contents while resolving. Do not create or accept `aidlc-docs/<epic-name>/` as a second form.
 
 ---
 
@@ -95,9 +94,9 @@ Print this banner in chat before doing anything else. This gives the AI and user
 
 If `stories` is non-empty, also list each story in a compact table:
 
-| Story ID | Title | Status | EARS Ref |
-|----------|-------|--------|----------|
-| ...      | ...   | ...    | ...      |
+| Story ID | Title | Status | EARS Ref | Blocked By |
+|----------|-------|--------|----------|------------|
+| ...      | ...   | ...    | ...      | ...        |
 
 ---
 

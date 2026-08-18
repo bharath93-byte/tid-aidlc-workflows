@@ -1,0 +1,35 @@
+{
+  "$schema-note": "GACR roster + loop config. Paths are relative to the aidlc-gacr skill directory. 'model' accepts 'inherit' or any model slug the Task tool allows (e.g. 'claude-opus-5-thinking-high').",
+  "loop": {
+    "default_iterations": 3,
+    "hard_cap_iterations": 10,
+    "extend_on": "user_request",
+    "stop_on_user_approval": true,
+    "approval_keywords": ["approved", "approve", "looks good", "lgtm", "ship it", "finalized"],
+    "continue_keywords": ["continue", "another round", "keep going", "next iteration"],
+    "block_if_any_critic_requests_changes": true
+  },
+  "developer": {
+    "id": "dev-1",
+    "role": "developer",
+    "display_name": "Developer",
+    "persona": "personas/developer.md",
+    "model": "inherit",
+    "subagent_type": "generalPurpose",
+    "enabled": true
+  },
+  "critics": [
+    {
+      "id": "critic-senior-engineer",
+      "role": "critic",
+      "display_name": "Senior Engineer",
+      "persona": "personas/senior-engineer-critic.md",
+      "model": "inherit",
+      "subagent_type": "generalPurpose",
+      "guidelines": [
+        "guidelines/collective-feedback-guidelines.md"
+      ],
+      "enabled": true
+    }
+  ]
+}

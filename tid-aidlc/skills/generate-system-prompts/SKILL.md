@@ -84,8 +84,8 @@ Determine a short, hyphenated context name for the current chat based on the top
 
 ### Step 3: File Generation
 Instead of just printing the XML to the chat, you must automatically create the required XML files in the workspace.
-1. Create the directory path if it does not exist: `aidlc-docs/{context_name}/system-prompts/`
-2. Write the compressed XML content into one or more `.xml` files inside that directory (e.g., `aidlc-docs/iam-rate-limiting/system-prompts/core_constraints.xml`). 
+1. If this is for a pipeline epic, write under `aidlc-docs/<epic-name>_<epic-id>/system-prompts/`. Otherwise create `aidlc-docs/{context_name}/system-prompts/` for standalone compression.
+2. Write the compressed XML content into one or more `.xml` files inside that directory (e.g., `aidlc-docs/rate-limiting_IAM-123/system-prompts/core_constraints.xml`). 
 3. If the provided text is massively long and covers distinctly different domains, split the output into multiple logically named XML files (e.g., `adr_decisions.xml`, `traffic_profile.xml`).
 
 ### Step 4: Completion Output

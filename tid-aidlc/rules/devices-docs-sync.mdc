@@ -1,0 +1,31 @@
+---
+description: Keep devices/docs/ in sync whenever device filter/routing/validation code changes
+globs: devices/**/*.py
+alwaysApply: false
+---
+
+# devices/docs sync rule
+
+Whenever you change files under `devices/src/`, check whether any of the three docs in
+`devices/docs/` need to be updated **before committing or pushing**.
+
+## Code → doc mapping
+
+| Changed code | Update this doc |
+|---|---|
+| `device_service.py` — `__build_device_filter_query`, `__build_immediate_transfer_status_filter`, `__determine_filter_scenario` | `QUERY_BUILDING.md` — scenario rewrites, examples, call sequence |
+| `device_service.py` — `sort_params` defaults / routing | `QUERY_BUILDING.md` (Step 4 routing note) · `FIELD_OPERATOR_MATRIX.md` (backend routing) |
+| `validators/rsql_helpers.py` — `normalise_and_quote_filter_values`, `parse_rsql_filter` | `QUERY_BUILDING.md` — Steps 2a / 2b |
+| `validators/field_operator_validators.py` — `FIELD_REGISTRY`, `FieldConditionValidator` | `FIELD_OPERATOR_MATRIX.md` — filterable fields table |
+| `validators/business_rule_validators.py` — `IncludeFullStatusValidator` | `LIST_DEVICES_API.md` — `include=full` constraints table |
+| `constants.py` — `FILTER_FIELDS`, `FilterScenario` | `QUERY_BUILDING.md` · `FIELD_OPERATOR_MATRIX.md` |
+| `app.py` / routes — new endpoints or query params | `LIST_DEVICES_API.md` — query parameters table |
+
+## Checklist (apply before every commit)
+
+- [ ] Open each affected doc and verify examples still match actual code behaviour.
+- [ ] Remove references to deleted methods or dead code paths.
+- [ ] Add entries for new scenario cases, fields, or operators.
+- [ ] Confirm the "What is and is NOT rewritten" summary table in `QUERY_BUILDING.md` is current.
+
+Run the `update-devices-docs` skill for a full guided audit when the changes are broad.

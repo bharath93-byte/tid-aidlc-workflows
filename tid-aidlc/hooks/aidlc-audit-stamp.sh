@@ -3,7 +3,7 @@
 aidlc-audit-stamp — afterFileEdit hook.
 
 Fires when vision.md is written inside aidlc-docs/.
-Appends an audit entry to aidlc-docs/<epic-key>/audit.md.
+Appends an audit entry to aidlc-docs/<epic-name>_<epic-id>/audit.md.
 Creates audit.md with header if it does not exist.
 
 Input:  JSON on stdin from Cursor's hook system.

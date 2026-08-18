@@ -300,13 +300,13 @@ Do not proceed to Step 8c until `adr_decisions.xml` exists.
 - **Vision doc inputs:** accepts output from either `aidlc-vision` (full
   Jira/manual workflow with completeness scoring) or `aidlc-vision-doc`
   (standalone generator from a loaded context block) — both write to
-  `aidlc-docs/<EPIC_KEY>/vision.md`.
+  `aidlc-docs/<epic-name>_<epic-id>/vision.md`.
 - **Architecture doc input:** `docs/architecture/SYSTEM_ARCHITECTURE.md`
   (Step 2) grounds every ADR's Context/Rationale in the repo's actual tech
   stack, infrastructure, data model, and observability conventions, so
   decisions don't contradict what already exists.
 - **Style reference** for consolidated ADR document shape:
-  `aidlc-docs/rate-limiting-user-userid/adr.md` (epic-local) or
+  `aidlc-docs/rate-limiting_IAM-123/adr.md` (epic-local) or
   `docs/architecture/decisions/001-graph-in-dynamodb.md` (repo ADR format).
 - **Sub-skill relationship:** standalone, atomic skill in the `aidlc-*`
   family alongside `aidlc-vision`, `aidlc-vision-doc`, and

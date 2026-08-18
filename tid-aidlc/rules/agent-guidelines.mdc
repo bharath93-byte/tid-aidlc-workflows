@@ -1,0 +1,36 @@
+---
+description: Agent guidelines - cross-cutting concerns to verify on service changes (audit logging, env/config registration, ...)
+globs: **/src/**/*.py
+alwaysApply: false
+---
+
+# Agent Guidelines
+
+When adding or modifying a router/service handler for a mutating API (create/update/delete), or introducing a new env var or constant, apply the checks below. Add further guidelines to this rule as new cross-cutting concerns come up.
+
+## 1. Audit Logging
+
+If the change creates, updates, or deletes a resource, add an `audit_logger.log_with_event(...)` call in the router, mirroring existing handlers in the same file (e.g. `create_account`, `create_account_relation` in `accounts/src/accounts/routers/accounts.py`):
+
+```python
+audit_logger.log_with_event(
+    event=app.current_event,
+    token_data=user.token_data,
+    target_object={"id": <resource_id>, "type": <TYPE_REF>},  # or `relation=get_relation_data(...)` for relation changes
+    event_type=f"IAM: {AccountEvents.<NEW_EVENT>}",
+    tenant=<tenant_account_id>,
+)
+```
+
+- Add the new event name to the relevant `*Events(StrEnum)` class (e.g. `AccountEvents` in `utils/config.py`) if one doesn't already exist for this action.
+- Skip this for pure read (`GET`) endpoints.
+
+## 2. Env Vars / Constants
+
+If you add a new environment variable (`get_env_var("X")`, `os.environ.get("X")`) or a new module-level constant that configures behavior (e.g. a new role id, feature flag, threshold), update **all** of the following so the value is actually resolvable at runtime in every environment:
+
+- The service's `template.yaml` — add the SAM parameter and its `Environment.Variables` mapping (see `ACCOUNT_MANAGER_ROLE_ID` in `accounts/template.yaml` for the pattern).
+- The SAM config files under `setup/infra/sam/configuration/**` for every environment (dev, dev1-dev6, qa, stage, prod, etc.) that deploys this service.
+- Any local/test `conftest.py` `os.environ[...]` defaults needed for tests to run without hitting real config.
+
+Do not leave a new env var/constant referenced in code without a corresponding config entry — it will fail at deploy or runtime in environments where it's missing.

@@ -19,7 +19,7 @@ Ask:
 
 **Detect input type:**
 - Contains a Jira key pattern (`[A-Z]+-\d+`) → **Jira path**. Extract `EPIC_KEY`. Set `INPUT_SOURCE = jira`.
-- Free text only → **Manual path**. Ask: *"What short identifier should I use as the directory name? (e.g. `IAM-999` or `user-provisioning`)"* → set `EPIC_KEY`. Set `INPUT_SOURCE = manual`.
+- Free text only → **Manual path**. Ask: *"What short identifier should I use as the epic-id? (e.g. `IAM-999` or `user-provisioning`)"* → set `EPIC_KEY` / `epic-id`. Set `INPUT_SOURCE = manual`. Directory is always `aidlc-docs/<epic-name>_<epic-id>/`.
 
 Store `EPIC_KEY`, `INPUT_SOURCE`.
 
@@ -216,10 +216,10 @@ Repeat until the user says "approved", "looks good", or "finalized".
 
 ## Step 7: Write to disk
 
-1. Create `aidlc-docs/<EPIC_KEY>/` if it does not exist.
-2. Write the approved draft to `aidlc-docs/<EPIC_KEY>/vision.md`.
-3. Confirm: "`aidlc-docs/<EPIC_KEY>/vision.md` written successfully."
-4. Note: "The `aidlc-audit-stamp` hook will automatically create/update `aidlc-docs/<EPIC_KEY>/audit.md` with an initial log entry."
+1. Create `aidlc-docs/<epic-name>_<epic-id>/` if it does not exist (`epic-id` = `EPIC_KEY`; `epic-name` = lowercase-hyphenated title).
+2. Write the approved draft to `aidlc-docs/<epic-name>_<epic-id>/vision.md`.
+3. Confirm: "`aidlc-docs/<epic-name>_<epic-id>/vision.md` written successfully."
+4. Note: "The `aidlc-audit-stamp` hook will automatically create/update `aidlc-docs/<epic-name>_<epic-id>/audit.md` with an initial log entry."
 
 ---
 
@@ -233,7 +233,7 @@ Repeat until the user says "approved", "looks good", or "finalized".
 | 4 | Gate 1: Context scorecard approved | ✓ |
 | 5 | vision.md draft generated in chat | ✓ |
 | 6 | Gate 2: Vision doc approved | ✓ |
-| 7 | vision.md written to `aidlc-docs/<EPIC_KEY>/` | ✓ |
+| 7 | vision.md written to `aidlc-docs/<epic-name>_<epic-id>/` | ✓ |
 
 ---
 

@@ -1,0 +1,4 @@
+sentence-transformers>=3.0
+scikit-learn>=1.4
+hdbscan>=0.8.33
+numpy>=1.26

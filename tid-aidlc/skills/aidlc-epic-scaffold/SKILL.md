@@ -6,9 +6,9 @@ Atomic, standalone skill. Acts as the initial context loader and requirements ga
 
 ## **Step 0: Load pipeline state (state-loader)**
 
-Before anything else, if it hasn't already run in this session, invoke the **state-loader** skill to load `pipeline-config.json` and the `state.json` **of the currently-resolved epic** — i.e. the `state.json` inside this epic's own context directory (`aidlc-docs/<epic-name>/` or `aidlc-docs/<epic-name>_<epic-id>/`), not just any epic's file. If the epic context directory cannot be resolved from context, **ask the user which epic** (folder name or Jira key) before proceeding. Only once the correct epic and its `state.json` are loaded do you continue with this skill. This makes the work resumable across sessions and developers.
+Before anything else, if it hasn't already run in this session, invoke the **state-loader** skill to load `pipeline-config.json` and the `state.json` **of the currently-resolved epic** — i.e. the `state.json` inside this epic's own context directory (`aidlc-docs/<epic-name>_<epic-id>/`), not just any epic's file. If the epic context directory cannot be resolved from context, **ask the user which epic** (folder name or Jira key) before proceeding. Only once the correct epic and its `state.json` are loaded do you continue with this skill. This makes the work resumable across sessions and developers.
 
-**Canonical directory:** if `aidlc-init` or state-loader already established an `EPIC_DIR` (or the epic identity was already provided), reuse that exact directory and identity for **all** outputs — `system-prompts/`, `state.json`, and `audit.md` — and skip re-asking in Step 1. Do **not** create a second directory (e.g. the `{epic-name}_{EPIC_KEY}` form) for an epic that already has one; one epic = one directory.
+**Canonical directory:** if `aidlc-init` or state-loader already established an `EPIC_DIR` (or the epic identity was already provided), reuse that exact directory and identity for **all** outputs — `system-prompts/`, `state.json`, and `audit.md` — and skip re-asking in Step 1. Do **not** create a second directory (e.g. `aidlc-docs/<epic-name>/`) for an epic that already has one; one epic = one directory. Canonical form is always `aidlc-docs/<epic-name>_<epic-id>/`.
 
 ---
 
@@ -65,7 +65,9 @@ Score each category: **Present** / **Partial** / **Missing**.
 
 Your primary focus is to deeply understand the **core intent, business goals, and boundaries** of the epic. The questioning process should be fluid, adaptive, and collaborative, aimed at building the most robust foundation possible for the final XML system prompts.
 
-Keep the conversation grounded in the six completeness categories, but adapt your interaction style to best achieve understanding:
+Apply the mechanics from `tp-ai-kit-scoped-questioning` when that skill is
+available. Do not invoke it as a separate workflow; this skill remains
+self-contained. Keep the conversation grounded in the six completeness categories, but adapt your interaction style to best achieve understanding:
 
 1. **Rank Gaps by Risk:** Identify which Missing or Partial categories pose the highest risk to the epic's success. Start there.
 2. **Check Before Asking:** Consult the fetched Jira context, child stories, and prior artifacts first. Do not ask the user for information already present in the data.
@@ -113,7 +115,7 @@ Ask: "Please review the summary above. Say 'approved' to lock this in and genera
 
 Trigger this step **only** when the user says "approved", "yes", or explicitly decides to end the skill's gap-filling work.
 
-1. **Resolve EPIC_DIR:** If `aidlc-init` or state-loader already established `EPIC_DIR`, use it. Otherwise derive from `<EPIC_KEY>` and epic title as a lowercase, hyphen-separated name (e.g., `IAM-123: Rate Limiting` → `aidlc-docs/iam-123-rate-limiting/`).
+1. **Resolve EPIC_DIR:** If `aidlc-init` or state-loader already established `EPIC_DIR`, use it. Otherwise derive `epic-name` (lowercase, hyphen-separated title) and `epic-id` (`<EPIC_KEY>`) and set `EPIC_DIR = aidlc-docs/<epic-name>_<epic-id>/` (e.g., `IAM-123: Rate Limiting` → `aidlc-docs/rate-limiting_IAM-123/`).
 2. **Set Target Path:** `{EPIC_DIR}/system-prompts/`
 3. **Generate XML Content:** Transform the finalized context block, the fetched Jira data, and absolutely all constraints, rules, user prompts, and decisions discussed during the skill's execution into a dense, token-efficient XML format. 
 4. **Tag Structure:** Use explicit XML tags for every category (e.g., `<domain_context>`, `<functional_scope>`, `<actors>`, `<constraints>`, `<data>`, `<integrations>`, `<success_criteria>`, `<user_decisions>`).
@@ -128,9 +130,9 @@ Trigger this step **only** when the user says "approved", "yes", or explicitly d
 Immediately after successfully generating the XML files in Step 6, you must initialize the formal tracking mechanisms for the AI-DLC pipeline. Do not ask for permission to do this; it is a mandatory system action.
 
 **1. Initialize the State Tracker (`state.json`)**
-*   **Path:** `{EPIC_DIR}/state.json` (canonical directory from Step 0 — never create a second `{epic-name}_{EPIC_KEY}` directory when `EPIC_DIR` is already known)
+*   **Path:** `{EPIC_DIR}/state.json` (canonical directory from Step 0 — never create a second `aidlc-docs/<epic-name>/` directory when `EPIC_DIR` is already known)
 *   **Purpose:** This file acts as the machine-readable state machine for future AI skills (e.g., the scoping and TDD agents).
-*   **Action:** Create or update this file. Preserve existing `epic-id` and `epic-name` if already set by `aidlc-init`. It MUST contain the following exact JSON structure. Do not populate the `stories` object yet; leave it strictly as an empty object `{}`.
+*   **Action:** Create or update this file. Preserve existing `epic-id` and `epic-name` if already set by `aidlc-init`. It MUST contain the following exact JSON structure. Do not populate the `stories` object yet; leave it strictly as an empty object `{}`. The map is filled later by `aidlc-jira-story-breakdown` at the `design-completed → prioritization-completed` hop.
 ```json
 {
   "epic-id": "<EPIC_KEY>",
