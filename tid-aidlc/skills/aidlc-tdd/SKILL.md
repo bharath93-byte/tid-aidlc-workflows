@@ -8,7 +8,7 @@ Drives **one implementation story** from requirements to tested code. TDD is not
 
 - **Design docs are the alignment, not a fresh grill every time.** If the story has an `ears_ref` / `lld_ref` in `state.json`, that EARS section's bullets *are* the acceptance criteria. Scoped-questioning (Step 2) fills only what design left genuinely open — it does not re-litigate settled decisions.
 - **TDD is the implementation mechanic, not a separate phase.** There is no "write code, then bolt on tests" step. Tests are written first, one seam at a time, inside Step 3 itself.
-- **Execution is hypothesis-driven (RPT loop).** Each red → green cycle is a falsifiable hypothesis: the failing test states the predicted behavior; the minimal implementation is the intervention; the green result plus the slice log are the evidence. Seams keep the hypothesis observable at a public boundary. Do not skip red, batch into horizontal slices, or advance without that evidence.
+- **Execution is hypothesis-driven (RPT loop).** Each red → green cycle is a falsifiable hypothesis: the failing test states the predicted behavior; the minimal implementation is the intervention; the green result plus the slice log are the evidence. Seams keep the hypothesis observable at a public boundary. Do not skip red, batch into horizontal slices, or advance without that evidence. **Exception:** Dual-Agent TDD (`aidlc-dual-agent-tdd`) may batch the Tester suite for one unit because the test author is firewalled from implementation — that is a different skill, not a license to batch inside this one.
 - **Measurement closes the vision loop.** When the epic reaches `implementation-completed`, map every `vision.md` Success Criteria row to concrete metrics/tests and record the mapping in `audit.md` (Step 5.5). Story-level AC proves the slice; vision-level criteria prove the epic delivered what it set out to measure.
 - **Fresh context per role.** Analysis, implementation, and test audit each run as isolated Task sub-agents so orchestration context never pollutes any of them.
 - **Seams are agreed once, up front, and reused for the whole story.** No test is written at a seam that wasn't confirmed in Step 2.
@@ -253,10 +253,12 @@ Present a short resume summary before continuing. Do not re-run the Step 0 claim
 | `aidlc-jira-story-breakdown` | Upstream — governed prioritization phase; populates the `stories` map (`ears_ref`, `lld_ref`, `blockedBy`) and advances `status` to `prioritization-completed`. This skill consumes that map; it does not invent stories. |
 | `aidlc-gacr` | Downstream — default PR gate at `review-in-progress`. After all stories are `done`, open the PR and run `aidlc-gacr`; do not run a second review loop inside this skill. |
 | `aidlc-vision-doc` / `vision.md` | Source of epic Success Criteria mapped in Step 5.5 at `implementation-completed` |
+| `aidlc-dual-agent-tdd` | Alternative Construction path — unlinked Tester (RED) and Builder (GREEN) with a spec/contract firewall. Use when the user wants Dual-Agent TDD, not this skill's single implementer loop. |
 | `aidlc-approve` | Used for every `audit.md` row this skill writes (Steps 0, 2, 5, and 5.5) |
 
 ## When NOT to use this skill
 
+- User wants Dual-Agent TDD (Tester never sees implementation) — use **`aidlc-dual-agent-tdd`** instead of this skill.
 - User only wants planning or design — send them to `aidlc-design-driven-dev` first, then come back once EARS is approved.
 - Epic is at `design-completed` with an empty `stories` map — run `aidlc-jira-story-breakdown` first so RPT prioritization writes the map.
 - Epic is at `implementation-completed` or `review-in-progress` — run **`aidlc-gacr`** as the PR gate, not another TDD cycle.

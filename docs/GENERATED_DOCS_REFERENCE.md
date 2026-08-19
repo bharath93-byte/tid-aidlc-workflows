@@ -52,7 +52,9 @@ aidlc-docs/
 │   │   ├── {unit-name}-nfr-requirements-plan.md            # NFR assessment plan with questions (per unit, if NFR Requirements executes)
 │   │   ├── {unit-name}-nfr-design-plan.md                  # NFR design patterns plan with questions (per unit, if NFR Design executes)
 │   │   ├── {unit-name}-infrastructure-design-plan.md       # Infrastructure mapping plan with questions (per unit, if Infrastructure Design executes)
-│   │   └── {unit-name}-code-generation-plan.md             # Detailed code generation steps with checkboxes (per unit, always created)
+│   │   ├── {unit-name}-code-generation-plan.md             # Standard Code Generation plan (opt-in method)
+│   │   ├── {unit-name}-tdd-code-generation-plan.md         # TDD cycle plan (default Code Generation Method)
+│   │   └── {unit-name}-dual-agent-tdd-plan.md              # Dual-Agent TDD Orchestrator plan (when Code Generation Method is Dual-Agent TDD)
 │   │
 │   ├── {unit-name}/                                        # Per-unit artifacts — one directory per unit of work
 │   │   ├── functional-design/                              # Created only if Functional Design executes for this unit
@@ -72,6 +74,16 @@ aidlc-docs/
 │   │   ├── infrastructure-design/                          # Created only if Infrastructure Design executes for this unit
 │   │   │   ├── infrastructure-design.md                    # Cloud service mappings and infrastructure components
 │   │   │   └── deployment-architecture.md                  # Deployment model, networking, scaling configuration
+│   │   │
+│   │   ├── dual-agent/                                     # Created only if Code Generation Method is Dual-Agent TDD
+│   │   │   ├── public-contract.md                          # Public operations/events/DTOs when no OpenAPI/AsyncAPI exists
+│   │   │   ├── firewall-manifest.md                        # Tester allow/deny paths and write roots
+│   │   │   ├── tester-packet.md                            # Spec + contract + test constraints (no production source)
+│   │   │   ├── builder-packet.md                           # Requirements + tests to satisfy + production context
+│   │   │   ├── tester-launch-prompt.md                     # Copy-paste prompt for a new unlinked Tester session
+│   │   │   ├── builder-launch-prompt.md                    # Copy-paste prompt for a new unlinked Builder session
+│   │   │   ├── red-evidence.md                             # Test run proving new tests failed before Builder
+│   │   │   └── green-evidence.md                           # Test run proving the suite passed after Builder
 │   │   │
 │   │   └── code/                                           # Markdown summaries of generated code (always created per unit)
 │   │       └── *.md                                        # Code generation summaries (actual code goes to workspace root)

@@ -12,7 +12,7 @@ This stage generates code for each unit of work using **Test-Driven Development 
 
 **Note**: For brownfield projects, "generate" means modify existing files when appropriate, not create duplicates. Prefer extending existing test suites over creating parallel `*_new` test files.
 
-**Default method**: This is the **default** Code Generation rule (`core-workflow.md`). Use `construction/code-generation.md` only when the user explicitly opts into standard/normal Code Generation while approving Workflow Planning / proceeding to Construction. Flow control (plan approval, reviewer handoff, completion gates) matches standard Code Generation; generation order is test-first. The selected method must be logged in `aidlc-docs/aidlc-state.md` and `aidlc-docs/audit.md`.
+**Default method**: This is the **default** Code Generation rule (`core-workflow.md`). Use `construction/code-generation.md` only when the user explicitly opts into standard/normal Code Generation, or `construction/dual-agent-tdd.md` when they explicitly opt into Dual-Agent TDD, while approving Workflow Planning / proceeding to Construction. Flow control (plan approval, reviewer handoff, completion gates) matches standard Code Generation; generation order is test-first. The selected method must be logged in `aidlc-docs/aidlc-state.md` and `aidlc-docs/audit.md`.
 
 ## Prerequisites
 - Unit Design Generation must be complete for the unit

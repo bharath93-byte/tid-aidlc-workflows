@@ -119,7 +119,7 @@ Illustrative only — discover the live contract from the stage rule file.
 | NFR Requirements | `construction/nfr-requirements.md` | `nfr-requirements.md`, `tech-stack-decisions.md`; refines owning component's `lld.md` |
 | NFR Design | `construction/nfr-design.md` | `nfr-design-patterns.md`, `logical-components.md`; refines owning component's `lld.md` |
 | Infrastructure Design | `construction/infrastructure-design.md` | `infrastructure-design.md`, `deployment-architecture.md`; refines owning component's `lld.md` Infrastructure Mapping |
-| Code Generation | `construction/code-generation.md` | plan + workspace code (with `@spec` EARS annotations) + `aidlc-docs/construction/{unit}/code/` + EARS status marker updates |
+| Code Generation           | `construction/code-generation.md` (also tdd / dual-agent-tdd) | plan + workspace code + unit `code/` summaries; Dual-Agent adds `{unit}/dual-agent/` |
 | Build and Test | `construction/build-and-test.md` | `build-and-test/*.md` instruction set (incl. EARS traceability rollup) |
 
 ---

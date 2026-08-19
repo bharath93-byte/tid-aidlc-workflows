@@ -302,6 +302,7 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
 **Code Generation Method** (selected before Construction code generation runs):
 - **Default**: TDD Code Generation — load `construction/tdd-code-generation.md`
 - **Standard (opt-in)**: Normal Code Generation — load `construction/code-generation.md` only when the user explicitly requests it while approving the Workflow Planning / proceeding to Construction
+- **Dual-Agent TDD (opt-in)**: Tester/Builder firewall — load `construction/dual-agent-tdd.md` only when the user explicitly requests Dual-Agent TDD while approving the Workflow Planning / proceeding to Construction
 - **MANDATORY**: Log the selected generation method in `aidlc-docs/aidlc-state.md` and `aidlc-docs/audit.md` (see Code Generation stage)
 
 ---
@@ -392,32 +393,34 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
 **Always executes for each unit**
 
 **Default generation method: TDD** (`construction/tdd-code-generation.md`).  
-**Standard** Code Generation (`construction/code-generation.md`) runs only when the user explicitly opts in while approving Workflow Planning / proceeding to Construction. If the user does not specify standard/normal code generation, use TDD.
+**Standard** Code Generation (`construction/code-generation.md`) runs only when the user explicitly opts in while approving Workflow Planning / proceeding to Construction.  
+**Dual-Agent TDD** (`construction/dual-agent-tdd.md`) runs only when the user explicitly requests Dual-Agent TDD while approving Workflow Planning / proceeding to Construction. If the user does not specify Standard or Dual-Agent TDD, use TDD.
 
 **Code Generation has two parts within one stage**:
-1. **Part 1 - Planning**: Create detailed code generation plan with explicit steps (TDD cycles by default)
-2. **Part 2 - Generation**: Execute approved plan to generate code, tests, and artifacts
+1. **Part 1 - Planning**: Create detailed code generation plan with explicit steps (TDD cycles by default; Dual-Agent packets when Dual-Agent TDD is selected)
+2. **Part 2 - Generation**: Execute approved plan to generate code, tests, and artifacts (unlinked Tester then Builder sessions when Dual-Agent TDD is selected)
 
 **Execution**:
 1. **MANDATORY**: Log any user input during this stage in audit.md
 2. **Resolve generation method** (before loading rule details):
    - Read `Code Generation Method` from `aidlc-docs/aidlc-state.md` if already set during Workflow Planning
-   - If unset: default to **TDD**; use **Standard** only if the user has explicitly requested normal/standard code generation
+   - If unset: default to **TDD**; use **Standard** only if the user has explicitly requested normal/standard code generation; use **Dual-Agent TDD** only if the user has explicitly requested Dual-Agent TDD
    - **MANDATORY — Log generation method** in `aidlc-docs/aidlc-state.md`:
 
 ```markdown
 ## Code Generation Method
-- **Method**: TDD | Standard
-- **Rule file**: construction/tdd-code-generation.md | construction/code-generation.md
+- **Method**: TDD | Standard | Dual-Agent TDD
+- **Rule file**: construction/tdd-code-generation.md | construction/code-generation.md | construction/dual-agent-tdd.md
 - **Selected at**: [ISO timestamp]
 - **Selected by**: default | explicit user request
 - **User request (raw, if any)**: "[complete raw user text or N/A]"
 ```
 
-   - **MANDATORY — Log generation method** in `aidlc-docs/audit.md` with ISO 8601 IST timestamp, method, rule file, and whether it was default or explicit user request (include complete raw user input when they requested Standard)
+   - **MANDATORY — Log generation method** in `aidlc-docs/audit.md` with ISO 8601 IST timestamp, method, rule file, and whether it was default or explicit user request (include complete raw user input when they requested Standard or Dual-Agent TDD)
 3. Load all steps from the selected rule file:
    - **TDD (default)**: `construction/tdd-code-generation.md`
    - **Standard (opt-in)**: `construction/code-generation.md`
+   - **Dual-Agent TDD (opt-in)**: `construction/dual-agent-tdd.md`
 4. **PART 1 - Planning**: Create code generation plan with checkboxes, get user approval; read the unit's EARS Coverage from `unit-of-work.md`
 5. **PART 2 - Generation**: Execute approved plan to generate code for this unit; **MANDATORY**: annotate code and tests with `@spec {EARS-ID}` comments (see `common/ears-syntax.md`), and flip each EARS ID's status marker from `[ ]` to `[x]` in `aidlc-docs/inception/requirements/ears/` only once its `@spec`-annotated tests are green
 6. **MANDATORY**: Present standardized 2-option completion message as defined in the selected rule file - DO NOT use emergent behavior

@@ -32,7 +32,7 @@ Every unit MUST be sized so a reviewer can finish review in **under 15 minutes**
 
 - If a proposed unit exceeds limits → **further split** the unit, or document an **approved exception** with rationale in `unit-of-work.md`
 - Do **not** present Units Generation completion while any unit is `Over limit` without an approved exception
-- Code Generation re-checks actual diff size against these budgets (see `construction/code-generation.md` / `construction/tdd-code-generation.md`)
+- Code Generation re-checks actual diff size against these budgets (see `construction/code-generation.md` / `construction/tdd-code-generation.md` / `construction/dual-agent-tdd.md`)
 
 ## Prerequisites
 - Workspace Detection must be complete

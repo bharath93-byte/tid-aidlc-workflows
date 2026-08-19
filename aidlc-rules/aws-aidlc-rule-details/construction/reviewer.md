@@ -51,7 +51,8 @@ git diff --cached
 
 ## Step 3: Load Review Context
 
-- [ ] Read the unit code generation plan: `aidlc-docs/construction/plans/{unit-name}-code-generation-plan.md` (if present)
+- [ ] Read the unit code generation plan: `aidlc-docs/construction/plans/{unit-name}-code-generation-plan.md` or `{unit-name}-tdd-code-generation-plan.md` or `{unit-name}-dual-agent-tdd-plan.md` (if present)
+- [ ] **Dual-Agent TDD**: also read `aidlc-docs/construction/{unit-name}/dual-agent/firewall-manifest.md`, `red-evidence.md`, and `green-evidence.md` when present
 - [ ] Read unit stories / design artifacts needed to judge intent (only as needed for the diff)
 - [ ] Read PR size budget and any approved exception from `aidlc-docs/inception/application-design/unit-of-work.md` when present
 - [ ] **Brownfield only**: Use reverse-engineering artifacts for expected structure when assessing regressions in changed files
@@ -68,6 +69,17 @@ git diff --cached
   - Dimension: Maintainability
   - Finding: `PR size over unit budget` — report counted files/lines vs limits and require split or documented exception
 - [ ] If an approved exception exists, note it under Residual Risks (do not fail solely on size)
+
+
+
+## Step 3c: Dual-Agent TDD Test Integrity (when method is Dual-Agent TDD)
+
+- [ ] If `aidlc-docs/aidlc-state.md` Code Generation Method is **Dual-Agent TDD**, or `aidlc-docs/construction/{unit-name}/dual-agent/` exists:
+  - Compare test-file diffs to post-RED Tester output: flag any Builder change to assertions, expected values, deleted tests, or added skips as **Major** ( **Blocker** if assertions were changed to match implementation)
+  - Dimension: Maintainability
+  - Finding: `Builder weakened or rewrote Tester tests` — cite `file:line`
+  - Confirm tests remain black-box vs the public contract (OpenAPI/AsyncAPI/`public-contract.md`); flag tests that reach production internals
+- [ ] If Dual-Agent artifacts are absent, skip this step (N/A)
 
 
 

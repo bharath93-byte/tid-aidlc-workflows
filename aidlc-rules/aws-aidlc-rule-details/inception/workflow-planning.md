@@ -299,8 +299,8 @@ flowchart TD
   - **Rationale**: [Why executing or skipping]
 - [ ] Code Generation - EXECUTE (ALWAYS)
   - **Rationale**: Implementation planning and code generation needed
-  - **Generation Method**: TDD (default) | Standard (only if user explicitly requests)
-  - **Rule file**: `construction/tdd-code-generation.md` (default) | `construction/code-generation.md` (opt-in)
+  - **Generation Method**: TDD (default) | Standard (opt-in) | Dual-Agent TDD (opt-in)
+  - **Rule file**: `construction/tdd-code-generation.md` (default) | `construction/code-generation.md` (opt-in) | `construction/dual-agent-tdd.md` (opt-in)
 - [ ] Build and Test - EXECUTE (ALWAYS)
   - **Rationale**: Build, test, and verification needed
 
@@ -309,9 +309,9 @@ flowchart TD
   - **Rationale**: Future deployment and monitoring workflows
 
 ## Code Generation Method
-- **Method**: TDD (default unless user explicitly requests Standard/normal code generation)
-- **Rule file**: construction/tdd-code-generation.md | construction/code-generation.md
-- **Notes**: Standard Code Generation requires explicit user request when approving this plan / proceeding to Construction
+- **Method**: TDD (default unless user explicitly requests Standard or Dual-Agent TDD)
+- **Rule file**: construction/tdd-code-generation.md | construction/code-generation.md | construction/dual-agent-tdd.md
+- **Notes**: Standard and Dual-Agent TDD require explicit user request when approving this plan / proceeding to Construction. Dual-Agent TDD uses unlinked Tester (RED) and Builder (GREEN) sessions; see `common/dual-agent-separation.md`.
 
 ## Package Change Sequence (Brownfield Only)
 [If applicable, list package update sequence with dependencies]
@@ -369,7 +369,7 @@ Update `aidlc-docs/aidlc-state.md`:
 - [ ] NFR Requirements - [EXECUTE/SKIP]
 - [ ] NFR Design - [EXECUTE/SKIP]
 - [ ] Infrastructure Design - [EXECUTE/SKIP]
-- [ ] Code Generation - EXECUTE (method: TDD | Standard)
+- [ ] Code Generation - EXECUTE (method: TDD | Standard | Dual-Agent TDD)
 - [ ] Build and Test - EXECUTE
 
 ### 🟡 OPERATIONS PHASE
@@ -412,7 +412,8 @@ I recommend executing [X] stages:
 ...
 
 **Code Generation Method**: **TDD** (default — `construction/tdd-code-generation.md`).  
-To use standard/normal Code Generation instead, explicitly request it when approving this plan (opt-in: `construction/code-generation.md`).
+To use standard/normal Code Generation instead, explicitly request it when approving this plan (opt-in: `construction/code-generation.md`).  
+To use Dual-Agent TDD (Tester RED / Builder GREEN in unlinked sessions), explicitly request it when approving this plan (opt-in: `construction/dual-agent-tdd.md`).
 
 I recommend skipping [Y] stages:
 
@@ -453,9 +454,10 @@ I recommend skipping [Y] stages:
 - **If changes requested**: Update execution plan and re-confirm
 - **If user wants to force include/exclude stages**: Update plan accordingly
 - **Code Generation Method**:
-  - Default to **TDD** unless the user explicitly requests standard/normal Code Generation
+  - Default to **TDD** unless the user explicitly requests standard/normal Code Generation or Dual-Agent TDD
   - If the user explicitly requests Standard: set Method to Standard and rule file to `construction/code-generation.md` in both `execution-plan.md` and `aidlc-docs/aidlc-state.md`
-  - **MANDATORY**: Log the generation method (TDD or Standard), rule file, selected-by (default vs explicit user request), and complete raw user input in `aidlc-docs/audit.md`
+  - If the user explicitly requests Dual-Agent TDD: set Method to Dual-Agent TDD and rule file to `construction/dual-agent-tdd.md` in both `execution-plan.md` and `aidlc-docs/aidlc-state.md`
+  - **MANDATORY**: Log the generation method (TDD, Standard, or Dual-Agent TDD), rule file, selected-by (default vs explicit user request), and complete raw user input in `aidlc-docs/audit.md`
 
 ## Step 11: Log Interaction
 
@@ -467,7 +469,7 @@ Log in `aidlc-docs/audit.md`:
 **User**: [User name only — do not include email]
 **AI Prompt**: "Ready to proceed with this plan?"
 **User Response**: "[User's COMPLETE RAW response]"
-**Code Generation Method**: "[TDD | Standard] — rule file: [path] — selected by: [default | explicit user request]"
+**Code Generation Method**: "[TDD | Standard | Dual-Agent TDD] — rule file: [path] — selected by: [default | explicit user request]"
 **Status**: [Approved/Changes Requested]
 **Context**: Workflow plan created with [X] stages to execute
 

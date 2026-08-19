@@ -65,7 +65,7 @@ export function LoginForm({ ... }) { /* implementation */ }
 it('validates email format before submission', () => { ... });
 ```
 
-A marker flips `[ ]` → `[x]` only once a `@spec`-annotated test citing that ID is green — never on self-report (see `construction/tdd-code-generation.md` / `construction/code-generation.md`, and the rollup check in `construction/build-and-test.md`).
+A marker flips `[ ]` → `[x]` only once a `@spec`-annotated test citing that ID is green — never on self-report (see `construction/tdd-code-generation.md` / `construction/code-generation.md` / `construction/dual-agent-tdd.md`, and the rollup check in `construction/build-and-test.md`).
 
 ## Traceability
 
