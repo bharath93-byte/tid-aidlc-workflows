@@ -311,7 +311,7 @@ flowchart TD
 ## Code Generation Method
 - **Method**: TDD (default unless user explicitly requests Standard or Dual-Agent TDD)
 - **Rule file**: construction/tdd-code-generation.md | construction/code-generation.md | construction/dual-agent-tdd.md
-- **Notes**: Standard and Dual-Agent TDD require explicit user request when approving this plan / proceeding to Construction. Dual-Agent TDD uses unlinked Tester (RED) and Builder (GREEN) sessions; see `common/dual-agent-separation.md`.
+- **Notes**: Standard and Dual-Agent TDD require explicit user request when approving this plan / proceeding to Construction. Dual-Agent TDD dispatches Tester (RED) and Builder (GREEN) as Task sub-agents; see `common/dual-agent-separation.md`.
 
 ## Package Change Sequence (Brownfield Only)
 [If applicable, list package update sequence with dependencies]
@@ -413,7 +413,7 @@ I recommend executing [X] stages:
 
 **Code Generation Method**: **TDD** (default — `construction/tdd-code-generation.md`).  
 To use standard/normal Code Generation instead, explicitly request it when approving this plan (opt-in: `construction/code-generation.md`).  
-To use Dual-Agent TDD (Tester RED / Builder GREEN in unlinked sessions), explicitly request it when approving this plan (opt-in: `construction/dual-agent-tdd.md`).
+To use Dual-Agent TDD (Tester RED / Builder GREEN as Task sub-agents), explicitly request it when approving this plan (opt-in: `construction/dual-agent-tdd.md`).
 
 I recommend skipping [Y] stages:
 

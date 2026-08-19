@@ -4,8 +4,8 @@
 This stage generates code for each unit of work using **Dual-Agent TDD**: Tester owns RED, Builder owns GREEN, with a firewall so the Tester never sees implementation.
 
 Work proceeds through two parts in the **Orchestrator** session (the original AI-DLC workflow chat):
-- **Part 1 - Planning**: Create the Dual-Agent plan, public contract (if needed), packets, firewall manifest, and launch prompts
-- **Part 2 - Generation**: Launch an unlinked Tester session (batch RED) → confirm RED → launch an unlinked Builder session (GREEN) → confirm GREEN → optional Tester addendum → Code Reviewer
+- **Part 1 - Planning**: Create the Dual-Agent plan, public contract (if needed), packets, firewall manifest, and Task prompt bodies
+- **Part 2 - Generation**: Dispatch Tester Task (batch RED) → confirm RED → dispatch Builder Task (GREEN) → confirm GREEN → optional Tester addendum → Code Reviewer. The user does not open extra chats or run tests. **Only approval gates are manual.**
 
 **Load** `common/dual-agent-separation.md` at stage start and enforce it as a hard constraint. Do not weaken the firewall in this file.
 
@@ -37,7 +37,7 @@ Work proceeds through two parts in the **Orchestrator** session (the original AI
 - Create `aidlc-docs/code-generation-skill-selection.md`; wait for user to fill `[Answer]:` and confirm
 - Update `## Current Stage Skill` in `aidlc-docs/aidlc-state.md`; log resolved choice in `audit.md`
 - **Do not** proceed to Step 1 until Step 0 is complete
-- If a Dual-Agent skill is selected, follow `SKILL.md` for launch UX (HOW), then `common/skill-artifact-adapter.md` so contract artifacts in this file still exist (WHAT)
+- If a Dual-Agent skill is selected, follow `SKILL.md` for Task-dispatch UX (HOW), then `common/skill-artifact-adapter.md` so contract artifacts in this file still exist (WHAT)
 
 ## Step 1: Analyze Unit Context
 - [ ] Read `common/dual-agent-separation.md`
@@ -59,9 +59,9 @@ Work proceeds through two parts in the **Orchestrator** session (the original AI
   - Project Structure Setup (greenfield only) — test framework, runner, and coverage tooling **constraints for the Tester packet**
   - Public contract resolution (existing OpenAPI/AsyncAPI or `public-contract.md`)
   - Packet and firewall-manifest creation
-  - Tester launch (batch RED)
+  - Tester Task dispatch (batch RED)
   - RED evidence gate
-  - Builder launch (GREEN)
+  - Builder Task dispatch (GREEN)
   - GREEN evidence gate
   - Optional Tester addendum
   - Documentation Generation (API docs, README updates)
@@ -99,13 +99,13 @@ Work proceeds through two parts in the **Orchestrator** session (the original AI
   - Create `aidlc-docs/construction/{unit-name}/dual-agent/tester-launch-prompt.md`
   - Create `aidlc-docs/construction/{unit-name}/dual-agent/builder-launch-prompt.md`
 - [ ] Ensure the plan is executable step-by-step and is the Orchestrator's source of truth
-- [ ] Emphasize that Tester and Builder execute in **unlinked** sessions using the launch prompts
+- [ ] Emphasize that Tester and Builder are `generalPurpose` Task sub-agents dispatched by the Orchestrator (see `common/dual-agent-separation.md` Sub-agent dispatch rules)
 
 ## Step 5: Summarize Unit Plan
 - [ ] Provide summary of the Dual-Agent TDD plan to the user
-- [ ] Highlight firewall (Tester never sees implementation; two unlinked sessions)
-- [ ] Explain batch RED → GREEN sequence and story/behavior coverage
-- [ ] Call out packet paths and that the user must paste launch prompts into new sessions
+- [ ] Highlight firewall (Tester Task prompt contains spec/contract only; no production source)
+- [ ] Explain batch RED → GREEN sequence, Task dispatch, and story/behavior coverage
+- [ ] Call out packet paths and that the Orchestrator will dispatch Tester then Builder after this approval — the user does not paste prompts
 - [ ] Note total number of steps and estimated scope
 
 ## Step 6: Log Approval Prompt
@@ -115,7 +115,7 @@ Work proceeds through two parts in the **Orchestrator** session (the original AI
 
 ## Step 7: Wait for Explicit Approval
 - [ ] Do not proceed until the user explicitly approves the unit Dual-Agent TDD plan and packets
-- [ ] Approval must cover the plan, firewall manifest, and session sequence
+- [ ] Approval must cover the plan, firewall manifest, and Tester → RED → Builder → GREEN dispatch sequence
 - [ ] If user requests changes, update the plan/packets and repeat approval process
 
 ## Step 8: Record Approval Response
@@ -126,39 +126,44 @@ Work proceeds through two parts in the **Orchestrator** session (the original AI
 ## Step 9: Update Progress
 - [ ] Mark Dual-Agent TDD Part 1 (Planning) complete in `aidlc-state.md`
 - [ ] Update the "Current Status" section
-- [ ] Prepare for Tester launch
+- [ ] Prepare for Tester Task dispatch
 
 ---
 
-# PART 2: GENERATION (UNLINKED SESSIONS)
+# PART 2: GENERATION (TASK SUB-AGENTS)
 
-## Step 10: Launch Tester Session (Batch RED)
-- [ ] Present `aidlc-docs/construction/{unit-name}/dual-agent/tester-launch-prompt.md` to the user
-- [ ] Instruct the user to open a **new unlinked agent session**, paste the prompt, and not attach production source or the Builder packet
-- [ ] Log the Tester launch prompt in `aidlc-docs/audit.md` with ISO 8601 IST timestamp
-- [ ] **Wait** until the user confirms the Tester session is done
-- [ ] Log the user's confirmation (complete raw input) in `aidlc-docs/audit.md`
+## Step 10: Dispatch Tester Task (Batch RED)
+- [ ] Log Tester dispatch in `aidlc-docs/audit.md` with ISO 8601 IST timestamp
+- [ ] Dispatch `tester` as a `generalPurpose` Task sub-agent using `aidlc-docs/construction/{unit-name}/dual-agent/tester-launch-prompt.md` as the prompt body (per `common/dual-agent-separation.md` Sub-agent dispatch rules)
+- [ ] Do **not** ask the user to open a chat, paste a prompt, or run tests
+- [ ] Do **not** write tests in the Orchestrator session
+- [ ] Wait for the Task to return PASS/FAIL, artifacts touched, test command + result, and blockers
+- [ ] If the Tester reports FAIL or blockers, stop and ask the user; do not dispatch Builder
+- [ ] Verify artifacts touched are within the firewall manifest **Test write paths** and **Tester allowlist**. If the Tester read or wrote denylist/production paths: **firewall failure** — stop and ask the user; do not dispatch Builder
+- [ ] Print: `[dual-agent-tdd] [{unit-name}] Tester Task complete`
 
 ## Step 11: Confirm RED
 - [ ] Identify test files written or modified under the firewall manifest **Test write paths**
 - [ ] Run the unit's relevant test command(s)
 - [ ] Create `aidlc-docs/construction/{unit-name}/dual-agent/red-evidence.md` (command, exit code, counts, timestamp, gate result)
-- [ ] **RED gate**: new Tester tests must fail (compile error or assertion failure). If they pass without new production code: **do not start Builder** — treat as firewall/test-quality failure; return to Tester (tighten tests or select uncovered behavior)
+- [ ] **RED gate**: new Tester tests must fail (compile error or assertion failure). If they pass without new production code: **do not start Builder** — treat as firewall/test-quality failure; **stop and ask the user** (tighten tests via re-dispatch Tester, or select uncovered behavior)
 - [ ] Update `builder-packet.md` and `builder-launch-prompt.md` with the actual Tester test file list
 - [ ] Mark RED plan steps `[x]`
 
-## Step 12: Launch Builder Session (GREEN)
-- [ ] Present `aidlc-docs/construction/{unit-name}/dual-agent/builder-launch-prompt.md` to the user
-- [ ] Instruct the user to open a **new unlinked agent session**, paste the prompt, and not edit Tester assertions
-- [ ] Log the Builder launch prompt in `aidlc-docs/audit.md` with ISO 8601 IST timestamp
-- [ ] **Wait** until the user confirms the Builder session is done
-- [ ] Log the user's confirmation (complete raw input) in `aidlc-docs/audit.md`
+## Step 12: Dispatch Builder Task (GREEN)
+- [ ] Log Builder dispatch in `aidlc-docs/audit.md` with ISO 8601 IST timestamp
+- [ ] Dispatch `builder` as a `generalPurpose` Task sub-agent using `aidlc-docs/construction/{unit-name}/dual-agent/builder-launch-prompt.md` as the prompt body
+- [ ] Do **not** ask the user to open a chat, paste a prompt, or run tests
+- [ ] Do **not** write production code in the Orchestrator session
+- [ ] Wait for the Task to return PASS/FAIL, artifacts touched, test command + result, and blockers
+- [ ] If the Builder escalates an invalid test, stop and ask the user — do not silently edit tests in the Orchestrator session
+- [ ] Print: `[dual-agent-tdd] [{unit-name}] Builder Task complete`
 
 ## Step 13: Confirm GREEN
 - [ ] Run the full automated test suite applicable to this unit (or project suite if single-unit)
 - [ ] Create `aidlc-docs/construction/{unit-name}/dual-agent/green-evidence.md`
 - [ ] Also record command(s) and result in `aidlc-docs/construction/{unit-name}/code/tdd-test-run.md` (or the unit code summary)
-- [ ] On failure: return to Step 12 with failure output in an updated Builder prompt — **do not** patch production in the Orchestrator session unless the user explicitly asks
+- [ ] On failure: return to Step 12 with failure output in an updated Builder Task prompt (maximum 3 Builder re-dispatches) — **do not** patch production in the Orchestrator session unless the user explicitly asks; if still failing after 3 cycles, stop and ask the user
 - [ ] Verify Builder did not modify Tester assertions (diff test files vs post-RED snapshot). If tests were weakened or rewritten: **Blocker** — restore Tester tests and return to Builder
 - [ ] Annotate any missing `@spec` on production code if Builder omitted them (Orchestrator may add `@spec` comments only — not logic)
 - [ ] Flip each EARS ID's status marker from `[ ]` to `[x]` in `aidlc-docs/inception/requirements/ears/` only once its `@spec`-annotated tests are green
@@ -169,7 +174,7 @@ Work proceeds through two parts in the **Orchestrator** session (the original AI
 - [ ] Compare EARS coverage and public contract to the Tester suite
 - [ ] If no spec-level gaps, skip to Step 15 and mark addendum `[x]` as skipped
 - [ ] If gaps exist: write a spec-level gap list (no source excerpts) into the Tester packet or a dedicated addendum section
-- [ ] Repeat Steps 10–13 for the addendum only (Tester adds tests → RED evidence → Builder greens → GREEN evidence)
+- [ ] Repeat Steps 10–13 for the addendum only (re-dispatch Tester Task → RED evidence → re-dispatch Builder Task → GREEN evidence) — no user paste step
 - [ ] Maximum 2 addendum rounds unless the user requests more; then escalate remaining gaps as deferred EARS `[D]` or follow-on unit
 
 ## Step 15: Confirm Full Test Suite Green
@@ -218,7 +223,7 @@ git diff --cached --stat
         - **Brownfield**: Distinguish modified vs created files (production and tests)
         - **Greenfield**: List created files with paths
         - List test files, documentation, deployment artifacts with paths
-        - Note that Tester wrote tests (RED) and Builder implemented (GREEN) in unlinked sessions
+        - Note that Tester Task wrote tests (RED) and Builder Task implemented (GREEN)
         - Include paths to `dual-agent/red-evidence.md`, `dual-agent/green-evidence.md`, and `code/code-review.md`
         - Keep factual, no workflow instructions
      3. **Formatted Workflow Message** (mandatory): Always end with this exact format:
@@ -236,7 +241,7 @@ git diff --cached --stat
 >
 > **You may:**
 >
-> 🔧 **Request Changes** - Ask for modifications; production fixes via Builder session, missing spec tests via Tester addendum
+> 🔧 **Request Changes** - Ask for modifications; production fixes via Builder Task, missing spec tests via Tester addendum
 > ✅ **Continue to Next Stage** - Approve Dual-Agent TDD and proceed to **[next-unit/Build & Test]**
 
 ---
@@ -274,8 +279,8 @@ git diff --cached --stat
 - Verify no duplicate files after GREEN
 
 ### Dual-Agent TDD Rules
-- **FIREWALL**: Tester session must not read production source (see `common/dual-agent-separation.md`)
-- **UNLINKED SESSIONS**: Tester and Builder are new sessions, not Orchestrator sub-agents
+- **FIREWALL**: Tester Task must not read production source (see `common/dual-agent-separation.md`)
+- **TASK SUB-AGENTS**: Tester and Builder are `generalPurpose` Task sub-agents; the Orchestrator must not implement; the user does not open extra chats
 - **TEST FIRST**: RED (Tester) before GREEN (Builder)
 - **WATCH IT FAIL**: Never skip `red-evidence.md`
 - **MINIMAL GREEN**: No speculative production code in Builder
@@ -289,11 +294,11 @@ git diff --cached --stat
 - Include story and behavior traceability
 - Keep Green production pseudocode out of Tester-visible files
 - Include a public data flow chart with schemas in Tester-visible plan/packet
-- Get explicit user approval before launching Tester
+- Get explicit user approval of the plan before dispatching Tester
 
 ### Generation Phase Rules
 - **NO HARDCODED LOGIC**: Only execute what's written in the unit Dual-Agent plan
-- **FOLLOW PLAN EXACTLY**: Do not skip RED evidence or merge Tester+Builder into one session
+- **FOLLOW PLAN EXACTLY**: Do not skip RED evidence or merge Tester+Builder into the Orchestrator session
 - **UPDATE CHECKBOXES**: Mark `[x]` immediately after completing each step
 - **STORY TRACEABILITY**: Mark unit stories `[x]` when behaviors are implemented and green
 - **RESPECT DEPENDENCIES**: Only implement when unit dependencies are satisfied

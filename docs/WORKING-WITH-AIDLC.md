@@ -468,15 +468,14 @@ Request Changes: [describe specifically what needs to change]
 
 Default Code Generation is single-session TDD (the same agent writes the failing test, then the implementation). **Dual-Agent TDD** is an explicit opt-in at Workflow Planning (or when proceeding to Construction): a Tester session writes the black-box suite from the spec and API contract only; a Builder session then implements until those tests pass and must not edit the tests.
 
-Use it when you want unbiased tests (the test author never sees implementation). Skip it for unattended runs or when you cannot open two extra agent sessions.
+Use it when you want unbiased tests (the test author never sees implementation). The Orchestrator dispatches Tester and Builder as Task sub-agents (same pattern as `aidlc-tdd`); you do not open extra chats or run tests. You only approve the plan and the finished unit.
 
 **How to run it**
 
 1. When the execution plan is presented, explicitly request Dual-Agent TDD.
 2. Approve the Dual-Agent plan and packets under `aidlc-docs/construction/{unit-name}/dual-agent/`.
-3. Open a **new** agent session, paste `tester-launch-prompt.md`, and do not attach production source. Return to the original chat when tests are written.
-4. After the Orchestrator records RED (new tests fail), open another **new** session and paste `builder-launch-prompt.md`. Do not change test assertions.
-5. After GREEN, review `red-evidence.md`, `green-evidence.md`, and the code review.
+3. After that approval, the Orchestrator dispatches the Tester Task, records RED, dispatches the Builder Task, and records GREEN — no paste step.
+4. Review `red-evidence.md`, `green-evidence.md`, and the code review, then Request Changes or Continue.
 
 Test-framework and test-management instructions for Dual-Agent TDD belong in the **Tester packet**, not the Builder packet and not at project start:
 

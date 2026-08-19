@@ -398,7 +398,7 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
 
 **Code Generation has two parts within one stage**:
 1. **Part 1 - Planning**: Create detailed code generation plan with explicit steps (TDD cycles by default; Dual-Agent packets when Dual-Agent TDD is selected)
-2. **Part 2 - Generation**: Execute approved plan to generate code, tests, and artifacts (unlinked Tester then Builder sessions when Dual-Agent TDD is selected)
+2. **Part 2 - Generation**: Execute approved plan to generate code, tests, and artifacts (Tester then Builder Task sub-agents when Dual-Agent TDD is selected)
 
 **Execution**:
 1. **MANDATORY**: Log any user input during this stage in audit.md

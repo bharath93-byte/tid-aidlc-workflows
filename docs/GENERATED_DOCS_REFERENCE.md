@@ -80,8 +80,8 @@ aidlc-docs/
 │   │   │   ├── firewall-manifest.md                        # Tester allow/deny paths and write roots
 │   │   │   ├── tester-packet.md                            # Spec + contract + test constraints (no production source)
 │   │   │   ├── builder-packet.md                           # Requirements + tests to satisfy + production context
-│   │   │   ├── tester-launch-prompt.md                     # Copy-paste prompt for a new unlinked Tester session
-│   │   │   ├── builder-launch-prompt.md                    # Copy-paste prompt for a new unlinked Builder session
+│   │   │   ├── tester-launch-prompt.md                     # Tester Task prompt body (Orchestrator dispatches; not a user paste script)
+│   │   │   ├── builder-launch-prompt.md                    # Builder Task prompt body (Orchestrator dispatches; not a user paste script)
 │   │   │   ├── red-evidence.md                             # Test run proving new tests failed before Builder
 │   │   │   └── green-evidence.md                           # Test run proving the suite passed after Builder
 │   │   │

@@ -253,7 +253,7 @@ Present a short resume summary before continuing. Do not re-run the Step 0 claim
 | `aidlc-jira-story-breakdown` | Upstream — governed prioritization phase; populates the `stories` map (`ears_ref`, `lld_ref`, `blockedBy`) and advances `status` to `prioritization-completed`. This skill consumes that map; it does not invent stories. |
 | `aidlc-gacr` | Downstream — default PR gate at `review-in-progress`. After all stories are `done`, open the PR and run `aidlc-gacr`; do not run a second review loop inside this skill. |
 | `aidlc-vision-doc` / `vision.md` | Source of epic Success Criteria mapped in Step 5.5 at `implementation-completed` |
-| `aidlc-dual-agent-tdd` | Alternative Construction path — unlinked Tester (RED) and Builder (GREEN) with a spec/contract firewall. Use when the user wants Dual-Agent TDD, not this skill's single implementer loop. |
+| `aidlc-dual-agent-tdd` | Alternative Construction path — Tester (RED) and Builder (GREEN) `generalPurpose` Task sub-agents with a spec/contract firewall. Use when the user wants Dual-Agent TDD, not this skill's single implementer loop. |
 | `aidlc-approve` | Used for every `audit.md` row this skill writes (Steps 0, 2, 5, and 5.5) |
 
 ## When NOT to use this skill

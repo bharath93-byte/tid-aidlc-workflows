@@ -6,35 +6,36 @@
 
 ## Roles
 
-| Role | Session | Writes | Must not |
-| ---- | ------- | ------ | -------- |
-| **Orchestrator** | Original AI-DLC workflow session | Packets, launch prompts, evidence files, `aidlc-docs/` summaries, audit/state | Tests or production application code |
-| **Tester** | New **unlinked** agent session (not a sub-agent of the Orchestrator) | Automated tests at agreed test paths; `@spec` on tests | Read production source; read Builder packet; change production code |
-| **Builder** | New **unlinked** agent session | Production application code until the Tester suite is green; `@spec` on production code | Change Tester assertions/expectations; invent tests |
+| Role            | Session                                              | Writes                                                                 | Must not                                                              |
+| --------------- | ---------------------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| **Orchestrator** | Original AI-DLC workflow session                    | Packets, Task prompts, evidence files, `aidlc-docs/` summaries, audit/state | Tests or production application code                              |
+| **Tester**      | `generalPurpose` Task sub-agent (fresh context)      | Automated tests at agreed test paths; `@spec` on tests                 | Read production source; read Builder packet; change production code   |
+| **Builder**     | `generalPurpose` Task sub-agent (fresh context)      | Production application code until the Tester suite is green; `@spec` on production code | Change Tester assertions/expectations; invent tests     |
 
-**Unlinked** means a distinct agent session with no Orchestrator or Builder chat history. Task/sub-agent dispatch from the Orchestrator session is **not** an unlinked Tester or Builder — those agents inherit workspace access and parent context.
+Same pattern as `aidlc-tdd`: the Orchestrator **dispatches** Tester and Builder as Task sub-agents. The user does **not** open extra chats, paste prompts, or run the test suite. **Only approval gates are manual** (plan approval; RED-already-green stop; stage completion / Request Changes).
+
+Fresh context means a new Task prompt with no Orchestrator chat history and no Builder packet in the Tester prompt. Task agents still have workspace file access — the firewall is **prompt isolation + allowlist + post-hoc audit**, not a sandbox. The Orchestrator must put allowlisted content (or allowlisted paths only) in the Tester prompt, forbid Grep/Glob/Read on denylist paths, then verify files touched.
 
 ```mermaid
 sequenceDiagram
   participant User
-  participant Orch as OrchestratorSession
-  participant Tester as TesterSession
-  participant Builder as BuilderSession
+  participant Orch as Orchestrator
+  participant Tester as TesterTask
+  participant Builder as BuilderTask
 
   User->>Orch: Approve Dual-Agent TDD plan
-  Orch->>User: Tester launch prompt plus allowlist packet
-  User->>Tester: New unlinked session with Tester packet only
+  Orch->>Tester: Dispatch Task with Tester packet only
   Tester->>Tester: Write black-box tests
-  Tester->>Orch: Tests written
+  Tester->>Orch: PASS or FAIL plus files touched
   Orch->>Orch: Run suite, record RED evidence
-  Orch->>User: Builder launch prompt plus tests and spec
-  User->>Builder: New unlinked session
+  Orch->>Builder: Dispatch Task with tests and spec
   Builder->>Builder: Implement until green
-  Builder->>Orch: Implementation done
+  Builder->>Orch: PASS or FAIL plus files touched
   Orch->>Orch: Confirm GREEN, Code Reviewer
+  User->>Orch: Approve unit or Request Changes
 ```
 
-Text alternative: The user approves the plan in the Orchestrator session. The Orchestrator gives a Tester launch prompt; the user pastes it into a new session that writes tests only. The Orchestrator runs tests and records RED. The user pastes a Builder launch prompt into another new session that implements until green without editing tests. The Orchestrator confirms GREEN and runs Code Reviewer. Optional addendum repeats Tester then Builder for spec gaps.
+Text alternative: The user approves the plan. The Orchestrator dispatches a Tester Task with the spec/contract packet only. After tests exist, the Orchestrator runs the suite and records RED. It then dispatches a Builder Task. After implementation, the Orchestrator records GREEN, runs Code Reviewer, and waits for the user to approve the unit. Optional addendum re-dispatches Tester then Builder for spec gaps.
 
 ## TDD contract (batch RED then GREEN)
 
@@ -42,7 +43,7 @@ Dual-Agent TDD is still TDD:
 
 1. **RED (Tester)** — Write the full black-box suite for this unit from the spec and public contract. Compile errors and assertion failures are valid RED. Wrong-green is not.
 2. **GREEN (Builder)** — Implement the smallest production change that makes that suite (and the existing suite) pass. Do not rewrite tests to match the code.
-3. **Addendum (optional)** — If spec-level gaps remain after GREEN, Tester adds tests (still firewalled) → Orchestrator confirms RED → Builder greens again.
+3. **Addendum (optional)** — If spec-level gaps remain after GREEN, dispatch Tester again (still firewalled) → Orchestrator confirms RED → dispatch Builder again.
 
 Batching the Tester suite for one unit is allowed **only** because the test author is firewalled from implementation. That exception does **not** apply to single-session TDD (`construction/tdd-code-generation.md` or `aidlc-tdd`), where horizontal slicing remains an anti-pattern.
 
@@ -58,10 +59,10 @@ Batching the Tester suite for one unit is allowed **only** because the test auth
 
 - Production source (`src/`, app/package trees, handlers, domain internals, repositories)
 - `builder-packet.md`, Green/production pseudocode, NFR or infrastructure design that reveals internals
-- Orchestrator or Builder chat history
+- Orchestrator or Builder Task outputs beyond a one-line "Builder not started"
 - Reverse-engineering code-structure dumps of production files (test-tree excerpts in the packet are allowed when listed)
 
-Honor-system enforcement: the launch prompt lists the allowlist and forbids search/read of denylist paths. The Orchestrator and Code Reviewer verify Tester/Builder file diffs against the manifest. There is no sandbox guarantee.
+Honor-system enforcement: the Tester Task prompt inlines or lists only allowlist paths, forbids search/read of denylist paths, and requires a **files-touched** report. The Orchestrator and Code Reviewer verify diffs against the manifest. There is no sandbox guarantee.
 
 ## Builder rules
 
@@ -73,12 +74,34 @@ Honor-system enforcement: the launch prompt lists the allowlist and forbids sear
 
 ## Orchestrator rules
 
-- Never write tests or production application code when Dual-Agent TDD is the selected method (unless the user explicitly asks the Orchestrator to patch after a failed session)
-- Assemble packets **before** launching Tester; do not put Green production pseudocode in any Tester-visible file
-- After Tester reports done: run the suite, write `red-evidence.md`. If new tests are already green → **firewall/test-quality failure** — do not start Builder
-- After Builder reports done: run the suite, write `green-evidence.md`. On failure, return the Builder launch prompt with failure output — do not patch production in the Orchestrator session unless the user asks
+- Never write tests or production application code when Dual-Agent TDD is the selected method (unless the user explicitly asks the Orchestrator to patch after a failed Task)
+- Assemble packets **before** dispatching Tester; do not put Green production pseudocode in any Tester-visible file or Tester Task prompt
+- Dispatch Tester as a `generalPurpose` Task; do **not** ask the user to open a chat or paste a prompt
+- After Tester returns: verify files touched vs allowlist; run the suite; write `red-evidence.md`. If new tests are already green → **firewall/test-quality failure** — stop and ask the user; do not start Builder
+- Dispatch Builder as a `generalPurpose` Task (only after RED passes). After Builder returns: run the suite; write `green-evidence.md`. On failure, re-dispatch Builder with failure output (maximum 3 cycles) — do not patch production in the Orchestrator session unless the user asks
 - Flip EARS status markers `[ ]` → `[x]` only after `@spec`-annotated tests are green (same rule as other Code Generation methods)
 - Run `construction/reviewer.md` after GREEN. Reviewer **must** flag Builder diffs that weaken, rewrite, or skip Tester tests as at least **Major** (Blocker if assertions were changed to match implementation)
+
+## Sub-agent dispatch rules
+
+Match `aidlc-tdd`: every `tester` and `builder` dispatch **must** be a `generalPurpose` Task sub-agent for context isolation. Do not implement in the Orchestrator session. Do not use `explore` for Tester or Builder (those roles write files).
+
+Each Tester prompt must include:
+
+- Role: Tester (RED only)
+- Full text or allowlisted paths of requirements, public contract, test framework constraints, test write paths
+- Firewall manifest allowlist/denylist
+- Instruction: do not Read, Grep, Glob, or search production source or `builder-packet.md`
+- Stop condition: tests written; return PASS/FAIL, artifacts touched, test command + result, blockers
+
+Each Builder prompt must include:
+
+- Role: Builder (GREEN only)
+- Repo root, requirements, public contract, Tester test file list, production write paths
+- Instruction: do not change Tester assertions, expected values, or skip tests
+- Stop condition: suite green or escalate invalid tests; return PASS/FAIL, artifacts touched, test command + result, blockers
+
+Discover build/test commands the same way as `aidlc-tdd` (README → package.json → Makefile → language manifests → CI) and pass them in every Task prompt.
 
 ## Packet schema
 
@@ -90,7 +113,7 @@ All Dual-Agent artifacts for a unit live under `aidlc-docs/construction/{unit-na
 # Firewall Manifest — {unit-name}
 
 ## Tester allowlist
-- [exact paths the Tester session may read]
+- [exact paths the Tester Task may read]
 
 ## Tester denylist
 - [production source roots and Builder-only docs]
@@ -110,13 +133,13 @@ Must include: unit name, EARS IDs and requirement text (or paths on the allowlis
 
 Must include: unit name, requirements paths, public contract path, list of Tester test files (filled after RED), production write paths, LLD/NFR pointers, instruction not to edit Tester assertions.
 
-### Launch prompts
+### Launch prompts (Task prompt bodies)
 
-`tester-launch-prompt.md` and `builder-launch-prompt.md` are copy-pasteable into a **new unlinked session**. Each must state: role, packet path, allowlist/denylist, write paths, stop condition (Tester: tests written and session reports done; Builder: suite green or escalation), and that the session must not open the other role's packet.
+`tester-launch-prompt.md` and `builder-launch-prompt.md` are the **Task prompt bodies** the Orchestrator passes to `generalPurpose` sub-agents. They are not user copy-paste scripts. Each must state: role, packet path, allowlist/denylist, write paths, stop condition, files-touched report, and that the Task must not open the other role's packet.
 
 ### Evidence files
 
-`red-evidence.md` and `green-evidence.md` must record: command(s) run, exit code, relevant output (pass/fail counts), timestamp, and whether the gate passed.
+`red-evidence.md` and `green-evidence.md` must record: command(s) run, exit code, relevant output (pass/fail counts), timestamp, and whether the gate passed. The **Orchestrator** runs these commands (the user does not).
 
 ### `public-contract.md`
 
@@ -127,15 +150,15 @@ Required when no OpenAPI/AsyncAPI exists for the unit. Orchestrator extracts pub
 If GREEN leaves spec-level gaps (uncovered EARS IDs, missing error paths in the contract):
 
 1. Orchestrator writes a gap list in behavioral/contract terms — **no source excerpts, no stack traces that dump implementation**
-2. Tester session (new or resumed Tester chat that still has no production source) adds tests
+2. Re-dispatch Tester Task with the addendum (still no production source)
 3. Orchestrator confirms RED
-4. Builder greens the new tests without editing them
+4. Re-dispatch Builder to green the new tests without editing them
 
 ## Horizontal slicing exception
 
-| Path | Batch all tests for a unit before implementation? |
-| ---- | ------------------------------------------------- |
-| Dual-Agent TDD (this file) | Yes — Tester is firewalled from implementation |
-| Single-session TDD | No — one behavior Red → Green at a time |
+| Path                         | Batch all tests for a unit before implementation?          |
+| ---------------------------- | ---------------------------------------------------------- |
+| Dual-Agent TDD (this file)   | Yes — Tester is firewalled from implementation             |
+| Single-session TDD           | No — one behavior Red → Green at a time                    |
 
-Do not cite this exception to skip RED confirmation or to let one session write both tests and production code.
+Do not cite this exception to skip RED confirmation or to let the Orchestrator write both tests and production code.
