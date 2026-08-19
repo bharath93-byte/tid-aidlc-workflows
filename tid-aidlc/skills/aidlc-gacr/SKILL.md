@@ -58,16 +58,11 @@ Personas are defined under [`personas/`](personas/) following one shared "agent 
 the epic's `state.json`, unless this is a genuinely epic-less ad hoc review (see the
 ungoverned path below).
 
-1. **Epic-status gate (tracked work):**
-   - `review-in-progress` → proceed (this is the home state).
-   - `implementation-completed` and a PR or `dev/IAM-*` branch-vs-`origin/main` diff exists →
-     this meets the `implementation-completed → review-in-progress` trigger. Advance epic
-     `status` to `review-in-progress` and append an `audit.md` row via `aidlc-approve`
-     (`PHASE: review`, action `Entered review; GACR targeting {PR or branch}.`), then proceed.
-   - `shipped` → stop. The epic is already live.
-   - Earlier than `implementation-completed` → stop and report the current status and
-     `skills_by_state`, unless the user explicitly asked for an ad-hoc/ungoverned review of
-     a named diff.
+1. **Story-status gate (tracked work):**
+   - All stories in the `stories` map have `status == "done"` → proceed.
+   - Any story not `done` (`todo`, `in-progress`, `on-hold`, or `blocked`) → stop and report
+     which stories are incomplete, unless the user explicitly asked for an ad-hoc/ungoverned
+     review of a named diff.
    - No epic at all (genuine hotfix / standalone review with no `aidlc-docs/` entry) →
      ungoverned path: skip `state.json`/`audit.md` bookkeeping for the rest of this run, keep
      the audit inline in chat, and say so explicitly.
@@ -81,7 +76,7 @@ ungoverned path below).
    the critique loop until guidelines exist, unless the user explicitly says to skip.
 4. Establish **what is under review**:
    - **Pipeline PR gate** (`review-in-progress`, or just hopped from `implementation-completed`):
-     default target is the open PR, or the current `dev/IAM-*` branch vs `origin/main`. Do
+     default target is the open PR, or the current `dev/TRID-*` branch vs `origin/develop`. Do
      **not** treat this as a task to implement.
    - **Ad-hoc / ungoverned** (no epic, or the user named a target): an explicit task/story
      ("implement X", a Jira story, an EARS/LLD ref), **or** an existing change (uncommitted
@@ -127,7 +122,7 @@ For **each** enabled critic, dispatch a Task sub-agent (its configured `subagent
 - An explicit instruction to **read its `guidelines[]` files first** (default:
   `guidelines/collective-feedback-guidelines.md`) and review against them.
 - The developer's change this iteration (diff/files) + the task. On **PR-gate
-  iteration 1**, pass the existing PR / `dev/IAM-*` vs `origin/main` diff — there is no
+  iteration 1**, pass the existing PR / `dev/TRID-*` vs `origin/develop` diff — there is no
   developer revision yet.
 - On iteration ≥ 2, the findings that critic raised last round, so it verifies fixes and
   doesn't re-raise resolved items.
@@ -237,7 +232,7 @@ Next: merge the PR to reach shipped. GACR does not write shipped.
 ## When NOT to use this skill
 
 - A single quick review with no revision loop — just review directly.
-- Epic is earlier than `implementation-completed` and the user did not explicitly ask for an ad-hoc review of a named diff — finish TDD first.
+- Any story in `state.json` is not `done` and the user did not explicitly ask for an ad-hoc review of a named diff — finish TDD first.
 - Epic is `shipped` — nothing left to review.
 - No code target and no task to implement — clarify first.
 - Repo is not a git repository — clarify the workspace.
