@@ -1,0 +1,64 @@
+---
+description: Governance standards for aidlc-docs/ — file structure, audit trail format, and DOs/DON'Ts for the AI-DLC inception phase. Active only when aidlc-docs files are open.
+globs: aidlc-docs/**
+alwaysApply: false
+---
+
+# AIDLC Governance
+
+## Directory structure
+
+One directory per epic. Name = Jira epic key or short identifier chosen at workflow start.
+
+```
+aidlc-docs/
+  <epic-key>/
+    state.json           — machine-readable pipeline status + stories (single source of truth)
+    vision.md            — vision document (inception)
+    adr.md               — consolidated architecture decision records (one file, ADR-001…)
+    audit.md             — append-only decision log
+    system-prompts/
+      context.xml        — compressed inception context
+      adr_decisions.xml  — compressed ADR decisions for design agents
+```
+
+Never place `aidlc-docs/` content inside application source directories.
+
+## Pipeline state machine
+
+- Each epic's pipeline position lives in `state.json`, governed by `.cursor/skills/state-loader/pipeline-config.json` (valid states, transitions, and skills-per-state).
+- `state.json` is the single source of truth for status; `audit.md` is the human ledger. Every status change updates **both**.
+- Only move `status` to a value in `transitions[current].next` (or `.rollback`). Never invent a status.
+- Pre-design gates: `context-ready` (context.xml) → `inception-completed` (vision.md) → `adr-completed` (adr.md + adr_decisions.xml) → `design-in-progress`.
+
+## Entry point & chaining
+
+- `aidlc-init` is the orchestrator entry point: bootstraps `state.json` (`not-started`) → chains `aidlc-epic-scaffold` → `aidlc-vision-doc` → `aidlc-adr` → `aidlc-design-driven-dev` (HLD → LLD → EARS). It is resumable.
+- Every AI-DLC skill MUST invoke `state-loader` first (Step 0) so work resumes correctly across sessions and developers.
+- ADR lives only at `{EPIC_DIR}/adr.md` — do not dual-write to `docs/design/` or `docs/architecture/decisions/` as part of the pipeline.
+
+## Audit trail
+
+Every decision, skill execution, and approval is logged in `audit.md` as a table row:
+
+| Timestamp (UTC) | Phase | Skill/Event | Details | Approver |
+|-----------------|-------|-------------|---------|----------|
+| 2026-07-23T09:00Z | inception | aidlc-vision-doc | vision.md created | pending |
+
+- `pending` → replace with approver name when the user explicitly approves.
+- Entries are append-only. Never delete or edit existing rows.
+
+## DOs
+
+- Create `audit.md` whenever a new doc is added to an epic directory.
+- Use the epic key consistently as the directory name throughout all phases.
+- Render document drafts in chat before writing to disk.
+- Archive as `vision-v<n>.md` or `adr-v<n>.md` before overwriting any existing doc.
+
+## DON'Ts
+
+- Do NOT generate application code during the inception or ADR phases.
+- Do NOT write any file to disk without explicit user approval.
+- Do NOT skip approval gates. Nothing lands on disk until the user says "approved", "looks good", or "finalized".
+- Do NOT mix `aidlc-docs/` content with application source code (`iam/`, `devices/`, etc.).
+- Do NOT start `aidlc-design-driven-dev` before `adr-completed` and `adr_decisions.xml` exist.

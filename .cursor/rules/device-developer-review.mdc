@@ -1,0 +1,29 @@
+---
+description: Review checklist for device developer workflow (agent review step)
+globs: devices/**/*.py
+alwaysApply: false
+---
+
+# Device developer review standard
+
+When running the agent review step of the iam-device-developer workflow, apply this checklist to changed code:
+
+## Code quality
+
+- [ ] Logic is correct and handles edge cases; no obvious bugs.
+- [ ] Error handling is present where needed (e.g. validation, external calls); errors are meaningful.
+- [ ] Code follows existing patterns in `devices/src/` and project style (e.g. naming, structure).
+- [ ] No unrelated or debug code left in; no commented-out blocks that should be removed.
+- [ ] Functions are focused and reasonably sized; complexity is acceptable.
+
+## Tests and docs
+
+- [ ] New or changed behavior has corresponding unit tests in `devices/tests/`.
+- [ ] Public interfaces or non-obvious behavior have brief docstrings where appropriate.
+- [ ] `devices/docs/` is consistent with the changes — run the `update-devices-docs` skill if any filter pipeline, routing, or validator logic changed.
+
+## Acceptance criteria
+
+- [ ] Every acceptance criterion from the Jira story is mapped to implementation or tests; list each AC and confirm Done or Not done.
+
+Fix any issues found before asking the user for approval to commit.
