@@ -8,7 +8,8 @@ description: >-
   Roster (critics + developer), each persona's model, and the default iteration
   count are configurable in config/gacr-config.json. Use when the user says "gacr",
   "run GACR", wants an adversarial generate-and-critique review loop, pipeline
-  status is review-in-progress, or wants code produced/revised until reviewers approve.
+  status is review-in-progress, when aidlc-init Phase F chains this skill, or
+  when the user wants code produced/revised until reviewers approve.
 ---
 
 # aidlc-gacr — Guided Adversarial Code Review
@@ -23,7 +24,7 @@ revise** loop between two kinds of persona sub-agents:
 The orchestrator (you) mediates the back-and-forth and **pauses for the human to audit and
 approve at the end of every iteration**. The loop runs a configurable number of default
 iterations and can be extended indefinitely until the user approves. When invoked as the
-pipeline PR gate, iteration 1 critiques the **existing** PR/branch diff — the developer
+pipeline PR gate (including **aidlc-init Phase F**), iteration 1 critiques the **existing** PR/branch diff — the developer
 only revises against findings; it does not implement a new task.
 
 **Announce at start:** "Running **aidlc-gacr** — default PR gate at review-in-progress. {N} critic(s), developer, default {K} iterations."
@@ -80,9 +81,9 @@ ungoverned path below).
    — it writes corpus/clusters to `references/` and the markdown to `guidelines/`. Do not start
    the critique loop until guidelines exist, unless the user explicitly says to skip.
 4. Establish **what is under review**:
-   - **Pipeline PR gate** (`review-in-progress`, or just hopped from `implementation-completed`):
-     default target is the open PR, or the current `dev/IAM-*` branch vs `origin/main`. Do
-     **not** treat this as a task to implement.
+   - **Pipeline PR gate** (`review-in-progress`, or just hopped from `implementation-completed`, including when **aidlc-init** Phase F already confirmed a PR URL or branch diff):
+     use the target init passed if present; otherwise the open PR, or the current `dev/IAM-*` branch vs `origin/main`. Do
+     **not** treat this as a task to implement. Do not push or merge unless the user explicitly asks.
    - **Ad-hoc / ungoverned** (no epic, or the user named a target): an explicit task/story
      ("implement X", a Jira story, an EARS/LLD ref), **or** an existing change (uncommitted
      diff, a branch, or named files). If it's ambiguous, ask one question: *"What should GACR
@@ -133,6 +134,10 @@ For **each** enabled critic, dispatch a Task sub-agent (its configured `subagent
   doesn't re-raise resolved items.
 - The critic output contract (verdict + findings table with severity, guideline reference,
   `file:line`, problem → fix).
+- An explicit hunt for **hardcoded discriminators** (§6 / §10): if a key builder, log
+  payload, or metric dimension takes `signal` / `kind` / `resource_type`, the value must
+  be interpolated — not a sibling literal (`rl#client`, `"signal": "azp"`). Tests must
+  cover a second variant and an equal-value collision, not only the first kind.
 
 If there are multiple critics, dispatch them **in parallel** (independent reviews). Collect
 each critic's verdict and findings.
@@ -203,6 +208,8 @@ Files: {…}   Lint/tests: {…}
 Next: merge the PR to reach shipped. GACR does not write shipped.
 ```
 
+When invoked by **aidlc-init** Phase F, return control after this print so init can run Step 5.
+
 ---
 
 ## Sub-agent dispatch rules
@@ -229,8 +236,8 @@ Next: merge the PR to reach shipped. GACR does not write shipped.
 
 | Skill | Relationship |
 |-------|-------------|
-| `state-loader` / `aidlc-init` | Supplies `EPIC_DIR` and epic status. This skill is the `review-in-progress` primary; `aidlc-init` does not chain it. |
-| `aidlc-tdd` | Upstream — implements stories; after all stories are `done` and a PR is open, this skill is the PR gate. |
+| `state-loader` / `aidlc-init` | Supplies `EPIC_DIR` and epic status. **aidlc-init Phase F** chains this skill after the TDD story loop and a confirmed PR / `dev/IAM-*` vs `origin/main` target. This skill is still the `review-in-progress` primary and remains runnable standalone. |
+| `aidlc-tdd` | Upstream — implements stories. TDD does not invoke this skill. After all stories are `done` and Step 5.5 is recorded, init (or a standalone GACR run) is the PR gate. |
 | `aidlc-approve` | Used for every `audit.md` row this skill writes (the `implementation-completed → review-in-progress` hop, each iteration, and close-out). `PHASE: review`. |
 | `aidlc-review-guidelines-from-prs` | Upstream — derives review/coding guidelines from merged-PR review comments into `guidelines/collective-feedback-guidelines.md` when missing. GACR Step 0 invokes it automatically; that skill auto-wires outputs into this skill's `references/` and `guidelines/` when the file is absent. |
 

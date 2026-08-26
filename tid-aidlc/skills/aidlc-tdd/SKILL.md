@@ -1,6 +1,6 @@
 # AIDLC TDD
 
-Drives **one implementation story** from requirements to tested code. TDD is not a phase bolted onto delivery here — it **is** the delivery mechanic: the red → green loop, run one seam at a time, is what "Implement" means in this skill (hypothesis-driven execution). Every step below either sets that loop up correctly (analysis, seam agreement) or checks that it was actually followed (test audit). Adversarial PR review is **`aidlc-gacr`**, not this skill. When the epic's last story closes, a lightweight **measurement** gate maps `vision.md` Success Criteria to concrete metrics/tests in `audit.md` before `implementation-completed`.
+Drives **one implementation story** from requirements to tested code. TDD is not a phase bolted onto delivery here — it **is** the delivery mechanic: the red → green loop, run one seam at a time, is what "Implement" means in this skill (hypothesis-driven execution). Every step below either sets that loop up correctly (analysis, seam agreement) or checks that it was actually followed (test audit). Adversarial PR review is **`aidlc-gacr`**, not this skill — this skill never invokes GACR. When chained from **`aidlc-init`**, init runs this skill in a per-story loop (Phase E) and then chains GACR as Phase F. When the epic's last story closes, a lightweight **measurement** gate maps `vision.md` Success Criteria to concrete metrics/tests in `audit.md` before `implementation-completed`.
 
 **Announce at start:** "Running **aidlc-tdd** for `{story}`."
 
@@ -8,7 +8,7 @@ Drives **one implementation story** from requirements to tested code. TDD is not
 
 - **Design docs are the alignment, not a fresh grill every time.** If the story has an `ears_ref` / `lld_ref` in `state.json`, that EARS section's bullets *are* the acceptance criteria. Scoped-questioning (Step 2) fills only what design left genuinely open — it does not re-litigate settled decisions.
 - **TDD is the implementation mechanic, not a separate phase.** There is no "write code, then bolt on tests" step. Tests are written first, one seam at a time, inside Step 3 itself.
-- **Execution is hypothesis-driven (RPT loop).** Each red → green cycle is a falsifiable hypothesis: the failing test states the predicted behavior; the minimal implementation is the intervention; the green result plus the slice log are the evidence. Seams keep the hypothesis observable at a public boundary. Do not skip red, batch into horizontal slices, or advance without that evidence. **Exception:** Dual-Agent TDD (`aidlc-dual-agent-tdd`) may batch the Tester suite for one unit because the test author is firewalled from implementation — that is a different skill, not a license to batch inside this one.
+- **Execution is hypothesis-driven (RPT loop).** Each red → green cycle is a falsifiable hypothesis: the failing test states the predicted behavior; the minimal implementation is the intervention; the green result plus the slice log are the evidence. Seams keep the hypothesis observable at a public boundary. Do not skip red, batch into horizontal slices, or advance without that evidence.
 - **Measurement closes the vision loop.** When the epic reaches `implementation-completed`, map every `vision.md` Success Criteria row to concrete metrics/tests and record the mapping in `audit.md` (Step 5.5). Story-level AC proves the slice; vision-level criteria prove the epic delivered what it set out to measure.
 - **Fresh context per role.** Analysis, implementation, and test audit each run as isolated Task sub-agents so orchestration context never pollutes any of them.
 - **Seams are agreed once, up front, and reused for the whole story.** No test is written at a seam that wasn't confirmed in Step 2.
@@ -86,12 +86,12 @@ Only commit when the user explicitly asks (per repo git rules). When they do, us
 1. Resolve `EPIC_DIR` via `state-loader`.
 2. **Epic-status gate (tracked work):**
    - `prioritization-completed` or `implementation-in-progress` → proceed.
-   - `design-completed` (typically empty `stories`) → stop. Tell the user to run `aidlc-jira-story-breakdown` first so the stories map is populated.
+   - `design-completed` (typically empty `stories`) → stop. Tell the user to run `aidlc-jira-story-breakdown` (or re-run `aidlc-init` Phase D) first so the stories map is populated.
    - Earlier than `design-completed` → stop. Design is not locked yet.
    - Later than `implementation-in-progress` (`implementation-completed` / `review-*` / `shipped`) → stop unless the user is explicitly resuming a leftover story; report the current status and `skills_by_state`.
    - No epic at all (genuine hotfix / standalone task with no `aidlc-docs/` entry) → skip to step 8 (ungoverned path).
 3. Determine `STORY_ID`:
-   - If a story id was given, look it up in `stories`.
+   - If a story id was given (including when **aidlc-init** Phase E passed `STORY_ID`), look it up in `stories`. Do not re-ask which story.
    - If none was given but `stories` has entries, list only the **frontier** — `todo` stories whose `blockedBy` ids are all `status=done` (empty `blockedBy` counts as frontier) — and ask the user which to work (don't guess silently — picking the wrong story is itself duplicated work). Do not offer stories still gated by unfinished blockers.
 4. **Claim check (avoids duplicate work across concurrent runs):** look at the resolved story's current `status` in `state.json` *before* touching anything else:
    - `done` → tell the user this story is already complete and stop.
@@ -158,6 +158,7 @@ Dispatch `implementer` as a `generalPurpose` Task sub-agent. Pass: repo root + b
 **Anti-patterns to never produce:**
 - **Implementation-coupled** — mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behavior hasn't changed.
 - **Tautological** — the assertion recomputes the expected value the way the code does (`expect(add(a, b)).toBe(a + b)`, a hand-derived snapshot, a constant asserted equal to itself), so it passes by construction. Expected values must come from an independent source of truth — a known-good literal, a worked example, the spec.
+- **Single-variant of a parameterized type** — production takes a discriminator (`signal`, `kind`, `resource_type`) but tests only exercise one sibling (`azp` only). A hardcoded prefix like `f"rl#client#{value}#{endpoint}"` then green-passes. Write the second variant *and* an equal-value collision case (`azp` vs `sub` with the same id → distinct keys) in red, then implement by interpolating the parameter (`rl#{signal}#…`).
 - **Horizontal slicing** — writing all tests first, then all implementation. Bulk tests verify *imagined* behavior and go insensitive to real changes. Work in **vertical slices** instead: one test → one implementation → repeat, each test a tracer bullet that responds to what the last cycle taught you.
 
 **Rules of the loop (hypothesis → evidence):**
@@ -177,7 +178,7 @@ The implementer must not declare Step 3 complete until, locally: format/lint is 
 This step **audits**, it does not author net-new coverage wholesale — that would reintroduce horizontal slicing. Dispatch `test-auditor` as a `generalPurpose` Task sub-agent after Step 3 passes. Pass the slice log, the confirmed seam list, and the full unit/integration suite. It must:
 
 1. Run the full suite and report counts.
-2. Check every test the implementer added against the three anti-patterns above and flag violations.
+2. Check every test the implementer added against the anti-patterns above (implementation-coupled, tautological, single-variant of a parameterized type, horizontal slicing) and flag violations.
 3. Cross-check the slice log against the confirmed seam list: flag any agreed seam with no test, and any test that reaches an interface outside the agreed seams.
 4. It **may** add a single missing test for an already-agreed seam if genuinely absent (still red-before-green) — it **must not** invent new seams or bulk-add tests for untested internals.
 
@@ -189,17 +190,23 @@ This step **audits**, it does not author net-new coverage wholesale — that wou
 
 ## Step 5 — Close out
 
-1. If tracked: set the story's `state.json` status to `done`. If every story in the `stories` map is now `done`, note that the `implementation-in-progress → implementation-completed` transition trigger is met and tell the user (per `state-loader`'s pipeline config) — next is open a PR, then run **`aidlc-gacr`**. Do not flip the epic-level `status` yourself without saying so; **run Step 5.5 before treating the epic as implementation-complete.**
+1. If tracked: set the story's `state.json` status to `done`. If every story in the `stories` map is now `done`, note that the `implementation-in-progress → implementation-completed` transition trigger is met — **run Step 5.5 before treating the epic as implementation-complete.** Do **not** invoke **`aidlc-gacr`**. Do not flip the epic-level `status` to `implementation-completed` yourself; **aidlc-init** Phase E writes that hop after Step 5.5 (standalone: tell the user they may advance, or re-run `aidlc-init` for Phase F).
 2. Append an `audit.md` row via `aidlc-approve` (phase `implementation`, action `{STORY_ID} implemented and tested.`).
 3. Summarize what was built against the acceptance criteria, list any deferred items or known gaps, and ask the user to confirm before calling the story done.
 4. If the user asks to commit, use the commit message format from **Repo naming conventions**: `[IAM-<number>] - "<description>"`.
 
-Print:
+Print (standalone):
 ```
 [aidlc-tdd] [{STORY_ID}] STORY COMPLETE — implementation and tests finished.
 Branch: dev/IAM-<number>[-<suffix>]
 Commit format: [IAM-<number>] - "<description>"
-Next: push branch / open a PR, then run aidlc-gacr (the review-in-progress primary skill); or start the next story with aidlc-tdd.
+Next: start the next frontier story with aidlc-tdd; after the last story, re-run aidlc-init (Phase F) or open a PR and run aidlc-gacr. This skill does not invoke GACR.
+```
+
+Print (when invoked by **aidlc-init** with `STORY_ID`):
+```
+[aidlc-tdd] [{STORY_ID}] STORY COMPLETE — implementation and tests finished.
+Next: returning to aidlc-init (next frontier story, or Phase F after last story + Step 5.5).
 ```
 
 If this was the last open story, continue immediately to Step 5.5.
@@ -223,7 +230,7 @@ This is a **lightweight measurement checkpoint**, not a new test authoring phase
    - phase: `implementation`
    - action: `Success-criteria measurement mapped for implementation-completed: {N} covered, {M} partial, {K} gap. {one-line summary of gaps or "no gaps"}.`
    - Optionally persist the full table under `EPIC_DIR/implementation/success-criteria-measurement.md` if the user wants a durable artifact; the audit row is the required record.
-6. Only after this row exists: remind the user they may advance epic `status` to `implementation-completed` (per pipeline config). Still do not flip epic status silently.
+6. Only after this row exists: return control. **Do not** invoke `aidlc-gacr`. **Do not** flip epic `status` to `implementation-completed` — `aidlc-init` Phase E does that hop. Standalone: remind the user they may advance (or re-run `aidlc-init` for the PR pause + GACR).
 
 Print: `[aidlc-tdd] Step 5.5 complete — vision success criteria mapped to metrics/tests; audit.md updated.`
 
@@ -248,20 +255,18 @@ Present a short resume summary before continuing. Do not re-run the Step 0 claim
 
 | Skill | Relationship |
 |-------|-------------|
-| `state-loader` / `aidlc-init` | Supplies `EPIC_DIR`, epic status, and the `stories` map this skill reads and updates |
+| `state-loader` / `aidlc-init` | Supplies `EPIC_DIR`, epic status, and the `stories` map. **aidlc-init Phase E** loops this skill once per frontier story (passes `STORY_ID`), then writes `implementation-completed` and chains GACR as Phase F. This skill does not invoke GACR. |
 | `aidlc-design-driven-dev` | Upstream — produces the HLD/LLD/EARS this skill implements against |
 | `aidlc-jira-story-breakdown` | Upstream — governed prioritization phase; populates the `stories` map (`ears_ref`, `lld_ref`, `blockedBy`) and advances `status` to `prioritization-completed`. This skill consumes that map; it does not invent stories. |
-| `aidlc-gacr` | Downstream — default PR gate at `review-in-progress`. After all stories are `done`, open the PR and run `aidlc-gacr`; do not run a second review loop inside this skill. |
+| `aidlc-gacr` | Downstream PR gate at `review-in-progress`, chained by **aidlc-init Phase F** after this skill's last story + Step 5.5. Do not run a second review loop inside this skill. |
 | `aidlc-vision-doc` / `vision.md` | Source of epic Success Criteria mapped in Step 5.5 at `implementation-completed` |
-| `aidlc-dual-agent-tdd` | Alternative Construction path — Tester (RED) and Builder (GREEN) `generalPurpose` Task sub-agents with a spec/contract firewall. Use when the user wants Dual-Agent TDD, not this skill's single implementer loop. |
 | `aidlc-approve` | Used for every `audit.md` row this skill writes (Steps 0, 2, 5, and 5.5) |
 
 ## When NOT to use this skill
 
-- User wants Dual-Agent TDD (Tester never sees implementation) — use **`aidlc-dual-agent-tdd`** instead of this skill.
 - User only wants planning or design — send them to `aidlc-design-driven-dev` first, then come back once EARS is approved.
-- Epic is at `design-completed` with an empty `stories` map — run `aidlc-jira-story-breakdown` first so RPT prioritization writes the map.
-- Epic is at `implementation-completed` or `review-in-progress` — run **`aidlc-gacr`** as the PR gate, not another TDD cycle.
+- Epic is at `design-completed` with an empty `stories` map — run `aidlc-jira-story-breakdown` first (or re-run `aidlc-init`, which chains it as Phase D) so RPT prioritization writes the map.
+- Epic is at `implementation-completed` or `review-in-progress` — run **`aidlc-gacr`** (or re-run **`aidlc-init`**, which chains it as Phase F), not another TDD cycle.
 - Genuine hotfix with no time for seam alignment — say "skip alignment" and proceed with the ad hoc path in Step 0/2.
 - Repo is not a git repository — clarify workspace and pause.
 - Requirements are completely unknown — gather them first (vision, ADR, EARS, or a ticket), then invoke this skill.

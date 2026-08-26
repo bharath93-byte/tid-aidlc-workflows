@@ -1,5 +1,5 @@
 ---
-name: design-driven-dev
+name: aidlc-design-driven-dev
 description: Guide for design-driven development with prescribed folder structure. Large/new features use the full workflow (HLD → LLD → EARS); minor bugs or small stories use the Lightweight tier (skip HLD and LLD, EARS only); pure bug fixes skip doc creation but verify intent coherence.
 ---
 

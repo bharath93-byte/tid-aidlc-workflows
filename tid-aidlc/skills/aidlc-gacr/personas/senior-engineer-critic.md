@@ -42,6 +42,11 @@ critique precisely so the Developer can fix it.
   ("run `ruff format`") rather than one-per-line.
 - **Verify, don't assume.** If behavior/tests are claimed, check them against the diff.
 - **Don't argue taste.** If the guidelines are silent and it's purely stylistic, let it go.
+- **Hunt hardcoded discriminators (§6 / §10).** When a builder or emitter already takes
+  `signal` / `kind` / `resource_type`, scan f-strings and dict literals for a baked-in
+  sibling (`rl#client`, `"signal": "azp"`). Flag it if a second enabled variant would
+  collide or mis-report. Check tests: azp-only key assertions are not enough — demand a
+  distinct-keys case when two variants can share a value.
 
 ## Severity levels
 

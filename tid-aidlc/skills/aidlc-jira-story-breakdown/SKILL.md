@@ -1,6 +1,6 @@
 ---
 name: aidlc-jira-story-breakdown
-description: Governed RPT prioritization phase. After design-completed, breaks approved HLD/LLD/EARS into tracer-bullet vertical slices, writes the state.json stories map (ears_ref, lld_ref, blockedBy), and advances status to prioritization-completed. Use when the user says "aidlc-jira-story-breakdown", "prioritize stories", "break down into tickets", or when pipeline status is design-completed.
+description: Governed RPT prioritization phase. After design-completed, breaks approved HLD/LLD/EARS into tracer-bullet vertical slices, writes the state.json stories map (ears_ref, lld_ref, blockedBy), and advances status to prioritization-completed. Chained by aidlc-init as Phase D. Use when the user says "aidlc-jira-story-breakdown", "prioritize stories", "break down into tickets", or when pipeline status is design-completed.
 ---
 
 # **AIDLC Jira Story Breakdown**
@@ -149,8 +149,10 @@ Do NOT close or modify any parent issue.
 Print the state-loader banner (now at `prioritization-completed`). Tell the user:
 
 - The stories map is the source of truth for implementation order.
-- Next skill is **`aidlc-tdd`**.
+- Next skill is **`aidlc-tdd`** (per-story worker). **aidlc-init** Phase E loops it across the frontier, then Phase F runs **`aidlc-gacr`**.
 - Work the **frontier**: any story whose `blockedBy` ids are all `status=done` (at this point, those with empty `blockedBy`). For a purely linear chain that means top to bottom.
+
+When invoked by **aidlc-init**, return control after this print so init can enter Phase E. Do not invoke `aidlc-tdd` yourself.
 
 Print: `[aidlc-jira-story-breakdown] complete — status: prioritization-completed; N stories written.`
 

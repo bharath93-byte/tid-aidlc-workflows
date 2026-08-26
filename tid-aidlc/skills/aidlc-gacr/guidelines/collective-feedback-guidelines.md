@@ -102,6 +102,14 @@ Reproduce with `scripts/cluster_feedback.py`; raw buckets live in
 - **Never hardcode infra identifiers** (AWS account IDs, role IDs, region codes, ARNs, API
   Gateway IDs); derive them from variables/parameters/config. _(recurred ~40x across themes)_
 - **Never hardcode UUIDs.** Generate with `uuid.uuid4()` or read from config. _(recurred ~6x)_
+- **Never hardcode a discriminator that is already a parameter.** If a function takes
+  `signal` / `kind` / `resource_type` (or similar), interpolate that value into keys, log
+  payloads, metric dimensions, and identifiers. Do not bake in a sibling name (`client`,
+  `azp`, one resource type). Wrong: `f"rl#client#{value}#{endpoint}"` when `signal` is an
+  argument — `azp` and `sub` then share one DDB item when values collide (M2M `sub` ==
+  client id). Right: `f"rl#{signal}#{value}#{endpoint}"`. Same class: `"signal": "azp"` in
+  a breach log when `decision.signal` exists. Hunt every f-string / literal near key
+  builders, EMF dimensions, and structured logs.
 
 ## 7. Type Hints & Documentation
 
@@ -147,6 +155,11 @@ Reproduce with `scripts/cluster_feedback.py`; raw buckets live in
 - **Set explicit Allure titles per test** (dynamic titles fail when the failure is in a
   fixture and make parametrized cases indistinguishable). _(recurred ~11x)_
 - **Add unit tests for every new method/branch**, including edge cases. _(recurred ~26x)_
+- **When a function is parameterized by a discriminator, tests must cover more than the
+  first variant.** If production meters `azp` *and* `sub` (or any two kinds that can share
+  a value space), assert both keys/payloads *and* an equal-value collision case
+  (`azp == sub` → distinct keys). An azp-only assertion will green-pass a hardcoded
+  `rl#client` prefix.
 
 ## 11. Security & Supply Chain
 

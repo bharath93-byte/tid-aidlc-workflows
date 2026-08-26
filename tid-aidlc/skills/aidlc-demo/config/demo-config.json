@@ -1,0 +1,56 @@
+{
+  "$schema-note": "aidlc-demo roster + loop config. Paths are relative to the aidlc-demo skill directory. The orchestrator role-plays ONE audience persona at a time in chat and waits for the developer (the user) to answer. Reorder 'audience[]' to change who asks first; disable a persona with \"enabled\": false; add one by appending an object with its own persona file.",
+  "loop": {
+    "max_followups_per_persona": 4,
+    "intensity": "grill",
+    "intensity_options": ["gentle", "normal", "grill"],
+    "end_keywords": ["end demo", "wrap up", "that's all", "stop", "end it", "done", "next persona"],
+    "skip_keywords": ["skip", "next", "pass"],
+    "one_persona_at_a_time": true,
+    "auto_end_when_all_satisfied": true
+  },
+  "session_notes": {
+    "enabled": true,
+    "dir": "sessions",
+    "file": "demo-gaps.md",
+    "mode": "append",
+    "brief_only": true,
+    "note": "APPEND a brief gap block to sessions/demo-gaps.md at every demo close-out. Never a new file per session. Not under bug-analysis/. Rate-limiting / Task-spend / timeout / concurrency first."
+  },
+  "presentation": {
+    "require_pitch_first": true,
+    "pitch_prompt": "Give a 3-5 sentence demo pitch of what you built: the problem, what it does, and how it works."
+  },
+  "audience": [
+    {
+      "id": "junior-engineer",
+      "display_name": "Priya (Junior Engineer)",
+      "persona": "personas/junior-engineer.md",
+      "enabled": true
+    },
+    {
+      "id": "senior-engineer",
+      "display_name": "Marcus (Senior Engineer)",
+      "persona": "personas/senior-engineer.md",
+      "enabled": true
+    },
+    {
+      "id": "engineering-manager",
+      "display_name": "Dana (Engineering Manager)",
+      "persona": "personas/engineering-manager.md",
+      "enabled": true
+    },
+    {
+      "id": "technical-architect",
+      "display_name": "Ravi (Technical Architect)",
+      "persona": "personas/technical-architect.md",
+      "enabled": true
+    },
+    {
+      "id": "tech-executive",
+      "display_name": "Sam (VP of Engineering)",
+      "persona": "personas/tech-executive.md",
+      "enabled": true
+    }
+  ]
+}

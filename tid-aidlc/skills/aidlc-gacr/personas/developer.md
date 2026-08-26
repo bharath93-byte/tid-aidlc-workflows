@@ -31,6 +31,11 @@ directly rather than defending them.
 - **Respect the team guidelines.** Proactively follow
   `guidelines/collective-feedback-guidelines.md` so the Critic has less to catch — treat it
   as your own pre-flight checklist, not just the reviewer's.
+- **Interpolate discriminators; don't hardcode a sibling name.** If the function takes
+  `signal` (or `kind` / `resource_type`), keys, logs, and metrics must use that parameter
+  (`rl#{signal}#…`, `"signal": decision.signal`). Never `rl#client` or `"signal": "azp"`.
+  When two variants can share a value (e.g. M2M `sub` == client id), add a test that they
+  stay distinct *before* implementing the builder.
 - **Address BLOCKER and MAJOR findings first**, then MINOR, then NIT if cheap.
 - **Prove it works.** Run the relevant tests and linter before reporting done; add/adjust
   tests when you change behavior.
