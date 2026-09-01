@@ -24,6 +24,7 @@ Print: `[aidlc-jira-story-breakdown] Step 0 complete — EPIC_DIR resolved, stat
 Read from `EPIC_DIR`, not only conversation paste:
 
 - `vision.md`, `adr.md`, `high-level-design.md` (if present)
+- `illustrative-example.md` (if present — epic-level primary scenario; not extra AC)
 - every `designs/**/LLD.md` (Full tier) and every `designs/**/*-EARS.md` (or top-level `*-EARS.md` on Lightweight / EARS-only epics)
 - `system-prompts/context.xml` and `system-prompts/adr_decisions.xml`
 

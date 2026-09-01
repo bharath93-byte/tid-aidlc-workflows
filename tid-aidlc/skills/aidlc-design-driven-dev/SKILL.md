@@ -1,6 +1,6 @@
 ---
 name: aidlc-design-driven-dev
-description: Guide for design-driven development with prescribed folder structure. Large/new features use the full workflow (HLD → LLD → EARS); minor bugs or small stories use the Lightweight tier (skip HLD and LLD, EARS only); pure bug fixes skip doc creation but verify intent coherence.
+description: Guide for design-driven development with prescribed folder structure. Large/new features use the full workflow (HLD → LLD → EARS → one epic-level illustrative-example.md); minor bugs or small stories use the Lightweight tier (skip HLD and LLD, EARS then illustrative example); pure bug fixes skip doc creation but verify intent coherence.
 ---
 
 # Design-Driven Development
@@ -25,8 +25,8 @@ After state-loader resolves `EPIC_DIR` / `DOCS_DIR`, verify before any design wo
 
 This is the most important part of the workflow. Don't rush through design to get to code.
 
-**MANDATORY AUDIT LOGGING:** 
-Every time the user explicitly approves a phase (HLD, LLD, or EARS), you MUST update the `audit.md` file located at `DOCS_DIR/audit.md` *before* starting the next phase. 
+**MANDATORY AUDIT LOGGING:**
+Every time the user explicitly approves a phase (HLD, LLD, EARS, or the design illustrative example), you MUST update the `audit.md` file located at `DOCS_DIR/audit.md` *before* starting the next phase. Prefer **`aidlc-approve`** for the illustrative-example row. 
 *   If the file does not exist, create it with the standard markdown table headers (`| Timestamp | Phase | Skill/Agent | Action | Approver |`).
 *   Append a new row using the current UTC timestamp and the current developer's system username.
 *   Example row: `| 2026-07-29T12:45Z | design | design-driven-dev | <Specific action described below> | <username> |`
@@ -38,7 +38,7 @@ Before starting any design work, you must determine the correct epic context to 
 1. **Identify the Epic:** If the user hasn't specified which epic they are working on, ask them (e.g., "Which epic are we designing for? Please provide the key like IAM-123 or the name").
 2. **Locate the Directory:** Search the `aidlc-docs/` directory for a folder matching the provided epic key or name. The canonical format is `aidlc-docs/<epic-name>_<epic-id>/`.
 3. **Read `state.json`:** Once the folder is found, read the `state.json` file inside it to strictly confirm the `"epic-id"` and `"epic-name"`. 
-4. **Set DOCS_DIR:** Set your working `DOCS_DIR` strictly to `aidlc-docs/<epic-name>_<epic-id>` based on the values in `state.json`. All generated docs (HLD, LLD, EARS, and updated `audit.md`) MUST be saved inside this specific directory.
+4. **Set DOCS_DIR:** Set your working `DOCS_DIR` strictly to `aidlc-docs/<epic-name>_<epic-id>` based on the values in `state.json`. All generated docs (HLD, LLD, EARS, `illustrative-example.md`, and updated `audit.md`) MUST be saved inside this specific directory.
 5. **Ingest Vision Document:** You MUST read `DOCS_DIR/vision.md`. This establishes the business goals, architectural North Star, and scope. The technical designs you create MUST **perfectly** align with this document.
 6. **Ingest XML System Prompts:** You MUST read the structured XML files located in `DOCS_DIR/system-prompts/` — at minimum `context.xml` and `adr_decisions.xml`. These files contain critical data constraints, integration boundaries, hard user decisions, and locked architecture decisions from ADR. Treat these XML constraints as the absolute factual baseline for your entire DDD flow. **Cite ADR IDs** (e.g., ADR-001) in HLD/LLD/EARS where a design choice implements or depends on an ADR decision.
 
@@ -47,6 +47,7 @@ Before starting any design work, you must determine the correct epic context to 
 ```
 DOCS_DIR/
 ├── high-level-design.md           # Single HLD for entire project
+├── illustrative-example.md        # One epic-level primary-scenario walkthrough (not per LLD)
 └── designs/
     └── <feature-name>/           # only if the epic is big enough for multiple features, else keep below under one level
         ├── LLD.md                 # Low-level design for feature
@@ -59,6 +60,7 @@ DOCS_DIR/
 ```
 DOCS_DIR/
 ├── high-level-design.md
+├── illustrative-example.md
 └── designs/
     ├── authentication/
     │   ├── LLD.md
@@ -76,23 +78,26 @@ DOCS_DIR/
 1. **High-Level Design (HLD)** - Project vision and architecture → `DOCS_DIR/high-level-design.md`
 2. **Low-Level Design (LLD)** - Feature-specific technical design → `DOCS_DIR/designs/<feature>/LLD.md`
 3. **EARS Specifications** - Sub-feature requirements → `DOCS_DIR/designs/<feature>/<subfeature>-EARS.md`
+4. **Illustrative example** - One epic-level primary-scenario walkthrough → `DOCS_DIR/illustrative-example.md` (not one file per LLD)
 
-See [hld-template.md](./references/hld-template.md) for HLD structure guidance.
+See [hld-template.md](./references/hld-template.md) for HLD structure guidance. See [illustrative-example-template.md](./references/illustrative-example-template.md) for the design-example structure.
 
 ## Complexity Tiers: Which Phases to Run
 
 Before Phase 1, assess the size of the change and pick a tier. State the chosen tier to the user in one line and let them override it. **When unsure, default to Full — over-designing is safer than under-designing.** Only the phases for the chosen tier run; every phase that runs still STOPS for explicit approval and is logged to `audit.md`.
 
-**Full tier — run HLD → LLD(s) → EARS.** Use for:
+**Full tier — run HLD → LLD(s) → EARS → Phase 4 (illustrative example).** Use for:
 - New features, large epics, or multi-feature / multi-component work
 - Major refactors or significant behavior changes
 
-**Lightweight tier — skip HLD and LLD; run EARS only, then proceed.** Use for:
+**Lightweight tier — skip HLD and LLD; run EARS, then Phase 4 from vision + EARS + ADR.** Use for:
 - Minor bugs or small stories (e.g. a two-or-three-files change)
 - Localized changes that introduce no new architecture and touch a single existing component
 
 **Coherence check only (no new docs) for:**
-- Pure bug fixes, quick changes (<30 minutes), or debugging sessions where existing EARS already cover the behavior — verify intent coherence and update in place instead of creating new docs.
+- Pure bug fixes, quick changes (<30 minutes), or debugging sessions where existing EARS already cover the behavior — verify intent coherence and update in place instead of creating new docs. **Skip Phase 4.**
+
+**Resume:** if `status = design-in-progress`, HLD/LLD/EARS (or Lightweight EARS) exist, and the illustrative-example audit row is missing, resume at Phase 4. Do **not** treat design as complete until Phase 4 is approved (except coherence-check-only).
 
 ## Phase 1: High-Level Design
 
@@ -168,7 +173,31 @@ Generate requirements using EARS (Easy Approach to Requirements Syntax). Create 
 
 See [ears-syntax.md](./references/ears-syntax.md) for full EARS syntax, semantic ID format, and scope disambiguation guidance.
 
-**Stop and get user approval.** Upon approval, append a row to `DOCS_DIR/audit.md` with Action: `EARS specifications for <subfeature> generated and approved.` before proceeding.
+**Stop and get user approval.** Upon approval, append a row to `DOCS_DIR/audit.md` with Action: `EARS specifications for <subfeature> generated and approved.` Then proceed to **Phase 4** (unless coherence-check-only).
+
+## Phase 4: Design illustrative example
+
+**File:** `DOCS_DIR/illustrative-example.md`
+
+**Cardinality:** **one file per epic**, not one per LLD. LLDs stay per-feature. The example is a single primary end-to-end scenario that may cite several LLDs.
+
+> **Skip this phase for coherence-check only** (no new docs). **Run it** for Full (after all HLD/LLD/EARS approvals) and Lightweight (after EARS; walkthrough from vision + EARS + ADR).
+
+This is **not** a restatement of HLD/LLD. It is a concrete walkthrough of one primary scenario:
+
+- Scenario and actor
+- Step-by-step flow through the architecture (HLD) and components/APIs/data (LLD) — Lightweight: through EARS + ADR
+- Sample request/response or event payload derived from the design
+- How each cited EARS bullet is satisfied
+- Explicit non-coverage (out of scope)
+
+See [illustrative-example-template.md](./references/illustrative-example-template.md).
+
+Construction (`aidlc-tdd`) will load this file as **scenario context** next to `ears_ref` / `lld_ref`. It must not add features beyond those docs.
+
+**Stop and get user approval.** Present the doc, stop, wait for approved / looks good / finalized. Do **not** hop `design-in-progress → design-completed` (that hop is **aidlc-init** Phase C). Upon approval, append a row via **`aidlc-approve`** (`phase: design`, action `Design illustrative example generated and approved.`).
+
+Print: `[aidlc-design-driven-dev] Phase 4 complete — illustrative-example.md approved.`
 
 ## Cross-Document Linking Rules
 
@@ -225,7 +254,7 @@ EARS **must** link back to parent LLD:
 There's a chain of documents that translates intent from HLD to modular EARS:
 
 ```
-HLD → LLDs → EARS
+HLD → LLDs → EARS → illustrative-example.md
 
 ```
 
@@ -234,6 +263,7 @@ Each level translates the previous into more specific terms:
 * **HLD** says *what* and *why*
 * **LLDs** say *how* at a feature level
 * **EARS** says *exactly what must be true* in testable terms
+* **illustrative-example.md** shows *one primary scenario* end-to-end (not extra AC)
 
 ### The Principle: Coherence Over History
 
@@ -248,9 +278,9 @@ When requirements or understanding change:
 1. **Identify the entry point** - Where in the chain does this change originate?
 2. **Update at that level** - Mutate the doc directly
 3. **Cascade downward** - Review and update each subsequent level:
-    * HLD change → review LLDs → review EARS 
-    * LLD change → review EARS 
-    * EARS change → Get approval and update audit.md as said above
+    * HLD change → review LLDs → review EARS → review illustrative-example.md
+    * LLD change → review EARS → review illustrative-example.md
+    * EARS change → Get approval and update audit.md as said above; review illustrative-example.md if the primary scenario is affected
 4. **Delete what's obsolete** - Delete specs that no longer apply
 
 **ADR rollback:** If a design change reopens an architecture decision locked in ADR, rollback `status` to `adr-completed` (per `pipeline-config.json` transitions) and revise `adr.md` + `adr_decisions.xml` before continuing HLD/LLD/EARS work.

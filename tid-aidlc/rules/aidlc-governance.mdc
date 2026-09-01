@@ -17,9 +17,18 @@ aidlc-docs/
     vision.md            — vision document (inception)
     adr.md               — consolidated architecture decision records (one file, ADR-001…)
     audit.md             — append-only decision log
+    high-level-design.md — HLD (Full tier)
+    illustrative-example.md — one epic-level primary-scenario walkthrough (design Gate 1)
+    illustrative-example-construction.md — construction walkthrough + corner cases (TDD 5.6)
+    manual-test-cases.json
+    manual-test-cases.xlsx
     system-prompts/
       context.xml        — compressed inception context
       adr_decisions.xml  — compressed ADR decisions for design agents
+    designs/
+      <feature>/
+        LLD.md
+        *-EARS.md
 ```
 
 Never place `aidlc-docs/` content inside application source directories.
@@ -33,7 +42,7 @@ Never place `aidlc-docs/` content inside application source directories.
 
 ## Entry point & chaining
 
-- `aidlc-init` is the orchestrator entry point: bootstraps `state.json` (`not-started`) → chains `aidlc-epic-scaffold` → `aidlc-vision-doc` → `aidlc-adr` → `aidlc-design-driven-dev` (HLD → LLD → EARS). It is resumable.
+- `aidlc-init` is the orchestrator entry point: bootstraps `state.json` (`not-started`) → chains `aidlc-epic-scaffold` → `aidlc-vision-doc` → `aidlc-adr` → `aidlc-design-driven-dev` (HLD → LLD → EARS → illustrative-example) → `aidlc-jira-story-breakdown` → `aidlc-tdd` (including construction GACR) → Phase F PR-open only. It is resumable.
 - Every AI-DLC skill MUST invoke `state-loader` first (Step 0) so work resumes correctly across sessions and developers.
 - ADR lives only at `{EPIC_DIR}/adr.md` — do not dual-write to `docs/design/` or `docs/architecture/decisions/` as part of the pipeline.
 

@@ -1,0 +1,37 @@
+---
+description: Principal-engineer coding constraints during construction (KISS, DRY, YAGNI, SOLID SRP/OCP/ISP). Active when editing typical app and test trees.
+globs: src/**,tests/**,**/src/**,**/tests/**
+alwaysApply: false
+---
+
+# Coding guidelines (construction)
+
+When writing or refactoring application or test code, work as a Principal Engineer against these constraints. Full skill: `tid-aidlc/skills/coding-guidelines/SKILL.md` (installed copy: `.cursor/skills/coding-guidelines/SKILL.md`).
+
+## What to implement
+
+Implement **only** the current story's `lld_ref` / `ears_ref` (Lightweight: EARS + ADR). `{EPIC_DIR}/illustrative-example.md` is scenario context, not extra scope.
+
+## Principles
+
+- **KISS** — simplest design that satisfies the story.
+- **DRY** — reuse existing helpers; extract only when a second real caller exists.
+- **YAGNI** — no unrequested features or speculative abstractions.
+- **SOLID** — SRP, OCP, and ISP. Follow existing DIP/LSP patterns; do not invent IoC the story does not need.
+
+## Naming and size
+
+- Names describe behavior. Match repo conventions.
+- Small functions; split mixed orchestration, I/O, and formatting.
+
+## Errors and logging
+
+- Fail fast at the boundary. Do not swallow exceptions unless ADR/LLD requires fail-open.
+- Structured logging with fields the design names.
+
+## Forbidden
+
+- Magic numbers (use named constants).
+- Global mutation of request/session state.
+- Deep nesting (prefer early returns).
+- Unused utilities left behind after a change.

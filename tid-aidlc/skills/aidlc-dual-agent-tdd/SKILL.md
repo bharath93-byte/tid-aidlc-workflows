@@ -30,13 +30,13 @@ Do **not** write tests or production code in this Orchestrator chat.
 
 After the user approves the Dual-Agent plan:
 
-1. Dispatch `tester` as a `generalPurpose` Task. Pass the full body of `aidlc-docs/construction/{unit-name}/dual-agent/tester-launch-prompt.md`. Include: repo root, allowlist paths only, denylist, test write paths, discovered test command. Instruct: do not Read/Grep/Glob production source or `builder-packet.md`. Return PASS/FAIL, artifacts touched, test command + result, blockers.
+1. Dispatch `tester` as a `generalPurpose` Task. Pass the full body of `aidlc-docs/construction/{unit-name}/dual-agent/tester-launch-prompt.md`. Include: repo root, allowlist paths only, denylist, test write paths, discovered test command. If `{EPIC_DIR}/illustrative-example.md` exists, include its path as **expected-behavior context** (design artifact, not production source; scenario-not-spec — do not expand beyond `ears_ref`/`lld_ref`). Do **not** dump `coding-guidelines` into the Tester prompt (test-author firewall). Instruct: do not Read/Grep/Glob production source or `builder-packet.md`. Missing `illustrative-example.md` is not a firewall violation. Return PASS/FAIL, artifacts touched, test command + result, blockers.
 
    Print: `[aidlc-dual-agent-tdd] [{unit}] Tester Task complete.`
 
 2. Orchestrator: verify files touched vs `firewall-manifest.md`. Run the suite. Write `red-evidence.md`. If new tests pass without new production code, stop and ask the user.
 
-3. Dispatch `builder` as a `generalPurpose` Task. Pass `builder-launch-prompt.md` plus the Tester test file list. Instruct: do not edit Tester assertions. Return PASS/FAIL, artifacts touched, test command + result, blockers.
+3. Dispatch `builder` as a `generalPurpose` Task. Pass `builder-launch-prompt.md` plus the Tester test file list. Instruct: do not edit Tester assertions. **Read `.cursor/skills/coding-guidelines/SKILL.md` first** as a hard constraint. If `{EPIC_DIR}/illustrative-example.md` exists, include its path (scenario-not-spec: implement only `ears_ref`/`lld_ref`). Return PASS/FAIL, artifacts touched, test command + result, blockers.
 
    Print: `[aidlc-dual-agent-tdd] [{unit}] Builder Task complete.`
 
@@ -44,7 +44,7 @@ After the user approves the Dual-Agent plan:
 
 ## Sub-agent dispatch rules
 
-Every `tester` and `builder` dispatch **must** be a `generalPurpose` Task sub-agent for context isolation (same rule as `aidlc-tdd` implementer / test-auditor). Each prompt must include: repo root + branch, packet paths, allowlist/denylist (Tester), write paths, discovered build/test commands, and an instruction to return PASS/FAIL, artifacts touched, and blockers.
+Every `tester` and `builder` dispatch **must** be a `generalPurpose` Task sub-agent for context isolation (same rule as `aidlc-tdd` implementer / test-auditor). Each prompt must include: repo root + branch, packet paths, allowlist/denylist (Tester), write paths, discovered build/test commands, and an instruction to return PASS/FAIL, artifacts touched, and blockers. **Builder** prompts also list `.cursor/skills/coding-guidelines/SKILL.md` and `{EPIC_DIR}/illustrative-example.md` when present. **Tester** prompts may list the illustrative example as behavior context only — not the production style guide.
 
 Discover build/test/lint commands the same way as `aidlc-tdd` (README → package.json → Makefile → language manifests → CI).
 

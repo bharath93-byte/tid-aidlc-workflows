@@ -1,10 +1,10 @@
 {
   "_meta": {
     "description": "AI-DLC pipeline framework config. Defines all valid states, allowed transitions, and the skills relevant at each stage. Loaded by state-loader before any skill runs.",
-    "version": "1.5.0",
-    "entry_point": "aidlc-init is the orchestrator entry point. It bootstraps state.json (not-started) and chains aidlc-epic-scaffold (context) -> aidlc-vision-doc (vision) -> aidlc-adr (ADR) -> generate-system-prompts (adr_decisions.xml) -> aidlc-design-driven-dev (HLD -> LLD -> EARS). It is resumable via state-loader. After design-completed, aidlc-jira-story-breakdown (prioritization), aidlc-tdd (implementation), and aidlc-gacr (PR review at review-in-progress) are separate governed skills, not chained by aidlc-init.",
+    "version": "1.6.0",
+    "entry_point": "aidlc-init is the orchestrator entry point. It bootstraps state.json (not-started) and chains aidlc-epic-scaffold (context) -> aidlc-vision-doc (vision) -> aidlc-adr (ADR) -> generate-system-prompts (adr_decisions.xml) -> aidlc-design-driven-dev (HLD -> LLD -> EARS -> illustrative-example.md). After design-completed it chains aidlc-jira-story-breakdown, aidlc-tdd (implementation; TDD Step 5.8 runs GACR in construction with no status hop), then Phase F is PR-open only. Init hops review-in-progress when a PR is opened. GACR does not write shipped.",
     "source_of_truth": "The epic's state.json is the single source of truth for its current status. Do not re-derive status by scanning disk artifacts; trust state.json.",
-    "state_writer": "state-loader is READ-ONLY. status is written by: (1) aidlc-init at bootstrap (not-started) and on the design-in-progress/design-completed hops; (2) aidlc-epic-scaffold on the context-ready hop; (3) aidlc-vision-doc on the inception-completed hop; (4) aidlc-adr (+ generate-system-prompts ADR mode) on the adr-completed hop; (5) aidlc-jira-story-breakdown on the prioritization-completed hop AND the stories map (ears_ref, lld_ref, blockedBy); (6) aidlc-tdd on the implementation-in-progress hop (first story claim) and per-story status; (7) aidlc-gacr on the implementation-completed → review-in-progress hop (when a PR exists) and audit.md review rows via aidlc-approve — GACR does not write shipped. A status change is valid only when the transition trigger is met, and MUST be accompanied by a new row in the epic's audit.md."
+    "state_writer": "state-loader is READ-ONLY. status is written by: (1) aidlc-init at bootstrap (not-started) and on the design-in-progress/design-completed hops; (2) aidlc-epic-scaffold on the context-ready hop; (3) aidlc-vision-doc on the inception-completed hop; (4) aidlc-adr (+ generate-system-prompts ADR mode) on the adr-completed hop; (5) aidlc-jira-story-breakdown on the prioritization-completed hop AND the stories map (ears_ref, lld_ref, blockedBy); (6) aidlc-tdd on the implementation-in-progress hop (first story claim) and per-story status; (7) aidlc-init on implementation-completed after TDD Steps 5.5–5.8 (construction GACR writes audit rows only — no status hop) and on review-in-progress when a PR is opened. GACR does not write implementation-completed → review-in-progress in construction mode and does not write shipped. A status change is valid only when the transition trigger is met, and MUST be accompanied by a new row in the epic's audit.md."
   },
 
   "states": {
@@ -26,11 +26,11 @@
     },
     "design-in-progress": {
       "label": "Design In Progress",
-      "description": "HLD/LLD/EARS work has started but at least one design artifact is still pending approval."
+      "description": "HLD/LLD/EARS work has started but at least one design artifact (including the epic-level illustrative-example.md except coherence-check-only) is still pending approval."
     },
     "design-completed": {
       "label": "Design Completed",
-      "description": "HLD, all LLDs, and all EARS files are approved and coherent. Ready for RPT prioritization (aidlc-jira-story-breakdown) to populate the stories map."
+      "description": "HLD, all LLDs, all EARS, and the approved epic-level illustrative-example.md (skipped only for coherence-check-only). Ready for RPT prioritization (aidlc-jira-story-breakdown) to populate the stories map."
     },
     "prioritization-completed": {
       "label": "Prioritization Completed",
@@ -38,11 +38,11 @@
     },
     "implementation-in-progress": {
       "label": "Implementation In Progress",
-      "description": "One or more implementation stories are actively being developed."
+      "description": "One or more implementation stories are actively being developed. TDD loads illustrative-example.md as scenario context with LLD/EARS and enforces coding-guidelines. Close-out (all stories done) includes construction example, manual test cases, and construction GACR before hopping."
     },
     "implementation-completed": {
       "label": "Implementation Completed",
-      "description": "All planned stories are implemented. Ready for PR review."
+      "description": "All planned stories are implemented; construction GACR is already approved. Next is open a PR (Phase F), not re-run GACR."
     },
     "review-in-progress": {
       "label": "Review In Progress",
@@ -73,7 +73,7 @@
     },
     "design-in-progress": {
       "next": ["design-completed"],
-      "trigger": "HLD + all planned LLDs + all EARS files explicitly approved and audit.md updated.",
+      "trigger": "HLD + all planned LLDs + all EARS files + illustrative-example.md explicitly approved and audit.md updated (Lightweight: EARS + illustrative example from vision/EARS/ADR; coherence-check-only skips the example).",
       "rollback": ["adr-completed"]
     },
     "design-completed": {
@@ -88,7 +88,7 @@
     },
     "implementation-in-progress": {
       "next": ["implementation-completed"],
-      "trigger": "All stories in the stories map reach status=done, and aidlc-tdd Step 5.5 has mapped vision.md Success Criteria to concrete metrics/tests in audit.md.",
+      "trigger": "All stories in the stories map reach status=done; aidlc-tdd Steps 5.5–5.8 approved (vision Success Criteria mapping, construction illustrative example, manual test cases, and construction GACR).",
       "rollback": ["prioritization-completed"]
     },
     "implementation-completed": {
@@ -144,18 +144,18 @@
     },
     "implementation-in-progress": {
       "primary": ["aidlc-tdd"],
-      "optional": ["add-iam-api-endpoint", "update-devices-docs", "iam-device-developer", "iam-device-tester"],
-      "note": "Actively building stories via aidlc-tdd. Update state.json stories map as each story progresses."
+      "optional": ["aidlc-gacr", "aidlc-manual-test-cases", "add-iam-api-endpoint", "update-devices-docs", "iam-device-developer", "iam-device-tester"],
+      "note": "Actively building stories via aidlc-tdd. Load illustrative-example.md as scenario context with LLD/EARS; enforce coding-guidelines. After all stories are done, TDD chains construction example (5.6), aidlc-manual-test-cases (5.7), and aidlc-gacr construction mode (5.8) before implementation-completed."
     },
     "implementation-completed": {
       "primary": [],
       "optional": ["update-devices-docs"],
-      "note": "All stories done and vision Success Criteria mapped to metrics/tests in audit.md (aidlc-tdd Step 5.5). Open PR, then advance to review-in-progress and run aidlc-gacr."
+      "note": "All stories done; construction GACR already approved. Open PR (Phase F / aidlc-init), then advance to review-in-progress. Do not re-run GACR if the construction complete row exists."
     },
     "review-in-progress": {
       "primary": ["aidlc-gacr"],
       "optional": ["aidlc-review-guidelines-from-prs"],
-      "note": "Default PR gate is aidlc-gacr against collective-feedback-guidelines.md. Align on the existing guidelines; do not start a second review loop. After user-approved GACR, merge the PR to reach shipped."
+      "note": "PR is open. Construction GACR is already done — do not re-run if audit.md has Construction GACR approved or a GACR complete row. After PR merge, status becomes shipped."
     },
     "shipped": {
       "primary": [],

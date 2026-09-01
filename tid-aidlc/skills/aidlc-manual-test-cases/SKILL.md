@@ -273,6 +273,16 @@ Print: `[manual-tc] xlsx={path}; mode={single-sheet|summary+all+N-tabs}; tickets
 
 ---
 
+## Step 7 — Approval gate
+
+Present ticket → case counts, EARS coverage, and the JSON/xlsx paths. **Stop.** Wait for approved / looks good / finalized. Do **not** proceed until that confirmation.
+
+On confirmation, append via **`aidlc-approve`** (`phase: implementation`, action `Manual regression test cases generated and approved.`).
+
+Standalone runs keep current generation behavior except they also wait for this approval. When chained from `aidlc-tdd` Step 5.7, return only after this row exists.
+
+Print: `[manual-tc] Step 7 complete — manual test cases approved.`
+
 ## When NOT to use this skill
 
 - pytest / TDD → `aidlc-tdd`

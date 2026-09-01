@@ -1,20 +1,23 @@
 ---
 name: aidlc-gacr
 description: >-
-  GACR (Guided Adversarial Code Review) — the default PR gate at review-in-progress.
-  Runs a developer sub-agent and one or more critic sub-agents in a back-and-forth
-  loop, with a human audit/approval gate at every iteration. Critics review against
-  the team's distilled guidelines (guidelines/collective-feedback-guidelines.md).
-  Roster (critics + developer), each persona's model, and the default iteration
-  count are configurable in config/gacr-config.json. Use when the user says "gacr",
-  "run GACR", wants an adversarial generate-and-critique review loop, pipeline
-  status is review-in-progress, when aidlc-init Phase F chains this skill, or
-  when the user wants code produced/revised until reviewers approve.
+  GACR (Guided Adversarial Code Review) — construction close-out at
+  implementation-in-progress (after all stories and Gates 2–3) and optional
+  PR-gate at review-in-progress. Runs a developer sub-agent and one or more
+  critic sub-agents in a back-and-forth loop, with a human audit/approval gate
+  at every iteration. Critics review against the team's distilled guidelines
+  (guidelines/collective-feedback-guidelines.md). Roster (critics + developer),
+  each persona's model, and the default iteration count are configurable in
+  config/gacr-config.json. Use when the user says "gacr", "run GACR", wants an
+  adversarial generate-and-critique review loop, when aidlc-tdd Step 5.8 or
+  aidlc-init Phase E chains this skill in construction, at review-in-progress
+  if construction GACR was skipped (legacy), or when the user wants code
+  produced/revised until reviewers approve.
 ---
 
 # aidlc-gacr — Guided Adversarial Code Review
 
-Default **PR gate** at `review-in-progress`. Orchestrates a **generate → critique → audit →
+**Construction close-out** (default): chained by `aidlc-tdd` Step 5.8 / **aidlc-init** Phase E while still `implementation-in-progress`, after all stories are `done` and Gates 2–3 (construction example + manual TCs) are approved. Orchestrates a **generate → critique → audit →
 revise** loop between two kinds of persona sub-agents:
 
 - **1 Developer** — produces and revises the code.
@@ -23,11 +26,12 @@ revise** loop between two kinds of persona sub-agents:
 
 The orchestrator (you) mediates the back-and-forth and **pauses for the human to audit and
 approve at the end of every iteration**. The loop runs a configurable number of default
-iterations and can be extended indefinitely until the user approves. When invoked as the
-pipeline PR gate (including **aidlc-init Phase F**), iteration 1 critiques the **existing** PR/branch diff — the developer
+iterations and can be extended indefinitely until the user approves. Iteration 1 critiques the **existing** branch diff (`dev/IAM-*` vs `origin/main`); a PR is **not** required. The developer
 only revises against findings; it does not implement a new task.
 
-**Announce at start:** "Running **aidlc-gacr** — default PR gate at review-in-progress. {N} critic(s), developer, default {K} iterations."
+**Construction mode must not hop `status` to `review-in-progress`.** Write iteration + close-out audit rows only.
+
+**Announce at start:** "Running **aidlc-gacr** — {construction close-out | PR gate}. {N} critic(s), developer, default {K} iterations."
 
 ## The roster is config-driven
 
@@ -60,13 +64,15 @@ the epic's `state.json`, unless this is a genuinely epic-less ad hoc review (see
 ungoverned path below).
 
 1. **Epic-status gate (tracked work):**
-   - `review-in-progress` → proceed (this is the home state).
+   - **Construction mode:** `implementation-in-progress`, every story in `stories` is `done`, and `audit.md` has both `Construction illustrative example with corner cases generated and approved.` and `Manual regression test cases generated and approved.` → proceed. Do **not** hop `status`. `PHASE` for this run's audit rows is `implementation`.
+   - `review-in-progress` → proceed (legacy / PR-gate home state). `PHASE: review`.
    - `implementation-completed` and a PR or `dev/IAM-*` branch-vs-`origin/main` diff exists →
-     this meets the `implementation-completed → review-in-progress` trigger. Advance epic
+     this meets the `implementation-completed → review-in-progress` trigger **only if construction GACR was never recorded**. Advance epic
      `status` to `review-in-progress` and append an `audit.md` row via `aidlc-approve`
      (`PHASE: review`, action `Entered review; GACR targeting {PR or branch}.`), then proceed.
+     If `Construction GACR approved.` (or a GACR complete row from construction) already exists, **stop** — do not re-run; tell the user Phase F is PR-open only.
    - `shipped` → stop. The epic is already live.
-   - Earlier than `implementation-completed` → stop and report the current status and
+   - Earlier than `implementation-completed` **except construction mode above** → stop and report the current status and
      `skills_by_state`, unless the user explicitly asked for an ad-hoc/ungoverned review of
      a named diff.
    - No epic at all (genuine hotfix / standalone review with no `aidlc-docs/` entry) →
@@ -81,7 +87,8 @@ ungoverned path below).
    — it writes corpus/clusters to `references/` and the markdown to `guidelines/`. Do not start
    the critique loop until guidelines exist, unless the user explicitly says to skip.
 4. Establish **what is under review**:
-   - **Pipeline PR gate** (`review-in-progress`, or just hopped from `implementation-completed`, including when **aidlc-init** Phase F already confirmed a PR URL or branch diff):
+   - **Construction close-out** (`implementation-in-progress`, construction mode): current `dev/IAM-*` (or implementation branch) vs `origin/main`. A PR is **not** required. Do not treat this as a task to implement. Do not hop `status`.
+   - **Pipeline PR gate** (`review-in-progress`, or hopped from `implementation-completed` when construction GACR was skipped):
      use the target init passed if present; otherwise the open PR, or the current `dev/IAM-*` branch vs `origin/main`. Do
      **not** treat this as a task to implement. Do not push or merge unless the user explicitly asks.
    - **Ad-hoc / ungoverned** (no epic, or the user named a target): an explicit task/story
@@ -98,9 +105,9 @@ Print: `[gacr] Step 0 — roster: developer(model=…), critics=[…]; target: �
 
 ## Step 1 — Generate / Revise (Developer sub-agent)
 
-**Pipeline PR gate, iteration 1:** skip this step. Critics review the existing PR/branch
+**Construction close-out or pipeline PR gate, iteration 1:** skip this step. Critics review the existing PR/branch
 diff in Step 2; the developer is dispatched only from iteration 2 onward, to revise against
-findings. Print: `[gacr] Iteration 1 — developer skipped (PR-gate: existing diff).`
+findings. Print: `[gacr] Iteration 1 — developer skipped (existing diff).`
 
 Otherwise, dispatch the **developer** as a Task sub-agent using its configured
 `subagent_type` and `model`. The prompt MUST contain, verbatim where possible:
@@ -159,7 +166,7 @@ iteration".
    - Each critic: verdict + findings table (grouped by severity).
    - Aggregate verdict and the count of open BLOCKER/MAJOR findings.
 2. Record the iteration to the audit trail:
-   - If running inside a tracked epic, append a row via **`aidlc-approve`** (`PHASE: review`,
+   - If running inside a tracked epic, append a row via **`aidlc-approve`** (`PHASE: implementation` in construction mode, else `review`,
      skill `aidlc-gacr`, action `Iteration {ITERATION}: {aggregate verdict}, {open blockers} open`).
      Approver stays `pending` until the user closes this iteration's gate.
    - Otherwise keep the audit inline in chat (ungoverned path — no epic to write to).
@@ -194,21 +201,23 @@ After Step 3, decide whether to iterate again:
 1. Summarize the whole run: iterations taken, final aggregate verdict, and any remaining
    MINOR/NIT items the user chose to accept.
 2. List all files touched across iterations and the final lint/test status.
-3. If inside a tracked epic, append a final `audit.md` row via **`aidlc-approve`**
-   (`PHASE: review`, action `GACR complete for {target}: approved after {ITERATION} iteration(s).`,
-   approver = the user). Do **not** advance `status` to `shipped` — that hop is "PR merged."
+3. If inside a tracked epic, append a final `audit.md` row via **`aidlc-approve`**:
+   - **Construction mode:** `PHASE: implementation`, action `Construction GACR approved.` (also include `GACR complete for {target}: approved after {ITERATION} iteration(s).` in the same action or a second row). **Do not** hop `status` to `review-in-progress`. **Do not** hop to `implementation-completed` — **aidlc-init** Phase E writes that hop. Tell the user construction GACR is approved; init may advance, then Phase F is PR-open only.
+   - **PR-gate / review-in-progress:** `PHASE: review`, action `GACR complete for {target}: approved after {ITERATION} iteration(s).`,
+   approver = the user. Do **not** advance `status` to `shipped` — that hop is "PR merged."
    Tell the user GACR is approved; merge the PR to reach `shipped`.
 4. Do **not** commit, push, or merge unless the user explicitly asks (repo git rules).
 
 Print:
-```
+```text
 [gacr] COMPLETE — {target}
 Iterations: {ITERATION}   Critics: {list}   Final verdict: APPROVED (by user)
 Files: {…}   Lint/tests: {…}
-Next: merge the PR to reach shipped. GACR does not write shipped.
+Next (construction): return to aidlc-tdd / aidlc-init Phase E — do not hop to review-in-progress.
+Next (PR-gate): merge the PR to reach shipped. GACR does not write shipped.
 ```
 
-When invoked by **aidlc-init** Phase F, return control after this print so init can run Step 5.
+When invoked by **aidlc-tdd** Step 5.8 / **aidlc-init** Phase E (construction), return control after this print so TDD/init can hop to `implementation-completed`. When invoked at `review-in-progress`, return so init can run Step 5.
 
 ---
 
@@ -236,15 +245,16 @@ When invoked by **aidlc-init** Phase F, return control after this print so init 
 
 | Skill | Relationship |
 |-------|-------------|
-| `state-loader` / `aidlc-init` | Supplies `EPIC_DIR` and epic status. **aidlc-init Phase F** chains this skill after the TDD story loop and a confirmed PR / `dev/IAM-*` vs `origin/main` target. This skill is still the `review-in-progress` primary and remains runnable standalone. |
-| `aidlc-tdd` | Upstream — implements stories. TDD does not invoke this skill. After all stories are `done` and Step 5.5 is recorded, init (or a standalone GACR run) is the PR gate. |
-| `aidlc-approve` | Used for every `audit.md` row this skill writes (the `implementation-completed → review-in-progress` hop, each iteration, and close-out). `PHASE: review`. |
+| `state-loader` / `aidlc-init` | Supplies `EPIC_DIR` and epic status. **aidlc-init Phase E** waits for construction GACR before `implementation-completed`. Phase F is PR-open only and does not re-run this skill if the construction complete row exists. |
+| `aidlc-tdd` | Upstream — implements stories. **Step 5.8 chains this skill** in construction mode. |
+| `aidlc-approve` | Used for every `audit.md` row this skill writes (each iteration and close-out). `PHASE: implementation` in construction mode; `review` otherwise. |
 | `aidlc-review-guidelines-from-prs` | Upstream — derives review/coding guidelines from merged-PR review comments into `guidelines/collective-feedback-guidelines.md` when missing. GACR Step 0 invokes it automatically; that skill auto-wires outputs into this skill's `references/` and `guidelines/` when the file is absent. |
 
 ## When NOT to use this skill
 
 - A single quick review with no revision loop — just review directly.
-- Epic is earlier than `implementation-completed` and the user did not explicitly ask for an ad-hoc review of a named diff — finish TDD first.
+- Epic is earlier than construction close-out (stories not all `done`, or Gates 2–3 missing) and the user did not explicitly ask for an ad-hoc review of a named diff — finish TDD Steps 5.5–5.7 first.
+- Construction GACR already approved and `status` is `implementation-completed` or `review-in-progress` — do not re-run; Phase F is PR-open only.
 - Epic is `shipped` — nothing left to review.
 - No code target and no task to implement — clarify first.
 - Repo is not a git repository — clarify the workspace.
