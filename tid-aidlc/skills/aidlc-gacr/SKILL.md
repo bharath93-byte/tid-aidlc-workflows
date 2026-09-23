@@ -2,8 +2,8 @@
 name: aidlc-gacr
 description: >-
   GACR (Guided Adversarial Code Review) — construction close-out at
-  implementation-in-progress (after all stories and Gates 2–3) and optional
-  PR-gate at review-in-progress. Runs a developer sub-agent and one or more
+  implementation-in-progress (after all stories and the construction example,
+  before manual test cases) and optional PR-gate at review-in-progress. Runs a developer sub-agent and one or more
   critic sub-agents in a back-and-forth loop, with a human audit/approval gate
   at every iteration. Critics review against the team's distilled guidelines
   (guidelines/collective-feedback-guidelines.md). Roster (critics + developer),
@@ -17,7 +17,7 @@ description: >-
 
 # aidlc-gacr — Guided Adversarial Code Review
 
-**Construction close-out** (default): chained by `aidlc-tdd` Step 5.8 / **aidlc-init** Phase E while still `implementation-in-progress`, after all stories are `done` and Gates 2–3 (construction example + manual TCs) are approved. Orchestrates a **generate → critique → audit →
+**Construction close-out** (default): chained by `aidlc-tdd` Step 5.8 / **aidlc-init** Phase E while still `implementation-in-progress`, after all stories are `done` and the construction illustrative example is approved, and before manual test cases. Orchestrates a **generate → critique → audit →
 revise** loop between two kinds of persona sub-agents:
 
 - **1 Developer** — produces and revises the code.
@@ -64,7 +64,7 @@ the epic's `state.json`, unless this is a genuinely epic-less ad hoc review (see
 ungoverned path below).
 
 1. **Epic-status gate (tracked work):**
-   - **Construction mode:** `implementation-in-progress`, every story in `stories` is `done`, and `audit.md` has both `Construction illustrative example with corner cases generated and approved.` and `Manual regression test cases generated and approved.` → proceed. Do **not** hop `status`. `PHASE` for this run's audit rows is `implementation`.
+   - **Construction mode:** `implementation-in-progress`, every story in `stories` is `done`, and `audit.md` has `Construction illustrative example with corner cases generated and approved.` Manual test cases are **not** a prerequisite. → proceed. Do **not** hop `status`. `PHASE` for this run's audit rows is `implementation`. After the user approves this run, `aidlc-tdd` Step 5.7 generates manual test cases.
    - `review-in-progress` → proceed (legacy / PR-gate home state). `PHASE: review`.
    - `implementation-completed` and a PR or `dev/IAM-*` branch-vs-`origin/main` diff exists →
      this meets the `implementation-completed → review-in-progress` trigger **only if construction GACR was never recorded**. Advance epic
@@ -246,14 +246,14 @@ When invoked by **aidlc-tdd** Step 5.8 / **aidlc-init** Phase E (construction), 
 | Skill | Relationship |
 |-------|-------------|
 | `state-loader` / `aidlc-init` | Supplies `EPIC_DIR` and epic status. **aidlc-init Phase E** waits for construction GACR before `implementation-completed`. Phase F is PR-open only and does not re-run this skill if the construction complete row exists. |
-| `aidlc-tdd` | Upstream — implements stories. **Step 5.8 chains this skill** in construction mode. |
+| `aidlc-tdd` | Upstream — implements stories via Dual-Agent TDD. **Step 5.8 chains this skill** in construction mode, before manual test cases. |
 | `aidlc-approve` | Used for every `audit.md` row this skill writes (each iteration and close-out). `PHASE: implementation` in construction mode; `review` otherwise. |
 | `aidlc-review-guidelines-from-prs` | Upstream — derives review/coding guidelines from merged-PR review comments into `guidelines/collective-feedback-guidelines.md` when missing. GACR Step 0 invokes it automatically; that skill auto-wires outputs into this skill's `references/` and `guidelines/` when the file is absent. |
 
 ## When NOT to use this skill
 
 - A single quick review with no revision loop — just review directly.
-- Epic is earlier than construction close-out (stories not all `done`, or Gates 2–3 missing) and the user did not explicitly ask for an ad-hoc review of a named diff — finish TDD Steps 5.5–5.7 first.
+- Epic is earlier than construction close-out (stories not all `done`, or the construction illustrative example is not approved) and the user did not explicitly ask for an ad-hoc review of a named diff — finish TDD Steps 5.5 and 5.6 first. Manual test cases run after this skill is approved.
 - Construction GACR already approved and `status` is `implementation-completed` or `review-in-progress` — do not re-run; Phase F is PR-open only.
 - Epic is `shipped` — nothing left to review.
 - No code target and no task to implement — clarify first.

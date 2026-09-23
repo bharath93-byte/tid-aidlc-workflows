@@ -52,9 +52,9 @@ aidlc-docs/
 │   │   ├── {unit-name}-nfr-requirements-plan.md            # NFR assessment plan with questions (per unit, if NFR Requirements executes)
 │   │   ├── {unit-name}-nfr-design-plan.md                  # NFR design patterns plan with questions (per unit, if NFR Design executes)
 │   │   ├── {unit-name}-infrastructure-design-plan.md       # Infrastructure mapping plan with questions (per unit, if Infrastructure Design executes)
-│   │   ├── {unit-name}-code-generation-plan.md             # Standard Code Generation plan (opt-in method)
-│   │   ├── {unit-name}-tdd-code-generation-plan.md         # TDD cycle plan (default Code Generation Method)
-│   │   └── {unit-name}-dual-agent-tdd-plan.md              # Dual-Agent TDD Orchestrator plan (when Code Generation Method is Dual-Agent TDD)
+│   │   ├── {unit-name}-code-generation-plan.md             # Legacy single-session plan (not the Construction path)
+│   │   ├── {unit-name}-tdd-code-generation-plan.md         # Legacy single-session TDD plan (not the Construction path)
+│   │   └── {unit-name}-dual-agent-tdd-plan.md              # Dual-Agent TDD Orchestrator plan (required Code Generation method)
 │   │
 │   ├── {unit-name}/                                        # Per-unit artifacts — one directory per unit of work
 │   │   ├── functional-design/                              # Created only if Functional Design executes for this unit
@@ -75,7 +75,7 @@ aidlc-docs/
 │   │   │   ├── infrastructure-design.md                    # Cloud service mappings and infrastructure components
 │   │   │   └── deployment-architecture.md                  # Deployment model, networking, scaling configuration
 │   │   │
-│   │   ├── dual-agent/                                     # Created only if Code Generation Method is Dual-Agent TDD
+│   │   ├── dual-agent/                                     # Required for every unit (Dual-Agent TDD)
 │   │   │   ├── public-contract.md                          # Public operations/events/DTOs when no OpenAPI/AsyncAPI exists
 │   │   │   ├── firewall-manifest.md                        # Tester allow/deny paths and write roots
 │   │   │   ├── tester-packet.md                            # Spec + contract + test constraints (no production source)

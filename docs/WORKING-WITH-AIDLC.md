@@ -464,15 +464,15 @@ Request Changes: [describe specifically what needs to change]
 > into the original file and delete the duplicate.
 > ```
 
-### Dual-Agent TDD (opt-in)
+### Dual-Agent TDD (required)
 
-Default Code Generation is single-session TDD (the same agent writes the failing test, then the implementation). **Dual-Agent TDD** is an explicit opt-in at Workflow Planning (or when proceeding to Construction): a Tester session writes the black-box suite from the spec and API contract only; a Builder session then implements until those tests pass and must not edit the tests.
+Code Generation always uses **Dual-Agent TDD**. A Tester session writes the black-box unit tests from the spec and API contract only. A Builder session then implements until those tests pass and must not edit the tests.
 
-Use it when you want unbiased tests (the test author never sees implementation). The Orchestrator dispatches Tester and Builder as Task sub-agents (same pattern as `aidlc-tdd`); you do not open extra chats or run tests. You only approve the plan and the finished unit.
+The Orchestrator dispatches Tester and Builder as Task sub-agents. You do not open extra chats or run tests. You approve the plan and the finished unit.
 
-**How to run it**
+**How it runs**
 
-1. When the execution plan is presented, explicitly request Dual-Agent TDD.
+1. Workflow Planning records Dual-Agent TDD as the code-generation method.
 2. Approve the Dual-Agent plan and packets under `aidlc-docs/construction/{unit-name}/dual-agent/`.
 3. After that approval, the Orchestrator dispatches the Tester Task, records RED, dispatches the Builder Task, and records GREEN — no paste step.
 4. Review `red-evidence.md`, `green-evidence.md`, and the code review, then Request Changes or Continue.

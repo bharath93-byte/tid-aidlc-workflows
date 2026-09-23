@@ -13,7 +13,7 @@ Platform AI Team
 - Unit requirements (EARS, stories)
 - Public contract (OpenAPI/AsyncAPI or orchestrator-written public-contract.md)
 - Test framework constraints
-- User opt-in to Dual-Agent TDD at Workflow Planning or Code Generation
+- Required Code Generation method (Tester writes unit tests, Builder writes production code)
 
 ## Outputs
 - `aidlc-docs/construction/plans/{unit-name}-dual-agent-tdd-plan.md`
@@ -22,16 +22,16 @@ Platform AI Team
 - Same Code Generation contract artifacts as the stage rule (`construction/dual-agent-tdd.md`)
 
 ## When to use it
-When unbiased black-box tests matter (the test author must not see implementation).
+Every Construction Code Generation unit. The Tester writes unit tests. The Builder writes production code.
 
 ## When NOT to use it
-Default single-session TDD; Standard code generation.
+Design-only work before Code Generation.
 
 ## Known Risks and Mitigations
 - **Risk:** Tester Task reads production source despite instructions (Task agents have workspace access).
   **Mitigation:** Allowlist in the Task prompt and firewall-manifest; files-touched audit; RED gate (tests must fail); reviewer flags Builder test edits and non-black-box tests.
 - **Risk:** Prompt isolation is weaker than a separate human chat.
-  **Mitigation:** Method remains opt-in; default TDD is unchanged; Orchestrator must not dump `src/` into the Tester prompt.
+  **Mitigation:** Orchestrator must not dump `src/` into the Tester prompt. RED gate and Code Reviewer still apply.
 
 ## References
 - `construction/dual-agent-tdd.md`

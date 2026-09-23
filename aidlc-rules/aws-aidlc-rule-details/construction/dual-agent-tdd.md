@@ -14,7 +14,7 @@ Work proceeds through two parts in the **Orchestrator** session (the original AI
 2. **GREEN (Builder)** — Smallest production change that makes that suite pass; do not edit Tester tests
 3. **Addendum (optional)** — Spec-level gaps only; Tester still firewalled
 
-**Opt-in only**: This rule runs only when the user explicitly requests Dual-Agent TDD while approving Workflow Planning / proceeding to Construction. The **default** is single-session TDD (`construction/tdd-code-generation.md`). When this file is used, log `Code Generation Method: Dual-Agent TDD` in `aidlc-docs/aidlc-state.md` and `aidlc-docs/audit.md`.
+**Required path**: This is the only Construction Code Generation rule (`core-workflow.md`). Tester writes the unit tests. Builder writes the production code. Log `Code Generation Method: Dual-Agent TDD` in `aidlc-docs/aidlc-state.md` and `aidlc-docs/audit.md`. Do not switch to `construction/tdd-code-generation.md` or `construction/code-generation.md`.
 
 **Note**: For brownfield projects, "generate" means modify existing files when appropriate, not create duplicates. Prefer extending existing test suites over creating parallel `*_new` test files.
 

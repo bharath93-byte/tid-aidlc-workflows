@@ -3,8 +3,8 @@ name: dual-agent-tdd
 description: >-
   Dual-Agent TDD for Code Generation: Orchestrator prepares firewalled packets
   then dispatches Tester (RED) and Builder (GREEN) as generalPurpose Task
-  sub-agents. Tester sees spec and API contract only. Use when the user
-  requests Dual-Agent TDD, Builder vs Tester, or a test author firewall.
+  sub-agents. Tester sees spec and API contract only. Required for every
+  Construction Code Generation unit.
 disable-model-invocation: true
 category: sdlc-construction
 sdlc_phase: construction
@@ -23,7 +23,7 @@ skill_card: ./SKILL_CARD.md
 
 # Dual-Agent TDD
 
-> **Trigger**: "Dual-Agent TDD", "Builder vs Tester", "firewalled tests", or Code Generation Step 0 when this skill is selected
+> **Trigger**: Construction Code Generation (required). Also "Dual-Agent TDD", "Builder vs Tester", or "firewalled tests".
 >
 > **Purpose**: HOW to dispatch Tester and Builder Tasks. WHAT (artifacts, gates, firewall) is defined by `construction/dual-agent-tdd.md` and `common/dual-agent-separation.md`. After this skill, run `common/skill-artifact-adapter.md`.
 
@@ -74,5 +74,5 @@ Batching the Tester suite for one unit is allowed only because the Tester is fir
 
 ## When NOT to use this skill
 
-- User did not opt into Dual-Agent TDD — use `construction/tdd-code-generation.md` (default) or `aidlc-tdd`
-- User wants Standard code-then-tests — `construction/code-generation.md`
+- Design-only work before Code Generation — finish design, then return here
+- `aidlc-tdd` Step 3 already chains this skill; do not replace it with a single agent that writes both tests and production code

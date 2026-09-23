@@ -2,7 +2,7 @@
 
 **Purpose**: Single source of truth for Dual-Agent TDD. The stage rule (`construction/dual-agent-tdd.md`) and any Dual-Agent skill must follow this contract — do not duplicate or weaken it.
 
-**Parent**: Code Generation Method **Dual-Agent TDD** (opt-in). Default Construction remains single-session TDD (`construction/tdd-code-generation.md`).
+**Parent**: Code Generation Method **Dual-Agent TDD** (required). Construction Code Generation always uses this contract.
 
 ## Roles
 
@@ -45,7 +45,7 @@ Dual-Agent TDD is still TDD:
 2. **GREEN (Builder)** — Implement the smallest production change that makes that suite (and the existing suite) pass. Do not rewrite tests to match the code.
 3. **Addendum (optional)** — If spec-level gaps remain after GREEN, dispatch Tester again (still firewalled) → Orchestrator confirms RED → dispatch Builder again.
 
-Batching the Tester suite for one unit is allowed **only** because the test author is firewalled from implementation. That exception does **not** apply to single-session TDD (`construction/tdd-code-generation.md` or `aidlc-tdd`), where horizontal slicing remains an anti-pattern.
+Batching the Tester suite for one unit is allowed **only** because the test author is firewalled from implementation. The Orchestrator, Builder, and any later auditor must not use that exception to write both the tests and the production code.
 
 ## Tester allowlist (may read only)
 
@@ -159,6 +159,6 @@ If GREEN leaves spec-level gaps (uncovered EARS IDs, missing error paths in the 
 | Path                         | Batch all tests for a unit before implementation?          |
 | ---------------------------- | ---------------------------------------------------------- |
 | Dual-Agent TDD (this file)   | Yes — Tester is firewalled from implementation             |
-| Single-session TDD           | No — one behavior Red → Green at a time                    |
+| Same agent writes both       | No — Construction Code Generation uses Dual-Agent TDD      |
 
 Do not cite this exception to skip RED confirmation or to let the Orchestrator write both tests and production code.

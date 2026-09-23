@@ -294,16 +294,15 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
   - NFR Requirements (CONDITIONAL, per-unit)
   - NFR Design (CONDITIONAL, per-unit)
   - Infrastructure Design (CONDITIONAL, per-unit)
-  - Code Generation (ALWAYS, per-unit) — **default: TDD** (`construction/tdd-code-generation.md`)
+  - Code Generation (ALWAYS, per-unit) — **Dual-Agent TDD** (`construction/dual-agent-tdd.md`)
 - Build and Test (ALWAYS - after all units complete)
 
 **Note**: Each unit is completed fully (design + code) before moving to the next unit.
 
-**Code Generation Method** (selected before Construction code generation runs):
-- **Default**: TDD Code Generation — load `construction/tdd-code-generation.md`
-- **Standard (opt-in)**: Normal Code Generation — load `construction/code-generation.md` only when the user explicitly requests it while approving the Workflow Planning / proceeding to Construction
-- **Dual-Agent TDD (opt-in)**: Tester/Builder firewall — load `construction/dual-agent-tdd.md` only when the user explicitly requests Dual-Agent TDD while approving the Workflow Planning / proceeding to Construction
-- **MANDATORY**: Log the selected generation method in `aidlc-docs/aidlc-state.md` and `aidlc-docs/audit.md` (see Code Generation stage)
+**Code Generation Method** (mandatory for every unit):
+- **Required**: Dual-Agent TDD — load `construction/dual-agent-tdd.md`. A Tester Task writes the unit tests (RED). A Builder Task writes the production code (GREEN) and must not edit those tests.
+- `construction/tdd-code-generation.md` and `construction/code-generation.md` are not the Construction code-generation path.
+- **MANDATORY**: Log the generation method in `aidlc-docs/aidlc-state.md` and `aidlc-docs/audit.md` (see Code Generation stage)
 
 ---
 
@@ -392,38 +391,31 @@ This gate does not replace or skip the stage's existing approval gates (e.g. "Re
 
 **Always executes for each unit**
 
-**Default generation method: TDD** (`construction/tdd-code-generation.md`).  
-**Standard** Code Generation (`construction/code-generation.md`) runs only when the user explicitly opts in while approving Workflow Planning / proceeding to Construction.  
-**Dual-Agent TDD** (`construction/dual-agent-tdd.md`) runs only when the user explicitly requests Dual-Agent TDD while approving Workflow Planning / proceeding to Construction. If the user does not specify Standard or Dual-Agent TDD, use TDD.
+**Required generation method: Dual-Agent TDD** (`construction/dual-agent-tdd.md`). Tester writes the unit tests. Builder writes the production code. Do not load `construction/tdd-code-generation.md` or `construction/code-generation.md` for this stage.
 
 **Code Generation has two parts within one stage**:
-1. **Part 1 - Planning**: Create detailed code generation plan with explicit steps (TDD cycles by default; Dual-Agent packets when Dual-Agent TDD is selected)
-2. **Part 2 - Generation**: Execute approved plan to generate code, tests, and artifacts (Tester then Builder Task sub-agents when Dual-Agent TDD is selected)
+1. **Part 1 - Planning**: Create the Dual-Agent plan, public contract (if needed), packets, and firewall manifest
+2. **Part 2 - Generation**: Dispatch the Tester Task (unit tests, RED), then the Builder Task (production code, GREEN)
 
 **Execution**:
 1. **MANDATORY**: Log any user input during this stage in audit.md
-2. **Resolve generation method** (before loading rule details):
-   - Read `Code Generation Method` from `aidlc-docs/aidlc-state.md` if already set during Workflow Planning
-   - If unset: default to **TDD**; use **Standard** only if the user has explicitly requested normal/standard code generation; use **Dual-Agent TDD** only if the user has explicitly requested Dual-Agent TDD
+2. **Record the generation method** (before loading rule details):
    - **MANDATORY — Log generation method** in `aidlc-docs/aidlc-state.md`:
 
 ```markdown
 ## Code Generation Method
-- **Method**: TDD | Standard | Dual-Agent TDD
-- **Rule file**: construction/tdd-code-generation.md | construction/code-generation.md | construction/dual-agent-tdd.md
+- **Method**: Dual-Agent TDD
+- **Rule file**: construction/dual-agent-tdd.md
 - **Selected at**: [ISO timestamp]
-- **Selected by**: default | explicit user request
-- **User request (raw, if any)**: "[complete raw user text or N/A]"
+- **Selected by**: required
+- **User request (raw, if any)**: "N/A"
 ```
 
-   - **MANDATORY — Log generation method** in `aidlc-docs/audit.md` with ISO 8601 IST timestamp, method, rule file, and whether it was default or explicit user request (include complete raw user input when they requested Standard or Dual-Agent TDD)
-3. Load all steps from the selected rule file:
-   - **TDD (default)**: `construction/tdd-code-generation.md`
-   - **Standard (opt-in)**: `construction/code-generation.md`
-   - **Dual-Agent TDD (opt-in)**: `construction/dual-agent-tdd.md`
-4. **PART 1 - Planning**: Create code generation plan with checkboxes, get user approval; read the unit's EARS Coverage from `unit-of-work.md`
+   - **MANDATORY — Log generation method** in `aidlc-docs/audit.md` with ISO 8601 IST timestamp, method Dual-Agent TDD, and rule file `construction/dual-agent-tdd.md`
+3. Load all steps from `construction/dual-agent-tdd.md`
+4. **PART 1 - Planning**: Create the Dual-Agent code generation plan with checkboxes, get user approval; read the unit's EARS Coverage from `unit-of-work.md`
 5. **PART 2 - Generation**: Execute approved plan to generate code for this unit; **MANDATORY**: annotate code and tests with `@spec {EARS-ID}` comments (see `common/ears-syntax.md`), and flip each EARS ID's status marker from `[ ]` to `[x]` in `aidlc-docs/inception/requirements/ears/` only once its `@spec`-annotated tests are green
-6. **MANDATORY**: Present standardized 2-option completion message as defined in the selected rule file - DO NOT use emergent behavior
+6. **MANDATORY**: Present standardized 2-option completion message as defined in `construction/dual-agent-tdd.md` - DO NOT use emergent behavior
 7. **Wait for Explicit Approval**: User must choose between "Request Changes" or "Continue to Next Stage" - DO NOT PROCEED until user confirms
 8. **MANDATORY**: Log user's response in audit.md with complete raw input
 

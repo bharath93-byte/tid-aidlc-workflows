@@ -5,13 +5,14 @@ description: >-
   Tester (RED) and Builder (GREEN) as generalPurpose Task sub-agents so tests
   are written without implementation in the Tester prompt. Use when the user
   says Dual-Agent TDD, Builder vs Tester, or wants a test-author firewall.
+  Required code-generation path: aidlc-tdd Step 3 chains this skill.
 ---
 
 # AIDLC Dual-Agent TDD
 
 **Announce at start:** "Running **aidlc-dual-agent-tdd** for `{unit or story}`."
 
-This skill is the Cursor HOW layer for Dual-Agent TDD. Load and follow:
+This skill is the required Cursor HOW layer for Construction code generation. Tester writes the unit tests. Builder writes the production code. `aidlc-tdd` Step 3 chains this skill. Load and follow:
 
 1. `common/dual-agent-separation.md` (under the resolved `aws-aidlc-rule-details/` directory)
 2. `construction/dual-agent-tdd.md` for stage gates and contract artifacts
@@ -50,9 +51,9 @@ Discover build/test/lint commands the same way as `aidlc-tdd` (README → packag
 
 ## Horizontal slicing exception
 
-Batch RED for the unit is allowed **only** because the Tester is firewalled. `aidlc-tdd` still forbids the same agent writing all tests then all implementation.
+Batch RED for the unit is allowed **only** because the Tester is firewalled. The same agent must not write the unit tests and the production code.
 
 ## When NOT to use this skill
 
-- User wants default seam-by-seam TDD in one story loop — use `aidlc-tdd`
-- User wants Standard code-then-tests — AI-DLC `construction/code-generation.md`
+- Design-only work — finish design, then `aidlc-tdd` Step 3 chains this skill
+- A single agent that writes both tests and production code — that path is not used

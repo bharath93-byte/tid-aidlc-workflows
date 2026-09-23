@@ -197,7 +197,7 @@ Units Generation, reframed: it assigns every non-deferred EARS ID to exactly one
 The traceability chain `HLD → LLD → EARS → Story Breakdown → Tests → Code`. When any level changes, downstream levels must be reviewed and updated — mutation in place, not accumulation.
 
 ### Dual-Agent TDD
-Opt-in Code Generation method (`construction/dual-agent-tdd.md`): a Tester Task writes black-box tests from spec and API contract only (RED); a Builder Task implements until green without editing those tests (GREEN). The Orchestrator dispatches both as `generalPurpose` Task sub-agents. Firewall contract: `common/dual-agent-separation.md`. Default Construction remains single-session TDD.
+Required Code Generation method (`construction/dual-agent-tdd.md`): a Tester Task writes black-box unit tests from spec and API contract only (RED); a Builder Task implements until green without editing those tests (GREEN). The Orchestrator dispatches both as `generalPurpose` Task sub-agents. Firewall contract: `common/dual-agent-separation.md`.
 
 ### @spec Annotation
 A code/test comment (`// @spec {EARS-ID}, {EARS-ID}`) linking implementation and tests back to the EARS requirement(s) they satisfy. Mandatory in `construction/code-generation.md`, `construction/tdd-code-generation.md`, and `construction/dual-agent-tdd.md`.
@@ -212,4 +212,4 @@ A code/test comment (`// @spec {EARS-ID}, {EARS-ID}`) linking implementation and
 - **EARS**: Easy Approach to Requirements Syntax
 - **HLD**: High-Level Design
 - **LLD**: Low-Level Design
-- **Dual-Agent TDD**: Opt-in Code Generation with firewalled Tester (RED) and Builder (GREEN) Task sub-agents
+- **Dual-Agent TDD**: Required Code Generation with firewalled Tester (RED, unit tests) and Builder (GREEN, production code) Task sub-agents

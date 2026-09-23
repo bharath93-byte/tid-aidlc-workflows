@@ -5,7 +5,7 @@ This stage generates code for each unit of work through two integrated parts:
 - **Part 1 - Planning**: Create detailed code generation plan with explicit steps
 - **Part 2 - Generation**: Execute approved plan to generate code, tests, and artifacts
 
-**Opt-in only**: This is **standard/normal Code Generation**. It runs only when the user explicitly requests it while approving Workflow Planning / proceeding to Construction. The **default** is TDD Code Generation (`construction/tdd-code-generation.md`). Dual-Agent TDD is a separate opt-in (`construction/dual-agent-tdd.md`). When this file is used, ensure `Code Generation Method: Standard` is logged in `aidlc-docs/aidlc-state.md` and `aidlc-docs/audit.md`.
+**Not the Construction path**: Code Generation must load `construction/dual-agent-tdd.md` (Tester writes unit tests, Builder writes production code). This file is retained as a reference for single-session code-and-test generation and is not selected during Workflow Planning or Code Generation.
 
 **Note**: For brownfield projects, "generate" means modify existing files when appropriate, not create duplicates.
 
